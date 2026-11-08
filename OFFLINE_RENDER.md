@@ -89,10 +89,13 @@ In the **Module Outputs to Disk (Individual Stems)** panel:
   - `Master Only`: Re-enables Master Mix and clears all module stems.
 - **Dynamic Output Preview**: Displays the exact number of files and filenames to be generated before rendering starts.
 
-### Stem File Naming Convention
-Stems are written to the same directory as the master output file using structured suffixes:
-- Master Mix: `{basename}.{ext}` (e.g., `composition.wav`)
-- Module Stems: `{basename}_{idx:02d}_{ModuleName}.{ext}` (e.g., `composition_01_StochGrains.wav`, `composition_02_Harmonizer.wav`)
+### File Naming Convention
+Offline bounce files embed the target module name directly into their filename:
+- **Master Mix**: `{basename}_Master.{ext}` (e.g., `Final_Master.wav`)
+- **Module Stems**: `{basename}_{ModuleName}.{ext}` (e.g., `Final_Delay.wav`, `Final_StochGrains.wav`)
+- **Duplicate Module Disambiguation**: When multiple instances of the same module appear in a chain (e.g. two Delays), instance counters avoid filename collisions: `{basename}_{ModuleName}_{idx}.{ext}` (e.g., `Final_Delay_1.wav`, `Final_Delay_2.wav`).
+
+If the user explicitly inputs an output path ending with `_Master` (such as `Final_Master.wav`), the base root is automatically recognized as `Final`, avoiding redundant suffixes like `Final_Master_Master.wav` and ensuring module stems are cleanly saved as `Final_Delay.wav`.
 
 ### Stems-Only Rendering
 If you uncheck **Master Mix**, the engine skips rendering the final mix file and produces only the selected module stems. The **`Play Last Render`** button will automatically audition the first rendered stem.

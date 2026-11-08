@@ -343,6 +343,88 @@ class OfflinePersistenceTests(unittest.TestCase):
         self.assertFalse(dlg.chk_export_stems.GetValue())
         self.assertTrue(dlg.chk_master_output.GetValue())
 
+    def test_offline_naming_scheme(self):
+        """Test the Final_Master.wav and Final_Delay.wav naming convention for master and stems."""
+        from Resources.OfflineRenderDialog import OfflineRenderDialog
+        import types
+
+        # 1. Test _split_base_and_root helper
+        class DummyDialog:
+            _split_base_and_root = OfflineRenderDialog._split_base_and_root
+            _get_selected_module_stems = OfflineRenderDialog._get_selected_module_stems
+            _get_master_output_path = OfflineRenderDialog._get_master_output_path
+
+        dlg_helper = DummyDialog()
+
+        d, root, master_p, ext = dlg_helper._split_base_and_root("/test/path/Final.wav", "wav")
+        self.assertEqual(root, "Final")
+        self.assertEqual(os.path.basename(master_p), "Final_Master.wav")
+        self.assertEqual(ext, "wav")
+
+        d, root, master_p, ext = dlg_helper._split_base_and_root("/test/path/Final_Master.wav", "wav")
+        self.assertEqual(root, "Final")
+        self.assertEqual(os.path.basename(master_p), "Final_Master.wav")
+        self.assertEqual(ext, "wav")
+
+        d, root, master_p, ext = dlg_helper._split_base_and_root("/test/path/Final_master.aif", "aif")
+        self.assertEqual(root, "Final")
+        self.assertEqual(os.path.basename(master_p), "Final_Master.aif")
+        self.assertEqual(ext, "aif")
+
+        d, root, master_p, ext = dlg_helper._split_base_and_root("/test/path/Final", "flac")
+        self.assertEqual(root, "Final")
+        self.assertEqual(os.path.basename(master_p), "Final_Master.flac")
+        self.assertEqual(ext, "flac")
+
+        # 2. Test _get_selected_module_stems with mock modules
+        class MockCheckList:
+            def __init__(self, checked_mask):
+                self._mask = checked_mask
+            def GetCount(self): return len(self._mask)
+            def IsChecked(self, i): return self._mask[i]
+
+        class MockSession:
+            def __init__(self, modules):
+                self.modules = modules
+            def get_module(self, mid):
+                return next((m for m in self.modules if m.id == mid), None)
+
+        mod1 = types.SimpleNamespace(id="m1", path="/path/Delay.c5", name="Delay")
+        mod2 = types.SimpleNamespace(id="m2", path="/path/Filter.c5", name="Filter")
+        orig_session = getattr(CeciliaLib, "session", None)
+        CeciliaLib.session = MockSession([mod1, mod2])
+
+        try:
+            class DummyDialog:
+                _split_base_and_root = OfflineRenderDialog._split_base_and_root
+                _get_selected_module_stems = OfflineRenderDialog._get_selected_module_stems
+                _get_master_output_path = OfflineRenderDialog._get_master_output_path
+                _module_checklist_ids = ["m1", "m2"]
+                module_checklist = MockCheckList([True, True])
+
+            dlg = DummyDialog()
+
+            # Pass 'Final.wav'
+            stems = dlg._get_selected_module_stems("/music/Final.wav", "wav")
+            self.assertEqual(os.path.basename(stems["m1"]), "Final_Delay.wav")
+            self.assertEqual(os.path.basename(stems["m2"]), "Final_Filter.wav")
+
+            # Pass 'Final_Master.wav' - stems must still be Final_Delay.wav (not Final_Master_Delay.wav)
+            stems_m = dlg._get_selected_module_stems("/music/Final_Master.wav", "wav")
+            self.assertEqual(os.path.basename(stems_m["m1"]), "Final_Delay.wav")
+            self.assertEqual(os.path.basename(stems_m["m2"]), "Final_Filter.wav")
+
+            # Test duplicate module names disambiguation
+            mod3 = types.SimpleNamespace(id="m3", path="/path/Delay.c5", name="Delay")
+            CeciliaLib.session = MockSession([mod1, mod3])
+            dlg._module_checklist_ids = ["m1", "m3"]
+            dup_stems = dlg._get_selected_module_stems("/music/Final.wav", "wav")
+            self.assertEqual(os.path.basename(dup_stems["m1"]), "Final_Delay_1.wav")
+            self.assertEqual(os.path.basename(dup_stems["m3"]), "Final_Delay_2.wav")
+
+        finally:
+            CeciliaLib.session = orig_session
+
 
 if __name__ == "__main__":
     unittest.main()

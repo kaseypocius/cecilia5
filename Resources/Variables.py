@@ -144,6 +144,13 @@ CeciliaVar['offlineChunkMinDur'] = 8.0
 CeciliaVar['offlinePreroll'] = 0.5
 CeciliaVar['offlineCrossfade'] = 0.1
 CeciliaVar['offlineCrossfadeShape'] = 'cosine'
+CeciliaVar['offlineSr'] = 44100
+CeciliaVar['offlineNchnls'] = 2
+CeciliaVar['offlineBufferSize'] = '512'
+CeciliaVar['offlineAudioFileType'] = 'wav'
+CeciliaVar['offlineSampSize'] = 0
+CeciliaVar['offlineExportStems'] = 0
+CeciliaVar['offlineMasterOutput'] = 1
 CeciliaVar['midiPort'] = 'portmidi'
 CeciliaVar['midiDeviceIn'] = 0
 CeciliaVar['defaultFirstInput'] = 0
@@ -278,7 +285,8 @@ def readCeciliaPrefsFromFile():
         #### Some special cases ####
         convertToInt = ['sr', 'defaultNchnls', 'audioOutput', 'audioInput', 'sampSize', 'automaticMidiBinding',
                         'midiDeviceIn', 'useTooltips', 'enableAudioInput', 'graphTexture', 'showSpectrum', 'useSoundDur',
-                        'defaultFirstInput', 'defaultFirstOutput', 'offlineThreads']
+                        'defaultFirstInput', 'defaultFirstOutput', 'offlineThreads',
+                        'offlineSr', 'offlineNchnls', 'offlineSampSize', 'offlineExportStems', 'offlineMasterOutput']
         convertToFloat = ['defaultTotalTime', 'globalFade', 'DEBUG',
                           'offlineChunkMinDur', 'offlinePreroll', 'offlineCrossfade']
         convertToTuple = ['interfaceSize', 'interfacePosition']
@@ -324,6 +332,22 @@ def readCeciliaPrefsFromFile():
 
         CeciliaVar["nchnls"] = CeciliaVar["defaultNchnls"]
 
+        # Fallback defaults for offline render settings if loading an older preferences file
+        if "offlineSr" not in CeciliaVar:
+            CeciliaVar["offlineSr"] = int(CeciliaVar.get("sr") or 44100)
+        if "offlineNchnls" not in CeciliaVar:
+            CeciliaVar["offlineNchnls"] = int(CeciliaVar.get("defaultNchnls") or 2)
+        if "offlineBufferSize" not in CeciliaVar:
+            CeciliaVar["offlineBufferSize"] = str(CeciliaVar.get("bufferSize") or "512")
+        if "offlineAudioFileType" not in CeciliaVar:
+            CeciliaVar["offlineAudioFileType"] = str(CeciliaVar.get("audioFileType") or "wav")
+        if "offlineSampSize" not in CeciliaVar:
+            CeciliaVar["offlineSampSize"] = int(CeciliaVar.get("sampSize") or 0)
+        if "offlineMasterOutput" not in CeciliaVar:
+            CeciliaVar["offlineMasterOutput"] = 1
+        if "offlineExportStems" not in CeciliaVar:
+            CeciliaVar["offlineExportStems"] = 0
+
     else:
         print('Preferences file not found. Using defaults...\n')
 
@@ -336,7 +360,9 @@ def writeCeciliaPrefsToFile():
                   'defaultTotalTime', 'lastAudioFiles', 'automaticMidiBinding', 'showSpectrum', 'useSoundDur',
                   'defaultFirstInput', 'defaultFirstOutput', 'lastCeciliaFile',
                   'offlineThreads', 'offlineAccelMode', 'offlineChunkMinDur',
-                  'offlinePreroll', 'offlineCrossfade', 'offlineCrossfadeShape']
+                  'offlinePreroll', 'offlineCrossfade', 'offlineCrossfadeShape',
+                  'offlineSr', 'offlineNchnls', 'offlineBufferSize', 'offlineAudioFileType',
+                  'offlineSampSize', 'offlineExportStems', 'offlineMasterOutput']
 
     print('Writing Cecilia preferences...')
 

@@ -405,8 +405,9 @@ class PreferenceFrame(wx.Frame):
         textFileFormat = wx.StaticText(fileExportPanel, 0, 'File Format :')
         textFileFormat.SetForegroundColour(PREFS_FOREGROUND)
         textFileFormat.SetFont(self.font)
+        init_fmt = CeciliaLib.getVar("offlineAudioFileType") or CeciliaLib.getVar("audioFileType")
         self.choiceFileFormat = CustomMenu(fileExportPanel, choice=sorted(AUDIO_FILE_FORMATS.keys()),
-                                           init=CeciliaLib.getVar("audioFileType"), 
+                                           init=init_fmt, 
                                            size=(150, 20), outFunction=self.changeFileType)
 
         # Bit depth
@@ -415,23 +416,52 @@ class PreferenceFrame(wx.Frame):
         textBD.SetFont(self.font)
         self.choiceBD = CustomMenu(fileExportPanel, choice=sorted(BIT_DEPTHS.keys()), 
                                    size=(150, 20), outFunction=self.changeSampSize)
+        cur_bd = CeciliaLib.getVar("offlineSampSize") if CeciliaLib.getVar("offlineSampSize") is not None else CeciliaLib.getVar("sampSize")
         for item in BIT_DEPTHS.items():
-            if item[1] == CeciliaLib.getVar("sampSize"):
+            if item[1] == cur_bd:
                 self.choiceBD.setStringSelection(item[0])
 
-        formatbox = wx.BoxSizer(wx.HORIZONTAL)
-        formatbox.Add(textFileFormat, 0, wx.LEFT | wx.ALIGN_CENTER_VERTICAL, 5)
-        formatbox.AddStretchSpacer(1)
-        formatbox.Add(self.choiceFileFormat, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, PADDING)
+        # Offline Sample Rate
+        textSR = wx.StaticText(fileExportPanel, 0, 'Offline SR :')
+        textSR.SetForegroundColour(PREFS_FOREGROUND)
+        textSR.SetFont(self.font)
+        cur_sr = str(CeciliaLib.getVar("offlineSr") or CeciliaLib.getVar("sr") or 44100)
+        self.choiceOfflineSR = CustomMenu(fileExportPanel, choice=SAMPLE_RATES,
+                                          init=cur_sr if cur_sr in SAMPLE_RATES else "44100",
+                                          size=(150, 20), outFunction=self.changeOfflineSr)
 
-        depthbox = wx.BoxSizer(wx.HORIZONTAL)
-        depthbox.Add(textBD, 0, wx.LEFT | wx.ALIGN_CENTER_VERTICAL, 5)
-        depthbox.AddStretchSpacer(1)
-        depthbox.Add(self.choiceBD, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, PADDING)
+        # Offline Channels
+        textNchnls = wx.StaticText(fileExportPanel, 0, 'Offline Channels :')
+        textNchnls.SetForegroundColour(PREFS_FOREGROUND)
+        textNchnls.SetFont(self.font)
+        nchnls_choices = [str(x) for x in range(1, 37)]
+        cur_nchnls = str(CeciliaLib.getVar("offlineNchnls") or CeciliaLib.getVar("nchnls") or 2)
+        self.choiceOfflineNchnls = CustomMenu(fileExportPanel, choice=nchnls_choices,
+                                              init=cur_nchnls if cur_nchnls in nchnls_choices else "2",
+                                              size=(150, 20), outFunction=self.changeOfflineNchnls)
+
+        # Offline Buffer Size
+        textBuf = wx.StaticText(fileExportPanel, 0, 'Offline Buffer :')
+        textBuf.SetForegroundColour(PREFS_FOREGROUND)
+        textBuf.SetFont(self.font)
+        cur_buf = str(CeciliaLib.getVar("offlineBufferSize") or CeciliaLib.getVar("bufferSize") or "512")
+        self.choiceOfflineBuf = CustomMenu(fileExportPanel, choice=BUFFER_SIZES,
+                                           init=cur_buf if cur_buf in BUFFER_SIZES else "512",
+                                           size=(150, 20), outFunction=self.changeOfflineBufferSize)
 
         box.Add(Separator(fileExportPanel, size=(350, 1), colour=BACKGROUND_COLOUR))
-        box.Add(formatbox, 0, wx.EXPAND | wx.BOTTOM, 7)
-        box.Add(depthbox, 0, wx.EXPAND | wx.BOTTOM, 7)
+        for lbl_widget, menu_widget in (
+            (textFileFormat, self.choiceFileFormat),
+            (textBD, self.choiceBD),
+            (textSR, self.choiceOfflineSR),
+            (textNchnls, self.choiceOfflineNchnls),
+            (textBuf, self.choiceOfflineBuf),
+        ):
+            row = wx.BoxSizer(wx.HORIZONTAL)
+            row.Add(lbl_widget, 0, wx.LEFT | wx.ALIGN_CENTER_VERTICAL, 5)
+            row.AddStretchSpacer(1)
+            row.Add(menu_widget, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, PADDING)
+            box.Add(row, 0, wx.EXPAND | wx.BOTTOM, 7)
 
         box.Add(Separator(fileExportPanel, size=(350, 2), colour=BORDER_COLOUR), 0, wx.EXPAND | wx.TOP | wx.BOTTOM, 6)
 
@@ -653,6 +683,7 @@ class PreferenceFrame(wx.Frame):
 
     def changeFileType(self, index, label):
         CeciliaLib.setVar("audioFileType", label)
+        CeciliaLib.setVar("offlineAudioFileType", label)
 
     def changeSr(self, index, label):
         sr = int(label.strip())
@@ -660,6 +691,16 @@ class PreferenceFrame(wx.Frame):
 
     def changeSampSize(self, index, label):
         CeciliaLib.setVar("sampSize", BIT_DEPTHS[label])
+        CeciliaLib.setVar("offlineSampSize", BIT_DEPTHS[label])
+
+    def changeOfflineSr(self, index, label):
+        CeciliaLib.setVar("offlineSr", int(label.strip()))
+
+    def changeOfflineNchnls(self, index, label):
+        CeciliaLib.setVar("offlineNchnls", int(label.strip()))
+
+    def changeOfflineBufferSize(self, index, label):
+        CeciliaLib.setVar("offlineBufferSize", label.strip())
 
     def changeOfflineThreads(self, index, label):
         CeciliaLib.setVar("offlineThreads", int(label.strip()))

@@ -395,7 +395,9 @@ class OfflineRenderDialog(wx.Frame):
         row2.Add(btn_use_snd_dur, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 14)
 
         self.chk_export_stems = wx.CheckBox(p, label="Also export branch stems (disjoint parallel outputs)")
+        self.chk_export_stems.SetValue(bool(CeciliaLib.getVar("offlineExportStems") or False))
         self.chk_export_stems.SetForegroundColour(TEXT_LABELFORWIDGET_COLOUR)
+        self.chk_export_stems.Bind(wx.EVT_CHECKBOX, self._on_export_stems_toggled)
         row2.Add(self.chk_export_stems, 0, wx.ALIGN_CENTER_VERTICAL)
         sz.Add(row2, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 6)
 
@@ -410,7 +412,8 @@ class OfflineRenderDialog(wx.Frame):
 
         top_stems = wx.BoxSizer(wx.HORIZONTAL)
         self.chk_master_output = wx.CheckBox(stems_box, label="Master Mix (Final Chain Output + Master Plugins)")
-        self.chk_master_output.SetValue(True)
+        cur_master = bool(CeciliaLib.getVar("offlineMasterOutput")) if CeciliaLib.getVar("offlineMasterOutput") is not None else True
+        self.chk_master_output.SetValue(cur_master)
         self.chk_master_output.SetForegroundColour(TEXT_LABELFORWIDGET_COLOUR)
         self.chk_master_output.Bind(wx.EVT_CHECKBOX, self._on_master_output_toggled)
         top_stems.Add(self.chk_master_output, 1, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 8)
@@ -604,24 +607,29 @@ class OfflineRenderDialog(wx.Frame):
         # Row 2: Time-chunk preroll & crossfade
         r2 = wx.BoxSizer(wx.HORIZONTAL)
         r2.Add(self._lbl(p, "Chunk Preroll (s):"), 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 4)
+        cur_preroll = float(CeciliaLib.getVar("offlinePreroll") if CeciliaLib.getVar("offlinePreroll") is not None else 0.5)
         self.spin_preroll = wx.SpinCtrlDouble(
-            p, min=0.0, max=10.0, initial=float(CeciliaLib.getVar("offlinePreroll") or 0.5), inc=0.1, size=(80, -1)
+            p, min=0.0, max=10.0, initial=cur_preroll, inc=0.1, size=(80, -1)
         )
         self.spin_preroll.SetDigits(2)
+        self.spin_preroll.Bind(wx.EVT_SPINCTRLDOUBLE, self._on_preroll_changed)
         r2.Add(self.spin_preroll, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 12)
 
         r2.Add(self._lbl(p, "Crossfade (s):"), 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 4)
+        cur_xfade = float(CeciliaLib.getVar("offlineCrossfade") if CeciliaLib.getVar("offlineCrossfade") is not None else 0.1)
         self.spin_xfade = wx.SpinCtrlDouble(
-            p, min=0.01, max=2.0, initial=float(CeciliaLib.getVar("offlineCrossfade") or 0.1), inc=0.02, size=(80, -1)
+            p, min=0.01, max=2.0, initial=cur_xfade, inc=0.02, size=(80, -1)
         )
         self.spin_xfade.SetDigits(2)
+        self.spin_xfade.Bind(wx.EVT_SPINCTRLDOUBLE, self._on_xfade_changed)
         r2.Add(self.spin_xfade, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 12)
 
         r2.Add(self._lbl(p, "Crossfade Curve:"), 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 4)
         self.choice_xfade_shape = wx.Choice(p, choices=[lbl for lbl, _ in XFADE_LABELS])
-        cur_xshape = CeciliaLib.getVar("offlineCrossfadeShape") or "cosine"
+        cur_xshape = str(CeciliaLib.getVar("offlineCrossfadeShape") or "cosine")
         xshape_idx = next((i for i, (_, k) in enumerate(XFADE_LABELS) if k == cur_xshape), 0)
         self.choice_xfade_shape.SetSelection(xshape_idx)
+        self.choice_xfade_shape.Bind(wx.EVT_CHOICE, self._on_xfade_shape_changed)
         r2.Add(self.choice_xfade_shape, 0, wx.ALIGN_CENTER_VERTICAL)
         sz.Add(r2, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 7)
 
@@ -629,33 +637,41 @@ class OfflineRenderDialog(wx.Frame):
         r3 = wx.BoxSizer(wx.HORIZONTAL)
         r3.Add(self._lbl(p, "Format:", bold=True), 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 4)
         self.choice_format = wx.Choice(p, choices=FORMAT_ORDER)
-        cur_fmt = CeciliaLib.getVar("audioFileType") or "wav"
+        cur_fmt = str(CeciliaLib.getVar("offlineAudioFileType") or CeciliaLib.getVar("audioFileType") or "wav")
         self.choice_format.SetStringSelection(cur_fmt if cur_fmt in FORMAT_ORDER else "wav")
         self.choice_format.Bind(wx.EVT_CHOICE, self._on_format_changed)
         r3.Add(self.choice_format, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 10)
 
         r3.Add(self._lbl(p, "Bit Depth:"), 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 4)
         self.choice_bitdepth = wx.Choice(p, choices=[lbl for lbl, _ in BIT_DEPTH_ORDER])
-        cur_bd = int(CeciliaLib.getVar("sampSize") or 0)
+        cur_bd = int(CeciliaLib.getVar("offlineSampSize") if CeciliaLib.getVar("offlineSampSize") is not None else (CeciliaLib.getVar("sampSize") or 0))
         bd_idx = next((i for i, (_, v) in enumerate(BIT_DEPTH_ORDER) if v == cur_bd), 0)
         self.choice_bitdepth.SetSelection(bd_idx)
+        self.choice_bitdepth.Bind(wx.EVT_CHOICE, self._on_bitdepth_changed)
         r3.Add(self.choice_bitdepth, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 10)
 
         r3.Add(self._lbl(p, "Sample Rate:"), 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 4)
         self.choice_sr = wx.Choice(p, choices=SAMPLE_RATES)
-        cur_sr = str(CeciliaLib.getVar("sr") or 44100)
+        cur_sr = str(CeciliaLib.getVar("offlineSr") or CeciliaLib.getVar("sr") or 44100)
         self.choice_sr.SetStringSelection(cur_sr if cur_sr in SAMPLE_RATES else "44100")
+        self.choice_sr.Bind(wx.EVT_CHOICE, self._on_sr_changed)
         r3.Add(self.choice_sr, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 10)
 
         r3.Add(self._lbl(p, "Chnls:"), 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 4)
         self.choice_nchnls = wx.Choice(p, choices=[str(x) for x in range(1, 37)])
-        self.choice_nchnls.SetStringSelection(str(CeciliaLib.getVar("nchnls") or 2))
+        cur_nchnls = str(CeciliaLib.getVar("offlineNchnls") or CeciliaLib.getVar("nchnls") or 2)
+        if cur_nchnls in [str(x) for x in range(1, 37)]:
+            self.choice_nchnls.SetStringSelection(cur_nchnls)
+        else:
+            self.choice_nchnls.SetStringSelection("2")
+        self.choice_nchnls.Bind(wx.EVT_CHOICE, self._on_nchnls_changed)
         r3.Add(self.choice_nchnls, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 10)
 
         r3.Add(self._lbl(p, "Buffer:"), 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 4)
         self.choice_buf = wx.Choice(p, choices=BUFFER_SIZES)
-        cur_buf = str(CeciliaLib.getVar("bufferSize") or "512")
+        cur_buf = str(CeciliaLib.getVar("offlineBufferSize") or CeciliaLib.getVar("bufferSize") or "512")
         self.choice_buf.SetStringSelection(cur_buf if cur_buf in BUFFER_SIZES else "512")
+        self.choice_buf.Bind(wx.EVT_CHOICE, self._on_buf_changed)
         r3.Add(self.choice_buf, 0, wx.ALIGN_CENTER_VERTICAL)
         sz.Add(r3, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 7)
 
@@ -711,17 +727,47 @@ class OfflineRenderDialog(wx.Frame):
         total_time = float(CeciliaLib.getVar("totalTime") or 30.0)
         self.single_dur_spin.SetValue(total_time)
 
-        fmt = CeciliaLib.getVar("audioFileType") or "wav"
+        # Retain offline export format, bit depth, sr, nchnls, buffer, threads etc.
+        # Fall back to session values only if offline setting is not yet set.
+        fmt = str(CeciliaLib.getVar("offlineAudioFileType") or CeciliaLib.getVar("audioFileType") or "wav")
         if fmt in FORMAT_ORDER:
             self.choice_format.SetStringSelection(fmt)
-        bd = int(CeciliaLib.getVar("sampSize") or 0)
+        bd = int(CeciliaLib.getVar("offlineSampSize") if CeciliaLib.getVar("offlineSampSize") is not None else (CeciliaLib.getVar("sampSize") or 0))
         bd_idx = next((i for i, (_, v) in enumerate(BIT_DEPTH_ORDER) if v == bd), 0)
         self.choice_bitdepth.SetSelection(bd_idx)
 
-        sr_str = str(CeciliaLib.getVar("sr") or 44100)
+        sr_str = str(CeciliaLib.getVar("offlineSr") or CeciliaLib.getVar("sr") or 44100)
         if sr_str in SAMPLE_RATES:
             self.choice_sr.SetStringSelection(sr_str)
-        self.choice_nchnls.SetStringSelection(str(CeciliaLib.getVar("nchnls") or 2))
+        nchnls_str = str(CeciliaLib.getVar("offlineNchnls") or CeciliaLib.getVar("nchnls") or 2)
+        if nchnls_str in [str(x) for x in range(1, 37)]:
+            self.choice_nchnls.SetStringSelection(nchnls_str)
+        buf_str = str(CeciliaLib.getVar("offlineBufferSize") or CeciliaLib.getVar("bufferSize") or "512")
+        if buf_str in BUFFER_SIZES:
+            self.choice_buf.SetStringSelection(buf_str)
+
+        cur_threads = str(CeciliaLib.getVar("offlineThreads") or min(8, os.cpu_count() or 4))
+        if self.choice_threads.FindString(cur_threads) != wx.NOT_FOUND:
+            self.choice_threads.SetStringSelection(cur_threads)
+
+        cur_accel = CeciliaLib.getVar("offlineAccelMode") or "auto"
+        accel_idx = next((i for i, (_, k) in enumerate(ACCEL_LABELS) if k == cur_accel), 0)
+        self.choice_accel.SetSelection(accel_idx)
+
+        if CeciliaLib.getVar("offlinePreroll") is not None:
+            self.spin_preroll.SetValue(float(CeciliaLib.getVar("offlinePreroll")))
+        if CeciliaLib.getVar("offlineCrossfade") is not None:
+            self.spin_xfade.SetValue(float(CeciliaLib.getVar("offlineCrossfade")))
+        cur_xshape = str(CeciliaLib.getVar("offlineCrossfadeShape") or "cosine")
+        xshape_idx = next((i for i, (_, k) in enumerate(XFADE_LABELS) if k == cur_xshape), 0)
+        self.choice_xfade_shape.SetSelection(xshape_idx)
+
+        if CeciliaLib.getVar("offlineExportStems") is not None:
+            self.chk_export_stems.SetValue(bool(CeciliaLib.getVar("offlineExportStems")))
+        if CeciliaLib.getVar("offlineMasterOutput") is not None:
+            self.chk_master_output.SetValue(bool(CeciliaLib.getVar("offlineMasterOutput")))
+
+        self._update_chunk_controls_enabled()
 
         default_dir = (
             CeciliaLib.getVar("saveAudioFilePath", unicode=True)
@@ -786,9 +832,11 @@ class OfflineRenderDialog(wx.Frame):
 
     def _on_master_output_toggled(self, _evt):
         en = bool(self.chk_master_output.GetValue())
+        CeciliaLib.setVar("offlineMasterOutput", int(en))
         if hasattr(CeciliaLib, "session") and hasattr(CeciliaLib.session, "set_master_output_enabled"):
             CeciliaLib.session.set_master_output_enabled(en)
         self._update_module_stems_preview()
+        self._save_offline_prefs()
 
     def _on_module_checklist_toggled(self, evt):
         idx = evt.GetInt()
@@ -822,16 +870,52 @@ class OfflineRenderDialog(wx.Frame):
 
     def _on_master_only_clicked(self, _evt):
         self.chk_master_output.SetValue(True)
+        CeciliaLib.setVar("offlineMasterOutput", 1)
         if hasattr(CeciliaLib, "session") and hasattr(CeciliaLib.session, "set_master_output_enabled"):
             CeciliaLib.session.set_master_output_enabled(True)
         self._set_all_module_stems(False)
+        self._save_offline_prefs()
+
+    def _split_base_and_root(self, base_path: str, ext: str) -> Tuple[str, str, str, str]:
+        """
+        Splits a base output path into:
+        (dir_name, clean_root, master_path, clean_ext)
+        where:
+          - clean_root is the base filename without extension and without a trailing '_Master'
+          - master_path is os.path.join(dir_name, f"{clean_root}_Master.{clean_ext}")
+        Examples:
+          'Final.wav', 'wav' -> ('...', 'Final', '.../Final_Master.wav', 'wav')
+          'Final_Master.wav', 'wav' -> ('...', 'Final', '.../Final_Master.wav', 'wav')
+          'Final', 'aif' -> ('...', 'Final', '.../Final_Master.aif', 'aif')
+        """
+        dir_name = os.path.dirname(os.path.abspath(base_path)) if base_path else os.path.expanduser("~")
+        file_name = os.path.basename(base_path) if base_path else f"render.{ext}"
+        stem, cur_ext = os.path.splitext(file_name)
+        clean_ext = (cur_ext[1:] if cur_ext.startswith(".") and cur_ext[1:] else ext).lower()
+
+        # Strip existing _Master or _master suffix to get clean root
+        if stem.lower().endswith("_master"):
+            clean_root = stem[:-7]
+        else:
+            clean_root = stem
+
+        if not clean_root:
+            clean_root = "render"
+
+        master_path = os.path.join(dir_name, f"{clean_root}_Master.{clean_ext}")
+        return dir_name, clean_root, master_path, clean_ext
+
+    def _get_master_output_path(self, base_path: str, ext: str) -> str:
+        _, _, master_path, _ = self._split_base_and_root(base_path, ext)
+        return master_path
 
     def _get_selected_module_stems(self, base_path: str, ext: str) -> Dict[str, str]:
         selected: Dict[str, str] = {}
         if not base_path:
             return selected
-        dir_name = os.path.dirname(os.path.abspath(base_path))
-        base_name, _ = os.path.splitext(os.path.basename(base_path))
+        dir_name, clean_root, _, clean_ext = self._split_base_and_root(base_path, ext)
+
+        checked_mods: List[Tuple[str, str]] = []
         for i, mid in enumerate(self._module_checklist_ids):
             if i < self.module_checklist.GetCount() and self.module_checklist.IsChecked(i):
                 mod = (
@@ -840,8 +924,20 @@ class OfflineRenderDialog(wx.Frame):
                     else next((m for m in getattr(getattr(CeciliaLib, "session", None), "modules", []) if m.id == mid), None)
                 )
                 mod_name = os.path.splitext(os.path.basename(getattr(mod, "path", "") or "Module"))[0] if mod else f"module_{i+1}"
-                stem_file = f"{base_name}_{i + 1:02d}_{mod_name}.{ext}"
-                selected[mid] = os.path.join(dir_name, stem_file)
+                checked_mods.append((mid, mod_name))
+
+        from collections import Counter
+        name_counts = Counter(name for _, name in checked_mods)
+        seen_counts: Dict[str, int] = {}
+
+        for mid, mod_name in checked_mods:
+            if name_counts[mod_name] > 1:
+                seen_counts[mod_name] = seen_counts.get(mod_name, 0) + 1
+                stem_file = f"{clean_root}_{mod_name}_{seen_counts[mod_name]}.{clean_ext}"
+            else:
+                stem_file = f"{clean_root}_{mod_name}.{clean_ext}"
+            selected[mid] = os.path.join(dir_name, stem_file)
+
         return selected
 
     def _update_module_stems_preview(self):
@@ -857,10 +953,11 @@ class OfflineRenderDialog(wx.Frame):
 
         out_path = self.single_path_ctrl.GetValue().strip() if hasattr(self, "single_path_ctrl") else ""
         ext = self.choice_format.GetStringSelection() if hasattr(self, "choice_format") else "wav"
-        stems_dict = self._get_selected_module_stems(out_path or f"render.{ext}", ext)
+        _, _, master_path, clean_ext = self._split_base_and_root(out_path or f"render.{ext}", ext)
+        stems_dict = self._get_selected_module_stems(out_path or f"render.{clean_ext}", clean_ext)
         names = []
         if master_on:
-            names.append("Master Mix")
+            names.append(os.path.basename(master_path))
         for p in stems_dict.values():
             names.append(os.path.basename(p))
 
@@ -921,12 +1018,30 @@ class OfflineRenderDialog(wx.Frame):
         CeciliaLib.setVar("offlineThreads", n)
         if not self.is_rendering:
             self.worker_lanes.set_thread_count(n)
+        self._save_offline_prefs()
 
     def _on_accel_changed(self, _evt):
         idx = self.choice_accel.GetSelection()
         mode = ACCEL_LABELS[idx][1] if 0 <= idx < len(ACCEL_LABELS) else "auto"
         CeciliaLib.setVar("offlineAccelMode", mode)
         self._update_chunk_controls_enabled()
+        self._save_offline_prefs()
+
+    def _on_preroll_changed(self, _evt):
+        val = float(self.spin_preroll.GetValue())
+        CeciliaLib.setVar("offlinePreroll", val)
+        self._save_offline_prefs()
+
+    def _on_xfade_changed(self, _evt):
+        val = float(self.spin_xfade.GetValue())
+        CeciliaLib.setVar("offlineCrossfade", val)
+        self._save_offline_prefs()
+
+    def _on_xfade_shape_changed(self, _evt):
+        idx = max(0, self.choice_xfade_shape.GetSelection())
+        shape = XFADE_LABELS[idx][1] if 0 <= idx < len(XFADE_LABELS) else "cosine"
+        CeciliaLib.setVar("offlineCrossfadeShape", shape)
+        self._save_offline_prefs()
 
     def _update_chunk_controls_enabled(self):
         idx = self.choice_accel.GetSelection()
@@ -938,6 +1053,7 @@ class OfflineRenderDialog(wx.Frame):
 
     def _on_format_changed(self, _evt):
         ext = self.choice_format.GetStringSelection()
+        CeciliaLib.setVar("offlineAudioFileType", ext)
         cur = self.single_path_ctrl.GetValue().strip()
         if cur:
             base, _ = os.path.splitext(cur)
@@ -945,7 +1061,113 @@ class OfflineRenderDialog(wx.Frame):
         # Clamp bit depth UI notice for FLAC/SD2
         if ext in ("flac", "sd2") and self.choice_bitdepth.GetSelection() > 1:
             self.choice_bitdepth.SetSelection(1)
+            self._on_bitdepth_changed(None)
         self._update_module_stems_preview()
+        self._save_offline_prefs()
+
+    def _on_bitdepth_changed(self, _evt):
+        idx = max(0, self.choice_bitdepth.GetSelection())
+        bd_val = BIT_DEPTH_ORDER[idx][1] if 0 <= idx < len(BIT_DEPTH_ORDER) else 0
+        CeciliaLib.setVar("offlineSampSize", bd_val)
+        self._save_offline_prefs()
+
+    def _on_sr_changed(self, _evt):
+        try:
+            sr_val = int(self.choice_sr.GetStringSelection() or 44100)
+            CeciliaLib.setVar("offlineSr", sr_val)
+            self._save_offline_prefs()
+        except Exception:
+            pass
+
+    def _on_nchnls_changed(self, _evt):
+        try:
+            nchnls_val = int(self.choice_nchnls.GetStringSelection() or 2)
+            CeciliaLib.setVar("offlineNchnls", nchnls_val)
+            self._save_offline_prefs()
+        except Exception:
+            pass
+
+    def _on_buf_changed(self, _evt):
+        buf_val = self.choice_buf.GetStringSelection() or "512"
+        CeciliaLib.setVar("offlineBufferSize", buf_val)
+        self._save_offline_prefs()
+
+    def _on_export_stems_toggled(self, _evt):
+        en = bool(self.chk_export_stems.GetValue())
+        CeciliaLib.setVar("offlineExportStems", int(en))
+        self._save_offline_prefs()
+
+    def _persist_current_settings(self):
+        if hasattr(self, "choice_threads"):
+            try:
+                CeciliaLib.setVar("offlineThreads", int(self.choice_threads.GetStringSelection() or 4))
+            except Exception:
+                pass
+        if hasattr(self, "choice_accel"):
+            try:
+                idx = max(0, self.choice_accel.GetSelection())
+                CeciliaLib.setVar("offlineAccelMode", ACCEL_LABELS[idx][1])
+            except Exception:
+                pass
+        if hasattr(self, "spin_preroll"):
+            try:
+                CeciliaLib.setVar("offlinePreroll", float(self.spin_preroll.GetValue()))
+            except Exception:
+                pass
+        if hasattr(self, "spin_xfade"):
+            try:
+                CeciliaLib.setVar("offlineCrossfade", float(self.spin_xfade.GetValue()))
+            except Exception:
+                pass
+        if hasattr(self, "choice_xfade_shape"):
+            try:
+                idx = max(0, self.choice_xfade_shape.GetSelection())
+                CeciliaLib.setVar("offlineCrossfadeShape", XFADE_LABELS[idx][1])
+            except Exception:
+                pass
+        if hasattr(self, "choice_format"):
+            try:
+                CeciliaLib.setVar("offlineAudioFileType", self.choice_format.GetStringSelection())
+            except Exception:
+                pass
+        if hasattr(self, "choice_bitdepth"):
+            try:
+                idx = max(0, self.choice_bitdepth.GetSelection())
+                CeciliaLib.setVar("offlineSampSize", BIT_DEPTH_ORDER[idx][1])
+            except Exception:
+                pass
+        if hasattr(self, "choice_sr"):
+            try:
+                CeciliaLib.setVar("offlineSr", int(self.choice_sr.GetStringSelection() or 44100))
+            except Exception:
+                pass
+        if hasattr(self, "choice_nchnls"):
+            try:
+                CeciliaLib.setVar("offlineNchnls", int(self.choice_nchnls.GetStringSelection() or 2))
+            except Exception:
+                pass
+        if hasattr(self, "choice_buf"):
+            try:
+                CeciliaLib.setVar("offlineBufferSize", self.choice_buf.GetStringSelection() or "512")
+            except Exception:
+                pass
+        if hasattr(self, "chk_export_stems"):
+            try:
+                CeciliaLib.setVar("offlineExportStems", int(bool(self.chk_export_stems.GetValue())))
+            except Exception:
+                pass
+        if hasattr(self, "chk_master_output"):
+            try:
+                CeciliaLib.setVar("offlineMasterOutput", int(bool(self.chk_master_output.GetValue())))
+            except Exception:
+                pass
+
+    def _save_offline_prefs(self):
+        try:
+            self._persist_current_settings()
+            CeciliaLib.writeVarToDisk()
+        except Exception:
+            pass
 
     def _on_browse_single_output(self, _evt):
         ext = self.choice_format.GetStringSelection()
@@ -1093,11 +1315,8 @@ class OfflineRenderDialog(wx.Frame):
         gfade = float(CeciliaLib.getVar("globalFade") or 0.005)
 
         # Persist offline render preferences
-        CeciliaLib.setVar("offlineThreads", n_threads)
-        CeciliaLib.setVar("offlineAccelMode", accel_key)
-        CeciliaLib.setVar("offlinePreroll", preroll)
-        CeciliaLib.setVar("offlineCrossfade", xfade)
-        CeciliaLib.setVar("offlineCrossfadeShape", xshape)
+        self._persist_current_settings()
+        self._save_offline_prefs()
 
         return RenderSettings(
             sr=sr,
@@ -1129,13 +1348,9 @@ class OfflineRenderDialog(wx.Frame):
             if not out_path:
                 CeciliaLib.showErrorDialog("Missing Output File", "Choose an output file path for Single Bounce.")
                 return None
-            base, cur_ext = os.path.splitext(out_path)
-            if cur_ext.lower() != f".{ext}":
-                out_path = f"{base}.{ext}"
-                self.single_path_ctrl.SetValue(out_path)
-
+            dir_name, clean_root, master_path, clean_ext = self._split_base_and_root(out_path, ext)
             master_out = bool(self.chk_master_output.GetValue())
-            module_outs = self._get_selected_module_stems(out_path, ext)
+            module_outs = self._get_selected_module_stems(out_path, clean_ext)
             if not master_out and not module_outs:
                 CeciliaLib.showErrorDialog(
                     "No Outputs Selected",
@@ -1154,8 +1369,8 @@ class OfflineRenderDialog(wx.Frame):
             jobs.append(
                 RenderJob(
                     job_id=uuid.uuid4().hex[:8],
-                    title=os.path.basename(out_path),
-                    output_path=out_path,
+                    title=os.path.basename(master_path),
+                    output_path=master_path,
                     snapshot=snap,
                     duration_override=dur,
                     export_stems=settings.export_stems,
@@ -1196,14 +1411,15 @@ class OfflineRenderDialog(wx.Frame):
                     CeciliaLib.showErrorDialog("Missing Sound Input", f"Preset '{pname}': {err}")
                     return None
                 safe_p = "".join(c if c not in '/\\:*?"<>|' else "_" for c in pname)
-                fname = f"{prefix}{idx + 1:02d}_{safe_p}.{ext}"
-                fpath = os.path.join(out_dir, fname)
-                m_outs = self._get_selected_module_stems(fpath, ext)
+                base_fname = f"{prefix}{idx + 1:02d}_{safe_p}"
+                fpath_base = os.path.join(out_dir, f"{base_fname}.{ext}")
+                dir_name, clean_root, master_path, clean_ext = self._split_base_and_root(fpath_base, ext)
+                m_outs = self._get_selected_module_stems(fpath_base, clean_ext)
                 jobs.append(
                     RenderJob(
                         job_id=uuid.uuid4().hex[:8],
                         title=f"{pname}",
-                        output_path=fpath,
+                        output_path=master_path,
                         snapshot=psnap,
                         master_output=master_out,
                         module_outputs=m_outs,
@@ -1244,16 +1460,17 @@ class OfflineRenderDialog(wx.Frame):
                 except Exception as exc:
                     CeciliaLib.showErrorDialog("Batch Input Error", str(exc))
                     return None
-                out_name = f"{stem_name}{suffix}.{ext}"
-                out_full = os.path.join(out_dir, out_name)
-                if os.path.abspath(out_full) == os.path.abspath(fpath):
-                    out_full = os.path.join(out_dir, f"{stem_name}_cecilia.{ext}")
-                m_outs = self._get_selected_module_stems(out_full, ext)
+                base_name = f"{stem_name}{suffix}"
+                fpath_base = os.path.join(out_dir, f"{base_name}.{ext}")
+                if os.path.abspath(fpath_base) == os.path.abspath(fpath):
+                    fpath_base = os.path.join(out_dir, f"{stem_name}_cecilia.{ext}")
+                dir_name, clean_root, master_path, clean_ext = self._split_base_and_root(fpath_base, ext)
+                m_outs = self._get_selected_module_stems(fpath_base, clean_ext)
                 jobs.append(
                     RenderJob(
                         job_id=uuid.uuid4().hex[:8],
                         title=os.path.basename(fpath),
-                        output_path=out_full,
+                        output_path=master_path,
                         snapshot=fsnap,
                         master_output=master_out,
                         module_outputs=m_outs,
@@ -1271,13 +1488,15 @@ class OfflineRenderDialog(wx.Frame):
             master_out = bool(self.chk_master_output.GetValue())
             for item in self._queued_items:
                 qsnap = item["snapshot"]
-                out_full = os.path.join(qdir, f"{item['name']}.{ext}")
-                m_outs = self._get_selected_module_stems(out_full, ext)
+                base_name = item["name"]
+                fpath_base = os.path.join(qdir, f"{base_name}.{ext}")
+                dir_name, clean_root, master_path, clean_ext = self._split_base_and_root(fpath_base, ext)
+                m_outs = self._get_selected_module_stems(fpath_base, clean_ext)
                 jobs.append(
                     RenderJob(
                         job_id=uuid.uuid4().hex[:8],
                         title=item["name"],
-                        output_path=out_full,
+                        output_path=master_path,
                         snapshot=qsnap,
                         master_output=master_out,
                         module_outputs=m_outs,
@@ -1572,5 +1791,6 @@ class OfflineRenderDialog(wx.Frame):
                     return
             if self._manager is not None:
                 self._manager.cancel()
+        self._save_offline_prefs()
         OfflineRenderDialog._instance = None
         self.Destroy()

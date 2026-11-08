@@ -222,8 +222,9 @@ def main():
         dlg._set_all_module_stems(True)
         dlg.chk_master_output.SetValue(True)
         dlg.chk_export_stems.SetValue(False)  # test individual module stems specifically
-        mod_stems_out = os.path.join(out_dir, "test_stems_master.wav")
-        dlg.single_path_ctrl.SetValue(mod_stems_out)
+        mod_stems_in = os.path.join(out_dir, "test_stems.wav")
+        mod_stems_master = os.path.join(out_dir, "test_stems_Master.wav")
+        dlg.single_path_ctrl.SetValue(mod_stems_in)
         dlg.single_dur_spin.SetValue(1.5)
 
         dlg.on_start_render(None)
@@ -231,14 +232,14 @@ def main():
         pump_events(0.1)
         assert ok, "Module stems render timed out"
 
-        stem_file1 = os.path.join(out_dir, "test_stems_master_01_StochGrains.wav")
-        stem_file2 = os.path.join(out_dir, "test_stems_master_02_Harmonizer.wav")
+        stem_file1 = os.path.join(out_dir, "test_stems_StochGrains.wav")
+        stem_file2 = os.path.join(out_dir, "test_stems_Harmonizer.wav")
         print("Files in out_dir:", sorted(os.listdir(out_dir)))
-        assert os.path.isfile(mod_stems_out), f"Missing master mix file {mod_stems_out}"
+        assert os.path.isfile(mod_stems_master), f"Missing master mix file {mod_stems_master}"
         assert os.path.isfile(stem_file1), f"Missing module stem 1 file {stem_file1}"
         assert os.path.isfile(stem_file2), f"Missing module stem 2 file {stem_file2}"
 
-        info_m = sndinfo(mod_stems_out)
+        info_m = sndinfo(mod_stems_master)
         info_s1 = sndinfo(stem_file1)
         info_s2 = sndinfo(stem_file2)
         assert abs(info_m[1] - 1.5) < 0.05, f"Master dur {info_m[1]} != 1.5"
@@ -249,17 +250,18 @@ def main():
 
         # 6b. Test Render with Master Output DISABLED (Module Stems Only)
         dlg.chk_master_output.SetValue(False)
-        stems_only_out = os.path.join(out_dir, "stems_only_render.wav")
-        dlg.single_path_ctrl.SetValue(stems_only_out)
+        stems_only_in = os.path.join(out_dir, "stems_only_render.wav")
+        stems_only_master = os.path.join(out_dir, "stems_only_render_Master.wav")
+        dlg.single_path_ctrl.SetValue(stems_only_in)
         dlg.single_dur_spin.SetValue(1.0)
         dlg.on_start_render(None)
         ok = wait_until(lambda: not dlg.is_rendering, timeout=30.0)
         pump_events(0.1)
         assert ok, "Stems-only render timed out"
 
-        assert not os.path.isfile(stems_only_out), "Master output file should NOT exist when Master Mix is unchecked"
-        only_stem1 = os.path.join(out_dir, "stems_only_render_01_StochGrains.wav")
-        only_stem2 = os.path.join(out_dir, "stems_only_render_02_Harmonizer.wav")
+        assert not os.path.isfile(stems_only_master), "Master output file should NOT exist when Master Mix is unchecked"
+        only_stem1 = os.path.join(out_dir, "stems_only_render_StochGrains.wav")
+        only_stem2 = os.path.join(out_dir, "stems_only_render_Harmonizer.wav")
         assert os.path.isfile(only_stem1), f"Stem 1 {only_stem1} missing in stems-only mode"
         assert os.path.isfile(only_stem2), f"Stem 2 {only_stem2} missing in stems-only mode"
         assert dlg.btn_play_last.IsEnabled(), "Play Last Render button should be enabled from stem file"

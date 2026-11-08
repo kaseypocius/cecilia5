@@ -31,7 +31,8 @@
     - Added a master output toggle checkbox (`Master Mix (Final Chain Output + Master Plugins)`) to allow rendering master mix, stems only, or both.
     - Added an interactive module checklist showing index, module name, and signal role (`Source`, `Output`, `Module`).
     - Quick selection buttons: `[Select All]`, `[Select None]`, and `[Master Only]`.
-    - Live dynamic preview label displaying the exact number and filenames of soundfiles to be generated (`{basename}_{idx:02d}_{modulename}.{ext}`).
+    - Live dynamic preview label displaying the exact number and filenames of soundfiles to be generated (`{basename}_Master.{ext}`, `{basename}_{ModuleName}.{ext}`).
+    - Clean naming convention embedding module names directly into output files (e.g. `Final_Master.wav`, `Final_Delay.wav`), with automatic instance counters for duplicate modules (e.g. `Final_Delay_1.wav`, `Final_Delay_2.wav`) and root normalization when `_Master` is provided.
     - Distinct rows in the job monitor tracking individual completion status, duration, and peak dB for each module stem.
     - Support for stems-only rendering with master output disabled.
   - **Single-Pass Audio Tapping & Chunked Stem Crossfading**:

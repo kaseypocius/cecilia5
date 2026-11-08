@@ -233,22 +233,25 @@ def select(frame, module, change_view=True, preserve_source=False):
                 if widget.samplerFrame is not None:
                     widget.samplerFrame.Hide()
     if module:
-        editor = module.editor
-        frame.grapher, frame.presetPanel = editor.graph, editor.presets
-        frame.graphHost.GetSizer().Add(editor.graph, 1, wx.EXPAND)
-        frame.sliderHost.GetSizer().Add(editor.sliders, 0, wx.EXPAND)
-        frame.moduleHost.GetSizer().Add(editor.presets, 0, wx.EXPAND)
-        if module.id not in session.source_ids and module.auxiliary_inputs:
-            frame.moduleHost.GetSizer().Add(module.inputs.inputPanel, 0, wx.EXPAND | wx.BOTTOM, 8)
-            module.inputs.inputPanel.Show()
-        frame.moduleHost.GetSizer().Add(editor.toggles, 0, wx.EXPAND)
-        editor.presets.Show()
-        editor.presets.loadPresets()
-        editor.graph.plotter.updateUndoMenu()
-        editor.toggles.Show()
-        frame.stageLabel.SetLabel(module.state['currentModuleName'])
+        editor = getattr(module, 'editor', None)
+        if editor is not None:
+            frame.grapher, frame.presetPanel = editor.graph, editor.presets
+            frame.graphHost.GetSizer().Add(editor.graph, 1, wx.EXPAND)
+            frame.sliderHost.GetSizer().Add(editor.sliders, 0, wx.EXPAND)
+            frame.moduleHost.GetSizer().Add(editor.presets, 0, wx.EXPAND)
+            if module.id not in session.source_ids and getattr(module, 'auxiliary_inputs', None):
+                frame.moduleHost.GetSizer().Add(module.inputs.inputPanel, 0, wx.EXPAND | wx.BOTTOM, 8)
+                module.inputs.inputPanel.Show()
+            frame.moduleHost.GetSizer().Add(editor.toggles, 0, wx.EXPAND)
+            editor.presets.Show()
+            editor.presets.loadPresets()
+            editor.graph.plotter.updateUndoMenu()
+            editor.toggles.Show()
+            if hasattr(editor.presets, 'presetChoice'):
+                editor.presets.presetChoice.setEnable(not CeciliaLib.getVar('audioServer').isAudioServerRunning())
+        if hasattr(module, 'state') and isinstance(module.state, dict) and 'currentModuleName' in module.state:
+            frame.stageLabel.SetLabel(module.state['currentModuleName'])
         update_title(frame)
-        editor.presets.presetChoice.setEnable(not CeciliaLib.getVar('audioServer').isAudioServerRunning())
     else:
         frame.grapher = frame.presetPanel = None
         frame.stageLabel.SetLabel('No module loaded')
