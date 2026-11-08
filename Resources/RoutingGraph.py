@@ -155,63 +155,66 @@ class RoutingGraph(wx.ScrolledWindow):
             gc.SetPen(wx.Pen('#ffd080', 2))
             gc.StrokeLines(self.curve(start, end))
         dc.SetTextForeground(wx.WHITE)
-        for node, rect in self.rects.items():
-            selected = node is not None and (node in self.selected_nodes or
-                       (not self.selected_nodes and node == session.selected_id))
-            gc.SetPen(wx.Pen('#e4bd80' if selected else '#777777', 2 if selected else 1))
-            gc.SetBrush(wx.Brush('#38434b' if node in active or node is None else '#303030'))
-            gc.DrawRoundedRectangle(rect.x, rect.y, rect.width, rect.height, 7)
-            module = next((m for m in session.modules if m.id == node), None)
-            title = module.state['currentModuleName'] if module else 'Output'
-            dc.DrawText(title[:22], rect.x+12, rect.y+10)
-            if node is not None and node in getattr(session, 'offline_stem_ids', []):
-                badge_x = rect.x + rect.width - 48
-                badge_y = rect.y + 8
-                gc.SetPen(wx.Pen('#2ea043', 1))
-                gc.SetBrush(wx.Brush('#1b4728'))
-                gc.DrawRoundedRectangle(badge_x, badge_y, 38, 16, 3)
-                bfont = wx.Font(font)
-                bfont.SetPointSize(max(1, font.GetPointSize() - 3))
-                bfont.SetWeight(wx.FONTWEIGHT_BOLD)
-                dc.SetFont(bfont)
-                dc.SetTextForeground('#FFFFFF')
-                dc.DrawText('STEM', badge_x + 5, badge_y + 2)
+        font = dc.GetFont()
+        for node, rect in list(self.rects.items()):
+            try:
+                selected = node is not None and (node in self.selected_nodes or
+                           (not self.selected_nodes and node == session.selected_id))
+                gc.SetPen(wx.Pen('#e4bd80' if selected else '#777777', 2 if selected else 1))
+                gc.SetBrush(wx.Brush('#38434b' if node in active or node is None else '#303030'))
+                gc.DrawRoundedRectangle(rect.x, rect.y, rect.width, rect.height, 7)
+                module = next((m for m in session.modules if m.id == node), None)
+                title = module.state['currentModuleName'] if module else 'Output'
+                dc.DrawText(title[:22], rect.x+12, rect.y+10)
+                if node is not None and node in getattr(session, 'offline_stem_ids', []):
+                    badge_x = rect.x + rect.width - 48
+                    badge_y = rect.y + 8
+                    gc.SetPen(wx.Pen('#2ea043', 1))
+                    gc.SetBrush(wx.Brush('#1b4728'))
+                    gc.DrawRoundedRectangle(badge_x, badge_y, 38, 16, 3)
+                    bfont = wx.Font(font)
+                    bfont.SetPointSize(max(1, font.GetPointSize() - 3))
+                    bfont.SetWeight(wx.FONTWEIGHT_BOLD)
+                    dc.SetFont(bfont)
+                    dc.SetTextForeground('#FFFFFF')
+                    dc.DrawText('STEM', badge_x + 5, badge_y + 2)
+                    dc.SetFont(font)
+                    dc.SetTextForeground(wx.WHITE)
+                status = ('Source • selected' if node == session.source_id else 'Source') if node in session.source_ids else 'Final mix / effects' if node is None else 'Active' if node in active else 'Inactive'
+                if node in session.muted_ids:
+                    status = 'Muted' if node in session.source_ids else 'Muted / pass-through'
+                status_font = wx.Font(font)
+                status_font.SetPointSize(max(1, font.GetPointSize() - 1))
+                dc.SetFont(status_font)
+                dc.DrawText(status, rect.x+12, rect.y+29)
                 dc.SetFont(font)
-                dc.SetTextForeground(wx.WHITE)
-            status = ('Source • selected' if node == session.source_id else 'Source') if node in session.source_ids else 'Final mix / effects' if node is None else 'Active' if node in active else 'Inactive'
-            if node in session.muted_ids:
-                status = 'Muted' if node in session.source_ids else 'Muted / pass-through'
-            font = dc.GetFont()
-            status_font = wx.Font(font)
-            status_font.SetPointSize(max(1, font.GetPointSize() - 1))
-            dc.SetFont(status_font)
-            dc.DrawText(status, rect.x+12, rect.y+29)
-            dc.SetFont(font)
-            if node is not None:
-                for action in ('edit', 'remove'):
-                    if self.hover_button == (node, action) and (action != 'remove' or
-                            (not self.running and self.can_remove(node))):
-                        bounds = self.button_rect(node, action)
-                        gc.SetPen(wx.Pen('#a0b4c3', 1))
-                        gc.SetBrush(wx.Brush('#4b5c68'))
-                        gc.DrawRoundedRectangle(bounds.x, bounds.y, bounds.width, bounds.height, 3)
-                dc.DrawText('Edit', rect.x+12, rect.y+57)
-                button = self.mute_rect(node)
-                gc.SetPen(wx.Pen('#e4bd80' if node in session.muted_ids else
-                                 '#a0b4c3' if self.hover_button == (node, 'mute') else '#777777', 1))
-                gc.SetBrush(wx.Brush(('#927044' if node in session.muted_ids else '#4b5c68')
-                                     if self.hover_button == (node, 'mute') else
-                                     '#725432' if node in session.muted_ids else '#38434b'))
-                gc.DrawRoundedRectangle(button.x, button.y, button.width, button.height, 3)
-                dc.DrawText('M', button.x+5, button.y+3)
-                if self.can_remove(node):
-                    dc.DrawText('Remove', rect.x+105, rect.y+57)
-            for output in (False, True):
-                if (node is None and output) or (node in session.source_ids and not output):
-                    continue
-                x, y = self.port(node, output)
-                gc.SetBrush(wx.Brush('#83b6d5'))
-                gc.DrawEllipse(x-5, y-5, 10, 10)
+                if node is not None:
+                    for action in ('edit', 'remove'):
+                        if self.hover_button == (node, action) and (action != 'remove' or
+                                (not self.running and self.can_remove(node))):
+                            bounds = self.button_rect(node, action)
+                            gc.SetPen(wx.Pen('#a0b4c3', 1))
+                            gc.SetBrush(wx.Brush('#4b5c68'))
+                            gc.DrawRoundedRectangle(bounds.x, bounds.y, bounds.width, bounds.height, 3)
+                    dc.DrawText('Edit', rect.x+12, rect.y+57)
+                    button = self.mute_rect(node)
+                    gc.SetPen(wx.Pen('#e4bd80' if node in session.muted_ids else
+                                     '#a0b4c3' if self.hover_button == (node, 'mute') else '#777777', 1))
+                    gc.SetBrush(wx.Brush(('#927044' if node in session.muted_ids else '#4b5c68')
+                                         if self.hover_button == (node, 'mute') else
+                                         '#725432' if node in session.muted_ids else '#38434b'))
+                    gc.DrawRoundedRectangle(button.x, button.y, button.width, button.height, 3)
+                    dc.DrawText('M', button.x+5, button.y+3)
+                    if self.can_remove(node):
+                        dc.DrawText('Remove', rect.x+105, rect.y+57)
+                for output in (False, True):
+                    if (node is None and output) or (node in session.source_ids and not output):
+                        continue
+                    x, y = self.port(node, output)
+                    gc.SetBrush(wx.Brush('#83b6d5'))
+                    gc.DrawEllipse(x-5, y-5, 10, 10)
+            except Exception:
+                pass
         if self.drag and self.drag[0] == 'marquee':
             rect = self.marquee_rect(self.drag[1], self.cursor)
             gc.SetPen(wx.Pen('#e4bd80', 1, wx.PENSTYLE_SHORT_DASH))

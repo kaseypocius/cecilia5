@@ -287,8 +287,8 @@ def show_view(frame, view):
     frame.grid.Show(view == 'chain')
     if session.selected:
         session.selected.editor.graph.Show(view == 'graph')
-        session.selected.editor.sliders.Show()
-    frame.sliderHost.Show(session.selected is not None)
+        session.selected.editor.sliders.Show(view == 'graph')
+    frame.sliderHost.Show(view == 'graph' and session.selected is not None)
     frame.graphHost.Layout()
     frame.Layout()
     if view == 'chain':
