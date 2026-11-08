@@ -244,12 +244,14 @@ class OfflineRenderDialog(wx.Frame):
 
     def __init__(self, parent, initial_mode: str = "single"):
         style = wx.DEFAULT_FRAME_STYLE | wx.FRAME_FLOAT_ON_PARENT
-        super().__init__(parent, title="Cecilia 5 — Offline Render Mode", size=(760, 690), style=style)
-        self.SetMinSize((680, 620))
+        super().__init__(parent, title="Cecilia 5 — Offline Render Mode", size=(760, 780), style=style)
+        self.SetMinSize((680, 680))
         self.SetBackgroundColour(BACKGROUND_COLOUR)
 
         self._manager: Optional[OfflineRenderManager] = None
         self._queued_items: List[Dict[str, Any]] = []
+        self._module_checklist_ids: List[str] = []
+        self._list_item_map: Dict[int, List[tuple]] = {}
         self._last_output_path: str = ""
         self._progress_dirty = False
         self._latest_progress: Optional[Dict[str, Any]] = None
@@ -375,6 +377,7 @@ class OfflineRenderDialog(wx.Frame):
         row1 = wx.BoxSizer(wx.HORIZONTAL)
         row1.Add(self._lbl(p, "Output File:", bold=True), 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 8)
         self.single_path_ctrl = wx.TextCtrl(p, value="")
+        self.single_path_ctrl.Bind(wx.EVT_TEXT, lambda _e: self._update_module_stems_preview())
         row1.Add(self.single_path_ctrl, 1, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 6)
         btn_browse = wx.Button(p, label="Browse...")
         btn_browse.Bind(wx.EVT_BUTTON, self._on_browse_single_output)
@@ -391,14 +394,47 @@ class OfflineRenderDialog(wx.Frame):
         btn_use_snd_dur.Bind(wx.EVT_BUTTON, self._on_use_input_sound_dur)
         row2.Add(btn_use_snd_dur, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 14)
 
-        self.chk_export_stems = wx.CheckBox(p, label="Also export individual chain branch stems")
+        self.chk_export_stems = wx.CheckBox(p, label="Also export branch stems (disjoint parallel outputs)")
         self.chk_export_stems.SetForegroundColour(TEXT_LABELFORWIDGET_COLOUR)
         row2.Add(self.chk_export_stems, 0, wx.ALIGN_CENTER_VERTICAL)
-        sz.Add(row2, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
+        sz.Add(row2, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 6)
 
         self.single_chain_info = self._lbl(p, "")
         self.single_chain_info.SetForegroundColour("#B8C4D4")
-        sz.Add(self.single_chain_info, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
+        sz.Add(self.single_chain_info, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 6)
+
+        # Dedicated Section: Individual Module Output Soundfiles (Toggles)
+        stems_box = wx.StaticBox(p, label=" Module Outputs to Disk (Individual Stems) ")
+        stems_box.SetForegroundColour(SECTION_TITLE_COLOUR)
+        stems_sz = wx.StaticBoxSizer(stems_box, wx.VERTICAL)
+
+        top_stems = wx.BoxSizer(wx.HORIZONTAL)
+        self.chk_master_output = wx.CheckBox(stems_box, label="Master Mix (Final Chain Output + Master Plugins)")
+        self.chk_master_output.SetValue(True)
+        self.chk_master_output.SetForegroundColour(TEXT_LABELFORWIDGET_COLOUR)
+        self.chk_master_output.Bind(wx.EVT_CHECKBOX, self._on_master_output_toggled)
+        top_stems.Add(self.chk_master_output, 1, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 8)
+
+        btn_all = wx.Button(stems_box, label="Select All", size=(85, 22))
+        btn_none = wx.Button(stems_box, label="Select None", size=(85, 22))
+        btn_master = wx.Button(stems_box, label="Master Only", size=(95, 22))
+        btn_all.Bind(wx.EVT_BUTTON, lambda _e: self._set_all_module_stems(True))
+        btn_none.Bind(wx.EVT_BUTTON, lambda _e: self._set_all_module_stems(False))
+        btn_master.Bind(wx.EVT_BUTTON, self._on_master_only_clicked)
+        top_stems.Add(btn_all, 0, wx.RIGHT, 4)
+        top_stems.Add(btn_none, 0, wx.RIGHT, 4)
+        top_stems.Add(btn_master, 0)
+        stems_sz.Add(top_stems, 0, wx.EXPAND | wx.ALL, 6)
+
+        self.module_checklist = wx.CheckListBox(stems_box, size=(-1, 75))
+        self.module_checklist.Bind(wx.EVT_CHECKLISTBOX, self._on_module_checklist_toggled)
+        stems_sz.Add(self.module_checklist, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 6)
+
+        self.module_stems_preview = self._lbl(stems_box, "")
+        self.module_stems_preview.SetForegroundColour("#A0B4C8")
+        stems_sz.Add(self.module_stems_preview, 0, wx.LEFT | wx.RIGHT | wx.TOP | wx.BOTTOM, 6)
+
+        sz.Add(stems_sz, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 6)
 
         p.SetSizer(sz)
         return p
@@ -721,6 +757,118 @@ class OfflineRenderDialog(wx.Frame):
         self._refresh_preset_list()
         self._refresh_input_slots()
         self._refresh_chain_branch_status()
+        self._refresh_module_stems_list()
+
+    def _refresh_module_stems_list(self):
+        if not hasattr(self, "module_checklist"):
+            return
+        modules = CeciliaLib.session.modules if hasattr(CeciliaLib, "session") else []
+        stem_ids = set(getattr(CeciliaLib.session, "offline_stem_ids", []) or [])
+        master_enabled = getattr(CeciliaLib.session, "master_output_enabled", True)
+        if hasattr(self, "chk_master_output"):
+            self.chk_master_output.SetValue(master_enabled)
+
+        self._module_checklist_ids = []
+        items = []
+        source_ids = set(getattr(CeciliaLib.session, "source_ids", []) or [])
+        sink_ids = set(getattr(CeciliaLib.session, "sink_ids", []) or [])
+        for idx, mod in enumerate(modules):
+            mod_name = os.path.splitext(os.path.basename(getattr(mod, "path", "") or getattr(mod, "name", "Module")))[0]
+            role = "Source" if mod.id in source_ids else ("Output" if mod.id in sink_ids else "Module")
+            label = f"{idx + 1:02d} — {mod_name} ({role})"
+            items.append(label)
+            self._module_checklist_ids.append(mod.id)
+
+        self.module_checklist.Set(items)
+        for i, mid in enumerate(self._module_checklist_ids):
+            self.module_checklist.Check(i, mid in stem_ids)
+        self._update_module_stems_preview()
+
+    def _on_master_output_toggled(self, _evt):
+        en = bool(self.chk_master_output.GetValue())
+        if hasattr(CeciliaLib, "session") and hasattr(CeciliaLib.session, "set_master_output_enabled"):
+            CeciliaLib.session.set_master_output_enabled(en)
+        self._update_module_stems_preview()
+
+    def _on_module_checklist_toggled(self, evt):
+        idx = evt.GetInt()
+        if 0 <= idx < len(self._module_checklist_ids):
+            mid = self._module_checklist_ids[idx]
+            is_chk = self.module_checklist.IsChecked(idx)
+            if hasattr(CeciliaLib, "session") and hasattr(CeciliaLib.session, "set_offline_stem"):
+                CeciliaLib.session.set_offline_stem(mid, is_chk)
+        self._update_module_stems_preview()
+        if CeciliaLib.getVar("interface") is not None:
+            try:
+                rg = getattr(CeciliaLib.getVar("interface"), "grid", None) or getattr(CeciliaLib.getVar("interface"), "routing_graph", None)
+                if rg is not None:
+                    rg.Refresh(False)
+            except Exception:
+                pass
+
+    def _set_all_module_stems(self, checked: bool):
+        for i in range(self.module_checklist.GetCount()):
+            self.module_checklist.Check(i, checked)
+            if i < len(self._module_checklist_ids) and hasattr(CeciliaLib, "session") and hasattr(CeciliaLib.session, "set_offline_stem"):
+                CeciliaLib.session.set_offline_stem(self._module_checklist_ids[i], checked)
+        self._update_module_stems_preview()
+        if CeciliaLib.getVar("interface") is not None:
+            try:
+                rg = getattr(CeciliaLib.getVar("interface"), "grid", None) or getattr(CeciliaLib.getVar("interface"), "routing_graph", None)
+                if rg is not None:
+                    rg.Refresh(False)
+            except Exception:
+                pass
+
+    def _on_master_only_clicked(self, _evt):
+        self.chk_master_output.SetValue(True)
+        if hasattr(CeciliaLib, "session") and hasattr(CeciliaLib.session, "set_master_output_enabled"):
+            CeciliaLib.session.set_master_output_enabled(True)
+        self._set_all_module_stems(False)
+
+    def _get_selected_module_stems(self, base_path: str, ext: str) -> Dict[str, str]:
+        selected: Dict[str, str] = {}
+        if not base_path:
+            return selected
+        dir_name = os.path.dirname(os.path.abspath(base_path))
+        base_name, _ = os.path.splitext(os.path.basename(base_path))
+        for i, mid in enumerate(self._module_checklist_ids):
+            if i < self.module_checklist.GetCount() and self.module_checklist.IsChecked(i):
+                mod = (
+                    CeciliaLib.session.get_module(mid)
+                    if (hasattr(CeciliaLib, "session") and hasattr(CeciliaLib.session, "get_module"))
+                    else next((m for m in getattr(getattr(CeciliaLib, "session", None), "modules", []) if m.id == mid), None)
+                )
+                mod_name = os.path.splitext(os.path.basename(getattr(mod, "path", "") or "Module"))[0] if mod else f"module_{i+1}"
+                stem_file = f"{base_name}_{i + 1:02d}_{mod_name}.{ext}"
+                selected[mid] = os.path.join(dir_name, stem_file)
+        return selected
+
+    def _update_module_stems_preview(self):
+        if not hasattr(self, "module_stems_preview"):
+            return
+        master_on = bool(self.chk_master_output.GetValue()) if hasattr(self, "chk_master_output") else True
+        stem_indices = [i for i in range(self.module_checklist.GetCount()) if self.module_checklist.IsChecked(i)] if hasattr(self, "module_checklist") else []
+        total_files = (1 if master_on else 0) + len(stem_indices)
+        if total_files == 0:
+            self.module_stems_preview.SetLabel("No output selected. Enable Master Mix or select at least one module stem.")
+            self.module_stems_preview.SetForegroundColour("#E06C75")
+            return
+
+        out_path = self.single_path_ctrl.GetValue().strip() if hasattr(self, "single_path_ctrl") else ""
+        ext = self.choice_format.GetStringSelection() if hasattr(self, "choice_format") else "wav"
+        stems_dict = self._get_selected_module_stems(out_path or f"render.{ext}", ext)
+        names = []
+        if master_on:
+            names.append("Master Mix")
+        for p in stems_dict.values():
+            names.append(os.path.basename(p))
+
+        lbl = f"Outputs ({total_files} file{'s' if total_files != 1 else ''}): " + ", ".join(names)
+        if len(lbl) > 130:
+            lbl = lbl[:127] + "..."
+        self.module_stems_preview.SetLabel(lbl)
+        self.module_stems_preview.SetForegroundColour("#A0B4C8")
 
     def _refresh_preset_list(self):
         mod_name = CeciliaLib.getVar("currentModuleName") or ""
@@ -797,6 +945,7 @@ class OfflineRenderDialog(wx.Frame):
         # Clamp bit depth UI notice for FLAC/SD2
         if ext in ("flac", "sd2") and self.choice_bitdepth.GetSelection() > 1:
             self.choice_bitdepth.SetSelection(1)
+        self._update_module_stems_preview()
 
     def _on_browse_single_output(self, _evt):
         ext = self.choice_format.GetStringSelection()
@@ -817,6 +966,7 @@ class OfflineRenderDialog(wx.Frame):
                     path = f"{path}.{ext}"
                 self.single_path_ctrl.SetValue(path)
                 CeciliaLib.setVar("saveAudioFilePath", os.path.dirname(path))
+                self._update_module_stems_preview()
 
     def _browse_dir(self, target_ctrl: wx.TextCtrl):
         cur = target_ctrl.GetValue().strip() or os.path.expanduser("~")
@@ -984,6 +1134,15 @@ class OfflineRenderDialog(wx.Frame):
                 out_path = f"{base}.{ext}"
                 self.single_path_ctrl.SetValue(out_path)
 
+            master_out = bool(self.chk_master_output.GetValue())
+            module_outs = self._get_selected_module_stems(out_path, ext)
+            if not master_out and not module_outs:
+                CeciliaLib.showErrorDialog(
+                    "No Outputs Selected",
+                    "Enable either the Master Mix or at least one Module Output Stem to render.",
+                )
+                return None
+
             snap = CeciliaLib.captureSession()
             err = self._validate_snapshot_inputs(snap)
             if err:
@@ -1000,6 +1159,8 @@ class OfflineRenderDialog(wx.Frame):
                     snapshot=snap,
                     duration_override=dur,
                     export_stems=settings.export_stems,
+                    master_output=master_out,
+                    module_outputs=module_outs,
                 )
             )
 
@@ -1022,6 +1183,7 @@ class OfflineRenderDialog(wx.Frame):
             base_snap = CeciliaLib.captureSession()
             use_globals = bool(self.chk_preset_globals.GetValue())
             keep_snd = bool(self.chk_preset_keep_snd.GetValue())
+            master_out = bool(self.chk_master_output.GetValue())
 
             for idx, pname in enumerate(checked):
                 pdata = load_preset_dict(mod_name, pname, init_preset=init_preset) or {}
@@ -1036,12 +1198,15 @@ class OfflineRenderDialog(wx.Frame):
                 safe_p = "".join(c if c not in '/\\:*?"<>|' else "_" for c in pname)
                 fname = f"{prefix}{idx + 1:02d}_{safe_p}.{ext}"
                 fpath = os.path.join(out_dir, fname)
+                m_outs = self._get_selected_module_stems(fpath, ext)
                 jobs.append(
                     RenderJob(
                         job_id=uuid.uuid4().hex[:8],
                         title=f"{pname}",
                         output_path=fpath,
                         snapshot=psnap,
+                        master_output=master_out,
+                        module_outputs=m_outs,
                     )
                 )
 
@@ -1062,6 +1227,7 @@ class OfflineRenderDialog(wx.Frame):
             slot_sel = self.folder_input_choice.GetStringSelection()
             input_name = None if slot_sel == "(auto)" else slot_sel
             use_snd_dur = bool(self.chk_folder_snd_dur.GetValue())
+            master_out = bool(self.chk_master_output.GetValue())
 
             base_snap = CeciliaLib.captureSession()
             err = self._validate_snapshot_inputs(base_snap, allow_missing_primary=True)
@@ -1082,12 +1248,15 @@ class OfflineRenderDialog(wx.Frame):
                 out_full = os.path.join(out_dir, out_name)
                 if os.path.abspath(out_full) == os.path.abspath(fpath):
                     out_full = os.path.join(out_dir, f"{stem_name}_cecilia.{ext}")
+                m_outs = self._get_selected_module_stems(out_full, ext)
                 jobs.append(
                     RenderJob(
                         job_id=uuid.uuid4().hex[:8],
                         title=os.path.basename(fpath),
                         output_path=out_full,
                         snapshot=fsnap,
+                        master_output=master_out,
+                        module_outputs=m_outs,
                     )
                 )
 
@@ -1099,15 +1268,19 @@ class OfflineRenderDialog(wx.Frame):
                 )
                 return None
             qdir = self.queue_dir_ctrl.GetValue().strip() or os.path.expanduser("~")
+            master_out = bool(self.chk_master_output.GetValue())
             for item in self._queued_items:
                 qsnap = item["snapshot"]
                 out_full = os.path.join(qdir, f"{item['name']}.{ext}")
+                m_outs = self._get_selected_module_stems(out_full, ext)
                 jobs.append(
                     RenderJob(
                         job_id=uuid.uuid4().hex[:8],
                         title=item["name"],
                         output_path=out_full,
                         snapshot=qsnap,
+                        master_output=master_out,
+                        module_outputs=m_outs,
                     )
                 )
 
@@ -1148,19 +1321,40 @@ class OfflineRenderDialog(wx.Frame):
         if not jobs:
             return
 
-        # Reset monitor table
+        # Reset monitor table and row map
         self.jobs_list.DeleteAllItems()
+        self._list_item_map = {}
+        row_counter = 0
         for idx, job in enumerate(jobs):
             dur_val = float(job.duration_override or job.snapshot["output"]["totalTime"])
-            row = self.jobs_list.InsertItem(idx, job.title)
-            self.jobs_list.SetItem(row, 1, "Queued")
-            self.jobs_list.SetItem(row, 2, f"{dur_val:.2f}s")
-            self.jobs_list.SetItem(row, 3, "--")
-            self.jobs_list.SetItem(row, 4, "--")
-            self.jobs_list.SetItem(row, 5, job.output_path)
+            entries = []
+            if job.master_output:
+                title = job.title if not job.module_outputs else f"{job.title} [Master]"
+                row = self.jobs_list.InsertItem(row_counter, title)
+                self.jobs_list.SetItem(row, 1, "Queued")
+                self.jobs_list.SetItem(row, 2, f"{dur_val:.2f}s")
+                self.jobs_list.SetItem(row, 3, "--")
+                self.jobs_list.SetItem(row, 4, "--")
+                self.jobs_list.SetItem(row, 5, job.output_path)
+                entries.append(("master", row, job.output_path))
+                row_counter += 1
 
+            for mid, mpath in job.module_outputs.items():
+                stem_title = f"{os.path.basename(mpath)} [Stem]"
+                row = self.jobs_list.InsertItem(row_counter, stem_title)
+                self.jobs_list.SetItem(row, 1, "Queued")
+                self.jobs_list.SetItem(row, 2, f"{dur_val:.2f}s")
+                self.jobs_list.SetItem(row, 3, "--")
+                self.jobs_list.SetItem(row, 4, "--")
+                self.jobs_list.SetItem(row, 5, mpath)
+                entries.append((mid, row, mpath))
+                row_counter += 1
+
+            self._list_item_map[idx] = entries
+
+        total_rows = row_counter
         self.worker_lanes.set_thread_count(settings.num_threads)
-        self.progress_bar.set_state(0.0, f"Starting {len(jobs)} job{'s' if len(jobs) != 1 else ''} on {settings.num_threads} threads...")
+        self.progress_bar.set_state(0.0, f"Starting {len(jobs)} job{'s' if len(jobs) != 1 else ''} ({total_rows} output file{'s' if total_rows != 1 else ''}) on {settings.num_threads} threads...")
         self._update_peak_badge(None)
         self._set_controls_rendering(True)
 
@@ -1217,22 +1411,55 @@ class OfflineRenderDialog(wx.Frame):
             job.elapsed,
             job.output_path,
             job.error,
+            dict(job.module_results),
         )
         wx.CallAfter(self._apply_job_row, *snap_copy)
 
     def _apply_job_row(self, idx: int, status: str, dur: float, peak_db: Optional[float],
-                       elapsed: float, out_path: str, error: Optional[str]):
-        if not self or idx >= self.jobs_list.GetItemCount():
+                       elapsed: float, out_path: str, error: Optional[str],
+                       module_results: Optional[Dict[str, Dict[str, Any]]] = None):
+        if not self:
             return
         disp_status = f"Error: {error[:40]}" if (status == "Error" and error) else status
-        self.jobs_list.SetItem(idx, 1, disp_status)
-        if dur > 0:
-            self.jobs_list.SetItem(idx, 2, f"{dur:.2f}s")
-        if peak_db is not None:
-            self.jobs_list.SetItem(idx, 3, f"{peak_db:+.2f} dB")
-        if elapsed > 0:
-            self.jobs_list.SetItem(idx, 4, f"{elapsed:.2f}s")
-        self.jobs_list.SetItem(idx, 5, out_path)
+
+        entries = self._list_item_map.get(idx)
+        if entries:
+            for kind, row_idx, target_path in entries:
+                if row_idx >= self.jobs_list.GetItemCount():
+                    continue
+                if kind == "master":
+                    self.jobs_list.SetItem(row_idx, 1, disp_status)
+                    if dur > 0:
+                        self.jobs_list.SetItem(row_idx, 2, f"{dur:.2f}s")
+                    if peak_db is not None:
+                        self.jobs_list.SetItem(row_idx, 3, f"{peak_db:+.2f} dB")
+                    if elapsed > 0:
+                        self.jobs_list.SetItem(row_idx, 4, f"{elapsed:.2f}s")
+                    self.jobs_list.SetItem(row_idx, 5, target_path)
+                else:
+                    m_res = (module_results or {}).get(kind, {})
+                    m_status = disp_status
+                    m_dur = m_res.get("duration", dur)
+                    m_peak = m_res.get("peak_db")
+                    self.jobs_list.SetItem(row_idx, 1, m_status)
+                    if m_dur > 0:
+                        self.jobs_list.SetItem(row_idx, 2, f"{m_dur:.2f}s")
+                    if m_peak is not None:
+                        self.jobs_list.SetItem(row_idx, 3, f"{m_peak:+.2f} dB")
+                    if elapsed > 0:
+                        self.jobs_list.SetItem(row_idx, 4, f"{elapsed:.2f}s")
+                    self.jobs_list.SetItem(row_idx, 5, target_path)
+        else:
+            if idx >= self.jobs_list.GetItemCount():
+                return
+            self.jobs_list.SetItem(idx, 1, disp_status)
+            if dur > 0:
+                self.jobs_list.SetItem(idx, 2, f"{dur:.2f}s")
+            if peak_db is not None:
+                self.jobs_list.SetItem(idx, 3, f"{peak_db:+.2f} dB")
+            if elapsed > 0:
+                self.jobs_list.SetItem(idx, 4, f"{elapsed:.2f}s")
+            self.jobs_list.SetItem(idx, 5, out_path)
 
     def _on_vu_bg(self, rms: List[float], _peak_db: float):
         if CeciliaLib.getVar("interface") is not None:
@@ -1276,23 +1503,36 @@ class OfflineRenderDialog(wx.Frame):
             if cp is not None and cp.vuMeter is not None:
                 cp.vuMeter.amplitude = [0.0] * cp.vuMeter.nchnls
                 cp.vuMeter.Refresh(False)
-        done_jobs = [j for j in summary.jobs if j.status == "Done" and os.path.isfile(j.output_path)]
+        done_jobs = [
+            j for j in summary.jobs
+            if j.status == "Done" and (
+                (j.master_output and os.path.isfile(j.output_path))
+                or any(os.path.isfile(p) for p in j.module_outputs.values())
+            )
+        ]
         if done_jobs:
-            self._last_output_path = done_jobs[-1].output_path
-            self.btn_play_last.Enable(True)
-            CeciliaLib.setVar("outputFile", self._last_output_path)
-            if CeciliaLib.getVar("interface") is not None:
-                cp = CeciliaLib.getVar("interface").getControlPanel()
-                if cp is not None:
-                    cp.outputFilename = self._last_output_path
-                    cp.filenameLabel.setLabel(
-                        CeciliaLib.shortenName(os.path.basename(self._last_output_path), cp.charNumForLabel)
-                    )
-                    if summary.max_peak_db is not None and summary.max_peak_db > -89.9:
-                        norm_peak = max(0.0, (summary.max_peak_db + 90.0) / 90.0)
-                        if cp.vuMeter is not None:
-                            cp.vuMeter.peak = norm_peak
-                        cp.updatePeak(norm_peak)
+            last_j = done_jobs[-1]
+            if last_j.master_output and os.path.isfile(last_j.output_path):
+                self._last_output_path = last_j.output_path
+            elif last_j.module_outputs:
+                first_stem = next((p for p in last_j.module_outputs.values() if os.path.isfile(p)), "")
+                if first_stem:
+                    self._last_output_path = first_stem
+            if self._last_output_path:
+                self.btn_play_last.Enable(True)
+                CeciliaLib.setVar("outputFile", self._last_output_path)
+                if CeciliaLib.getVar("interface") is not None:
+                    cp = CeciliaLib.getVar("interface").getControlPanel()
+                    if cp is not None:
+                        cp.outputFilename = self._last_output_path
+                        cp.filenameLabel.setLabel(
+                            CeciliaLib.shortenName(os.path.basename(self._last_output_path), cp.charNumForLabel)
+                        )
+                        if summary.max_peak_db is not None and summary.max_peak_db > -89.9:
+                            norm_peak = max(0.0, (summary.max_peak_db + 90.0) / 90.0)
+                            if cp.vuMeter is not None:
+                                cp.vuMeter.peak = norm_peak
+                            cp.updatePeak(norm_peak)
 
         if summary.cancelled:
             self.progress_bar.set_state(

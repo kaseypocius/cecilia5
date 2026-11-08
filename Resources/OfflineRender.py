@@ -160,6 +160,8 @@ class RenderJob:
     snapshot: Dict[str, Any]
     duration_override: Optional[float] = None
     export_stems: bool = False
+    master_output: bool = True
+    module_outputs: Dict[str, str] = field(default_factory=dict)
     status: str = "Queued"
     progress: float = 0.0
     peak_db: Optional[float] = None
@@ -167,6 +169,7 @@ class RenderJob:
     rendered_duration: float = 0.0
     error: Optional[str] = None
     stem_paths: List[str] = field(default_factory=list)
+    module_results: Dict[str, Dict[str, Any]] = field(default_factory=dict)
 
 
 @dataclass
@@ -1224,7 +1227,7 @@ class _HeadlessRenderWorker:
     def render_snapshot(self, spec: Dict[str, Any]) -> Dict[str, Any]:
         from .constants import AUDIO_FILE_FORMATS
         from .Session import ChainSession, instance_context, mix_signals
-        from pyo import Fader, Interp, Mix, Sig, SigTo, sndinfo
+        from pyo import Fader, Interp, Mix, Record, Sig, SigTo, sndinfo
 
         t0 = time.perf_counter()
         job_id = spec["job_id"]
@@ -1268,10 +1271,18 @@ class _HeadlessRenderWorker:
         if seed_offset is not None:
             srv.globalseed = int(seed_offset)
 
+        master_output = bool(spec.get("master_output", True))
+        module_outputs = dict(spec.get("module_outputs", {}))
+        temp_dummy_out = None
+        record_dest = output_path
+        if not master_output:
+            temp_dummy_out = os.path.join(tempfile.gettempdir(), f"cec_dummy_{uuid.uuid4().hex[:8]}.wav")
+            record_dest = temp_dummy_out
+
         reporter = _WorkerProgressReporter(job_id, total_time, nchnls, self.emit_fn)
         srv._server.setTimeCallable(reporter)
         srv._server.setAmpCallable(reporter)
-        srv.recordOptions(dur=total_time, filename=output_path, fileformat=fileformat, sampletype=sampletype)
+        srv.recordOptions(dur=total_time, filename=record_dest, fileformat=fileformat, sampletype=sampletype)
         self.srv_shell.setAmp(gain_db)
 
         # Build headless ChainSession
@@ -1288,6 +1299,7 @@ class _HeadlessRenderWorker:
         CeciliaLib.session = chain
 
         self._last_error = None
+        module_recorders = []
         try:
             instances = chain.active_modules()
             if not instances:
@@ -1318,6 +1330,28 @@ class _HeadlessRenderWorker:
                     output_bypass = bypass if len(chain.output_connections) == 1 else processed * 0
                     output_signals[instance.id] = Interp(processed, output_bypass, fade)
 
+                    if instance.id in module_outputs:
+                        mod_out_path = module_outputs[instance.id]
+                        os.makedirs(os.path.dirname(os.path.abspath(mod_out_path)), exist_ok=True)
+                        mod_sig = processed
+                        if (isinstance(mod_sig, (list, tuple)) and len(mod_sig) != nchnls) or (
+                            not isinstance(mod_sig, (list, tuple)) and nchnls > 1
+                        ):
+                            mod_sig = Mix(mod_sig, voices=nchnls)
+                        if global_fade > 0.0:
+                            if not hasattr(self.srv_shell, "globalamp"):
+                                self.srv_shell.globalamp = Fader(fadein=global_fade, fadeout=global_fade, dur=total_time).play()
+                            mod_sig = mod_sig * self.srv_shell.globalamp
+                        mod_rec = Record(
+                            mod_sig,
+                            filename=mod_out_path,
+                            chnls=nchnls,
+                            fileformat=fileformat,
+                            sampletype=sampletype,
+                            buffering=1,
+                        )
+                        module_recorders.append((instance.id, mod_out_path, mod_rec))
+
             self.srv_shell.out = Sig(
                 mix_signals([output_signals[i] for i in chain.output_connections if i in output_signals])
             )
@@ -1325,7 +1359,8 @@ class _HeadlessRenderWorker:
                 self.srv_shell._loadOutputPlugins()
 
             if global_fade > 0.0:
-                self.srv_shell.globalamp = Fader(fadein=global_fade, fadeout=global_fade, dur=total_time).play()
+                if not hasattr(self.srv_shell, "globalamp"):
+                    self.srv_shell.globalamp = Fader(fadein=global_fade, fadeout=global_fade, dur=total_time).play()
                 if len(chain.modules) > 1:
                     self.srv_shell.output.mul = self.srv_shell.globalamp
                 else:
@@ -1338,6 +1373,12 @@ class _HeadlessRenderWorker:
         finally:
             if srv.getIsStarted():
                 srv.stop()
+            for _mid, _mpath, rec in module_recorders:
+                try:
+                    rec.stop()
+                except Exception:
+                    pass
+            module_recorders.clear()
             signals = None
             output_signals = None
             current_mod = None
@@ -1350,18 +1391,57 @@ class _HeadlessRenderWorker:
             if srv.getIsBooted():
                 srv.shutdown()
 
-        info = sndinfo(output_path)
+        if temp_dummy_out and os.path.exists(temp_dummy_out):
+            try:
+                os.remove(temp_dummy_out)
+            except OSError:
+                pass
+
+        module_results = {}
+        for mid, mpath in module_outputs.items():
+            if os.path.isfile(mpath):
+                minfo = sndinfo(mpath)
+                mframes = minfo[0] if minfo else 0
+                mdur = minfo[1] if minfo else total_time
+                m_peak = -90.0
+                try:
+                    m_arr = _read_wav_float64(mpath)
+                    if m_arr is not None and m_arr.size:
+                        m_peak = round(amp_to_db(float(np.max(np.abs(m_arr)))), 2)
+                    else:
+                        from pyo import SndTable
+                        tbl = SndTable(mpath)
+                        buf = np.array(tbl.getTable(), dtype=np.float64)
+                        if buf.size:
+                            m_peak = round(amp_to_db(float(np.max(np.abs(buf)))), 2)
+                except Exception:
+                    pass
+                module_results[mid] = {
+                    "path": mpath,
+                    "frames": mframes,
+                    "duration": mdur,
+                    "peak_db": m_peak,
+                }
+
+        info = sndinfo(output_path) if master_output else None
         frames = info[0] if info else 0
         actual_dur = info[1] if info else total_time
+        master_peak = round(amp_to_db(reporter.max_peak_amp), 2) if master_output else (
+            max((res["peak_db"] for res in module_results.values()), default=-90.0)
+        )
         elapsed = time.perf_counter() - t0
         return {
             "type": "done",
             "job_id": job_id,
-            "output_path": output_path,
+            "output_path": output_path if master_output else (
+                next(iter(module_outputs.values()), "")
+            ),
             "frames": frames,
             "duration": actual_dur,
-            "peak_db": round(amp_to_db(reporter.max_peak_amp), 2),
+            "peak_db": master_peak,
             "elapsed": round(elapsed, 4),
+            "master_output": master_output,
+            "module_results": module_results,
         }
 
     def _read_audio_channels(self, path: str, sr: int, nchnls: int) -> np.ndarray:
@@ -1965,6 +2045,13 @@ class OfflineRenderManager:
         threads = max(1, self.settings.num_threads)
         mode = self.settings.accel_mode
 
+        if job.module_outputs:
+            total_dur = float(job.duration_override or job.snapshot["output"]["totalTime"])
+            if mode == "chunks" or (mode == "auto" and total_dur >= max(self.settings.chunk_min_dur, 4.0)):
+                min_seg = max(1.0, self.settings.preroll + 2.0 * self.settings.crossfade + 0.5)
+                return "chunks" if total_dur >= min_seg * 2 else "single"
+            return "single"
+
         if job.export_stems or self.settings.export_stems:
             if extract_disjoint_output_branches(job.snapshot) is not None:
                 return "branches"
@@ -2073,7 +2160,10 @@ class OfflineRenderManager:
             buffersize = int(self.settings.buffersize)
 
             with self._lock:
-                self._active_outputs.add(job.output_path)
+                if job.master_output:
+                    self._active_outputs.add(job.output_path)
+                for sp in job.module_outputs.values():
+                    self._active_outputs.add(sp)
 
             job.status = f"Rendering ({strategy})" if strategy != "single" else "Rendering"
             notify_job(job_idx)
@@ -2091,6 +2181,8 @@ class OfflineRenderManager:
                         "audio_file_type": self.settings.audio_file_type,
                         "samp_size": self.settings.samp_size,
                         "global_fade": self.settings.global_fade,
+                        "master_output": job.master_output,
+                        "module_outputs": job.module_outputs,
                     }
                     fut = pool.submit_task(
                         "render",
@@ -2105,6 +2197,8 @@ class OfflineRenderManager:
                         ),
                     )
                     res = fut.result()
+                    job.module_results = res.get("module_results", {})
+                    job.stem_paths = [info["path"] for info in job.module_results.values()]
 
                 elif strategy == "branches":
                     branches = extract_disjoint_output_branches(job.snapshot)
@@ -2263,6 +2357,11 @@ class OfflineRenderManager:
                             "samp_size": 3,  # 32-bit float intermediate
                             "global_fade": 0.0,
                             "seed_offset": (k + 1) * 7919,
+                            "master_output": job.master_output,
+                            "module_outputs": {
+                                mid: os.path.join(tmp_dir, f"chunk_{k:03d}_{mid}.wav")
+                                for mid in job.module_outputs
+                            },
                         }
                         fut = pool.submit_task(
                             "render",
@@ -2280,20 +2379,58 @@ class OfflineRenderManager:
 
                     job.status = "Stitching chunks"
                     notify_job(job_idx)
-                    stitch_spec = {
-                        "job_id": job.job_id,
-                        "chunks": chunk_meta,
-                        "output_path": job.output_path,
-                        "sr": sr,
-                        "nchnls": nchnls,
-                        "total_frames": total_frames,
-                        "xfade_frames": xfade_frames,
-                        "crossfade_shape": self.settings.crossfade_shape,
-                        "global_fade": self.settings.global_fade,
-                        "audio_file_type": self.settings.audio_file_type,
-                        "samp_size": self.settings.samp_size,
-                    }
-                    res = pool.submit_task("stitch", stitch_spec, self.cancel_event).result()
+                    if job.master_output:
+                        stitch_spec = {
+                            "job_id": job.job_id,
+                            "chunks": chunk_meta,
+                            "output_path": job.output_path,
+                            "sr": sr,
+                            "nchnls": nchnls,
+                            "total_frames": total_frames,
+                            "xfade_frames": xfade_frames,
+                            "crossfade_shape": self.settings.crossfade_shape,
+                            "global_fade": self.settings.global_fade,
+                            "audio_file_type": self.settings.audio_file_type,
+                            "samp_size": self.settings.samp_size,
+                        }
+                        res = pool.submit_task("stitch", stitch_spec, self.cancel_event).result()
+                    else:
+                        res = {
+                            "peak_db": -90.0,
+                            "duration": total_dur,
+                            "frames": total_frames,
+                        }
+
+                    for mid, final_stem_path in job.module_outputs.items():
+                        mod_stitch_spec = {
+                            "job_id": f"{job.job_id}_{mid}",
+                            "chunks": [
+                                {
+                                    "path": os.path.join(tmp_dir, f"chunk_{k:03d}_{mid}.wav"),
+                                    "discard_frames": cm["discard_frames"],
+                                    "a_frame": cm["a_frame"],
+                                    "b_frame": cm["b_frame"],
+                                }
+                                for k, cm in enumerate(chunk_meta)
+                            ],
+                            "output_path": final_stem_path,
+                            "sr": sr,
+                            "nchnls": nchnls,
+                            "total_frames": total_frames,
+                            "xfade_frames": xfade_frames,
+                            "crossfade_shape": self.settings.crossfade_shape,
+                            "global_fade": self.settings.global_fade,
+                            "audio_file_type": self.settings.audio_file_type,
+                            "samp_size": self.settings.samp_size,
+                        }
+                        m_res = pool.submit_task("stitch", mod_stitch_spec, self.cancel_event).result()
+                        job.module_results[mid] = {
+                            "path": final_stem_path,
+                            "frames": m_res.get("frames", total_frames),
+                            "duration": m_res.get("duration", total_dur),
+                            "peak_db": m_res.get("peak_db", -90.0),
+                        }
+                    job.stem_paths = list(job.module_outputs.values())
 
                 with self._lock:
                     self._active_outputs.discard(job.output_path)
@@ -2302,7 +2439,11 @@ class OfflineRenderManager:
 
                 job.status = "Done"
                 job.progress = 1.0
-                job.peak_db = res.get("peak_db")
+                job.module_results = res.get("module_results", job.module_results)
+                if not job.master_output and job.module_results:
+                    job.peak_db = max((m["peak_db"] for m in job.module_results.values()), default=-90.0)
+                else:
+                    job.peak_db = res.get("peak_db")
                 job.rendered_duration = float(res.get("duration", total_dur))
                 job.elapsed = time.perf_counter() - j_t0
                 with state_lock:

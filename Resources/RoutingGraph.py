@@ -164,6 +164,20 @@ class RoutingGraph(wx.ScrolledWindow):
             module = next((m for m in session.modules if m.id == node), None)
             title = module.state['currentModuleName'] if module else 'Output'
             dc.DrawText(title[:22], rect.x+12, rect.y+10)
+            if node is not None and node in getattr(session, 'offline_stem_ids', []):
+                badge_x = rect.x + rect.width - 48
+                badge_y = rect.y + 8
+                gc.SetPen(wx.Pen('#2ea043', 1))
+                gc.SetBrush(wx.Brush('#1b4728'))
+                gc.DrawRoundedRectangle(badge_x, badge_y, 38, 16, 3)
+                bfont = wx.Font(font)
+                bfont.SetPointSize(max(1, font.GetPointSize() - 3))
+                bfont.SetWeight(wx.FONTWEIGHT_BOLD)
+                dc.SetFont(bfont)
+                dc.SetTextForeground('#FFFFFF')
+                dc.DrawText('STEM', badge_x + 5, badge_y + 2)
+                dc.SetFont(font)
+                dc.SetTextForeground(wx.WHITE)
             status = ('Source • selected' if node == session.source_id else 'Source') if node in session.source_ids else 'Final mix / effects' if node is None else 'Active' if node in active else 'Inactive'
             if node in session.muted_ids:
                 status = 'Muted' if node in session.source_ids else 'Muted / pass-through'
@@ -400,6 +414,10 @@ class RoutingGraph(wx.ScrolledWindow):
         role = menu.Append(wx.ID_ANY, 'Use as processor' if is_source else 'Use as source')
         role.Enable(not self.running and (self.can_move_source(module) if is_source else
                     not any(b == node for a, b in CeciliaLib.session.connections)))
+        menu.AppendSeparator()
+        stem_item = menu.AppendCheckItem(wx.ID_ANY, 'Output to disk (offline stem)')
+        stem_item.Check(node in getattr(CeciliaLib.session, 'offline_stem_ids', []))
+        menu.Bind(wx.EVT_MENU, lambda event, nid=node: self.toggle_offline_stem(nid), stem_item)
         menu.Bind(wx.EVT_MENU, lambda event: self.change_source(module, not is_source), role)
         menu.Bind(wx.EVT_MENU, lambda event: self.open_editor(module), edit)
         menu.Bind(wx.EVT_MENU, lambda event: CeciliaLib.removeChainModule(module), remove)
@@ -407,6 +425,18 @@ class RoutingGraph(wx.ScrolledWindow):
             popup_menu(self, menu)
         finally:
             menu.Destroy()
+
+    def toggle_offline_stem(self, node):
+        session = CeciliaLib.session
+        cur = node in getattr(session, 'offline_stem_ids', [])
+        session.set_offline_stem(node, not cur)
+        self.Refresh()
+        try:
+            from .OfflineRenderDialog import OfflineRenderDialog
+            if OfflineRenderDialog._instance is not None and bool(OfflineRenderDialog._instance):
+                OfflineRenderDialog._instance.sync_from_session()
+        except Exception:
+            pass
 
     def key(self, event):
         if event.GetKeyCode() == wx.WXK_ESCAPE and self.drag and self.drag[0] in ('group', 'marquee'):

@@ -127,6 +127,8 @@ class ChainSession:
         self.output_connections = []
         self.positions = {}
         self.muted_ids = []
+        self.offline_stem_ids = []
+        self.master_output_enabled = True
         self.selected_id = None
         self.view = 'graph'
         self.path = None
@@ -163,12 +165,15 @@ class ChainSession:
 
     def routing_snapshot(self):
         return copy.deepcopy(dict(source_id=self.source_id, source_ids=self.source_ids, connections=self.connections,
-                                  output_connections=self.output_connections, positions=self.positions, muted_ids=self.muted_ids))
+                                  output_connections=self.output_connections, positions=self.positions, muted_ids=self.muted_ids,
+                                  offline_stem_ids=self.offline_stem_ids, master_output_enabled=self.master_output_enabled))
 
     def restore_routing(self, routing):
         for key in ('source_id', 'source_ids', 'connections', 'output_connections', 'positions'):
             setattr(self, key, copy.deepcopy(routing[key]))
         self.muted_ids = copy.deepcopy(routing.get('muted_ids', []))
+        self.offline_stem_ids = copy.deepcopy(routing.get('offline_stem_ids', []))
+        self.master_output_enabled = bool(routing.get('master_output_enabled', True))
 
     def clear(self, reset_history=True):
         if reset_history and hasattr(self, 'history'):
@@ -180,6 +185,23 @@ class ChainSession:
         self.output_connections = []
         self.positions = {}
         self.muted_ids = []
+        self.offline_stem_ids = []
+        self.master_output_enabled = True
+
+    def get_module(self, module_id):
+        for mod in self.modules:
+            if mod.id == module_id:
+                return mod
+        return None
+
+    def set_offline_stem(self, module_id, enabled):
+        if enabled and module_id not in self.offline_stem_ids:
+            self.offline_stem_ids.append(module_id)
+        elif not enabled and module_id in self.offline_stem_ids:
+            self.offline_stem_ids.remove(module_id)
+
+    def set_master_output_enabled(self, enabled):
+        self.master_output_enabled = bool(enabled)
 
     def validate_graph(self):
         ids = [m.id for m in self.modules]
@@ -300,6 +322,7 @@ class ChainSession:
         self.connections = [[new.id if i == old.id else i for i in edge] for edge in self.connections]
         self.output_connections = [new.id if i == old.id else i for i in self.output_connections]
         self.muted_ids = [new.id if i == old.id else i for i in self.muted_ids]
+        self.offline_stem_ids = [new.id if i == old.id else i for i in self.offline_stem_ids]
         if old.id in self.positions:
             self.positions[new.id] = self.positions.pop(old.id)
         if old.id == self.source_id:
@@ -318,6 +341,7 @@ class ChainSession:
         self.output_connections = [i for i in self.output_connections if i != module.id]
         self.positions.pop(module.id, None)
         self.muted_ids = [i for i in self.muted_ids if i != module.id]
+        self.offline_stem_ids = [i for i in self.offline_stem_ids if i != module.id]
         if self.selected_id == module.id:
             self.selected_id = self.modules[min(index, len(self.modules)-1)].id if self.modules else None
         if not self.modules:
