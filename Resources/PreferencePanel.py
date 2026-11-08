@@ -512,11 +512,26 @@ class PreferenceFrame(wx.Frame):
                                              init=cur_xfade, size=(150, 20),
                                              outFunction=self.changeOfflineCrossfade)
 
+        # Offline Normalization
+        textNorm = wx.StaticText(fileExportPanel, 0, 'Offline Normalize :')
+        textNorm.SetForegroundColour(PREFS_FOREGROUND)
+        textNorm.SetFont(self.font)
+        norm_choices = ['Disabled', '0.0 dB', '-0.1 dB', '-0.5 dB', '-1.0 dB', '-2.0 dB', '-3.0 dB', '-6.0 dB']
+        cur_norm_en = int(CeciliaLib.getVar("offlineNormalize") or 0)
+        cur_norm_db = float(CeciliaLib.getVar("offlineNormalizeTargetDb") if CeciliaLib.getVar("offlineNormalizeTargetDb") is not None else -0.1)
+        init_norm = f"{cur_norm_db:.1f} dB" if cur_norm_en else "Disabled"
+        if init_norm not in norm_choices:
+            norm_choices.append(init_norm)
+        self.choiceOfflineNormalize = CustomMenu(fileExportPanel, choice=norm_choices,
+                                                init=init_norm, size=(150, 20),
+                                                outFunction=self.changeOfflineNormalize)
+
         for lbl_widget, menu_widget in (
             (textThreads, self.choiceOfflineThreads),
             (textAccel, self.choiceOfflineAccel),
             (textPreroll, self.choiceOfflinePreroll),
             (textXfade, self.choiceOfflineXfade),
+            (textNorm, self.choiceOfflineNormalize),
         ):
             row = wx.BoxSizer(wx.HORIZONTAL)
             row.Add(lbl_widget, 0, wx.LEFT | wx.ALIGN_CENTER_VERTICAL, 5)
@@ -713,6 +728,17 @@ class PreferenceFrame(wx.Frame):
 
     def changeOfflineCrossfade(self, index, label):
         CeciliaLib.setVar("offlineCrossfade", float(label.strip()))
+
+    def changeOfflineNormalize(self, index, label):
+        if label == 'Disabled':
+            CeciliaLib.setVar("offlineNormalize", 0)
+        else:
+            CeciliaLib.setVar("offlineNormalize", 1)
+            try:
+                db_val = float(label.replace('dB', '').strip())
+                CeciliaLib.setVar("offlineNormalizeTargetDb", db_val)
+            except Exception:
+                pass
 
     def changeNchnls(self, index, choice):
         nchnls = int(choice)

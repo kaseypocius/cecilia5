@@ -237,7 +237,27 @@ def run_tests():
         assert not mgr5.is_running
         assert not os.path.exists(cancel_out), "Partial output file should be cleaned up on cancel!"
 
-        print("ALL 5 OFFLINE ENGINE TESTS PASSED!")
+        print("6) Testing offline render with audio normalization to -0.1 dB...")
+        out6 = os.path.join(work, "norm_stoch.wav")
+        snap6 = base_single_snapshot(STOCH, total_time=1.0)
+        mgr6 = OfflineRenderManager(
+            RenderSettings(
+                sr=44100, nchnls=2, num_threads=2, accel_mode="single",
+                audio_file_type="wav", samp_size=3,
+                normalize=True, normalize_target_db=-0.1,
+            )
+        )
+        sum6 = mgr6.run_blocking([RenderJob("j6", "Stoch Normalized", out6, snap6)])
+        assert sum6.completed == 1 and sum6.failed == 0, f"Normalize failed: {sum6.jobs[0].error}"
+        from Resources.OfflineRender import _read_wav_float64
+        arr6 = _read_wav_float64(out6)
+        peak6 = float(np.max(np.abs(arr6)))
+        expected_amp = 10.0 ** (-0.1 / 20.0)
+        print(f"   normalized peak: {peak6:.6f}, expected: {expected_amp:.6f}, job peak_db: {sum6.jobs[0].peak_db}")
+        assert abs(peak6 - expected_amp) < 1e-4, f"Expected peak near {expected_amp}, got {peak6}"
+        assert abs(sum6.jobs[0].peak_db - (-0.1)) < 0.05
+
+        print("ALL 6 OFFLINE ENGINE TESTS PASSED!")
     finally:
         shutil.rmtree(work, ignore_errors=True)
 

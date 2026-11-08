@@ -675,6 +675,30 @@ class OfflineRenderDialog(wx.Frame):
         r3.Add(self.choice_buf, 0, wx.ALIGN_CENTER_VERTICAL)
         sz.Add(r3, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 7)
 
+        # Row 4: Normalization (checkbox toggle + target peak in text box)
+        r4 = wx.BoxSizer(wx.HORIZONTAL)
+        self.chk_normalize = wx.CheckBox(p, label="Normalize audio files to:")
+        self.chk_normalize.SetForegroundColour(WHITE_COLOUR)
+        cur_norm = bool(int(CeciliaLib.getVar("offlineNormalize") or 0))
+        self.chk_normalize.SetValue(cur_norm)
+        self.chk_normalize.Bind(wx.EVT_CHECKBOX, self._on_normalize_toggled)
+        r4.Add(self.chk_normalize, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 6)
+
+        cur_norm_db = float(CeciliaLib.getVar("offlineNormalizeTargetDb") if CeciliaLib.getVar("offlineNormalizeTargetDb") is not None else -0.1)
+        self.txt_normalize_db = wx.TextCtrl(p, value=f"{cur_norm_db:.1f}", size=(65, -1))
+        self.txt_normalize_db.Enable(cur_norm)
+        self.txt_normalize_db.Bind(wx.EVT_TEXT, self._on_normalize_changed)
+        r4.Add(self.txt_normalize_db, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 4)
+
+        lbl_db = self._lbl(p, "dBFS")
+        r4.Add(lbl_db, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 14)
+
+        tip_norm = self._lbl(p, "(Scales all output audio files to target peak level after render)")
+        tip_norm.SetForegroundColour("#8C939E")
+        r4.Add(tip_norm, 0, wx.ALIGN_CENTER_VERTICAL)
+
+        sz.Add(r4, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 7)
+
         p.SetSizer(sz)
         self._update_chunk_controls_enabled()
         return p
@@ -766,6 +790,14 @@ class OfflineRenderDialog(wx.Frame):
             self.chk_export_stems.SetValue(bool(CeciliaLib.getVar("offlineExportStems")))
         if CeciliaLib.getVar("offlineMasterOutput") is not None:
             self.chk_master_output.SetValue(bool(CeciliaLib.getVar("offlineMasterOutput")))
+
+        if hasattr(self, "chk_normalize"):
+            cur_norm = bool(int(CeciliaLib.getVar("offlineNormalize") or 0))
+            self.chk_normalize.SetValue(cur_norm)
+            if hasattr(self, "txt_normalize_db"):
+                self.txt_normalize_db.Enable(cur_norm)
+                cur_db = float(CeciliaLib.getVar("offlineNormalizeTargetDb") if CeciliaLib.getVar("offlineNormalizeTargetDb") is not None else -0.1)
+                self.txt_normalize_db.SetValue(f"{cur_db:.1f}")
 
         self._update_chunk_controls_enabled()
 
@@ -1097,6 +1129,22 @@ class OfflineRenderDialog(wx.Frame):
         CeciliaLib.setVar("offlineExportStems", int(en))
         self._save_offline_prefs()
 
+    def _on_normalize_toggled(self, _evt):
+        en = bool(self.chk_normalize.GetValue())
+        self.txt_normalize_db.Enable(en)
+        CeciliaLib.setVar("offlineNormalize", int(en))
+        self._save_offline_prefs()
+
+    def _on_normalize_changed(self, _evt):
+        val_str = self.txt_normalize_db.GetValue().strip()
+        try:
+            val = float(val_str)
+            val = min(0.0, max(-90.0, val))
+            CeciliaLib.setVar("offlineNormalizeTargetDb", val)
+            self._save_offline_prefs()
+        except (ValueError, TypeError):
+            pass
+
     def _persist_current_settings(self):
         if hasattr(self, "choice_threads"):
             try:
@@ -1159,6 +1207,18 @@ class OfflineRenderDialog(wx.Frame):
         if hasattr(self, "chk_master_output"):
             try:
                 CeciliaLib.setVar("offlineMasterOutput", int(bool(self.chk_master_output.GetValue())))
+            except Exception:
+                pass
+        if hasattr(self, "chk_normalize"):
+            try:
+                CeciliaLib.setVar("offlineNormalize", int(bool(self.chk_normalize.GetValue())))
+            except Exception:
+                pass
+        if hasattr(self, "txt_normalize_db"):
+            try:
+                val = float(self.txt_normalize_db.GetValue().strip())
+                val = min(0.0, max(-90.0, val))
+                CeciliaLib.setVar("offlineNormalizeTargetDb", val)
             except Exception:
                 pass
 
@@ -1314,6 +1374,13 @@ class OfflineRenderDialog(wx.Frame):
         buf = int(self.choice_buf.GetStringSelection() or 512)
         gfade = float(CeciliaLib.getVar("globalFade") or 0.005)
 
+        norm_en = bool(self.chk_normalize.GetValue()) if hasattr(self, "chk_normalize") else bool(int(CeciliaLib.getVar("offlineNormalize") or 0))
+        try:
+            norm_db = float(self.txt_normalize_db.GetValue().strip()) if hasattr(self, "txt_normalize_db") else float(CeciliaLib.getVar("offlineNormalizeTargetDb") or -0.1)
+            norm_db = min(0.0, max(-90.0, norm_db))
+        except (ValueError, TypeError):
+            norm_db = -0.1
+
         # Persist offline render preferences
         self._persist_current_settings()
         self._save_offline_prefs()
@@ -1332,6 +1399,8 @@ class OfflineRenderDialog(wx.Frame):
             crossfade=xfade,
             crossfade_shape=xshape,
             export_stems=bool(self.chk_export_stems.GetValue() and self.chk_export_stems.IsEnabled()),
+            normalize=norm_en,
+            normalize_target_db=norm_db,
         )
 
     def _build_jobs(self, settings: RenderSettings) -> Optional[List[RenderJob]]:
@@ -1376,6 +1445,8 @@ class OfflineRenderDialog(wx.Frame):
                     export_stems=settings.export_stems,
                     master_output=master_out,
                     module_outputs=module_outs,
+                    normalize=settings.normalize,
+                    normalize_target_db=settings.normalize_target_db,
                 )
             )
 
@@ -1423,6 +1494,8 @@ class OfflineRenderDialog(wx.Frame):
                         snapshot=psnap,
                         master_output=master_out,
                         module_outputs=m_outs,
+                        normalize=settings.normalize,
+                        normalize_target_db=settings.normalize_target_db,
                     )
                 )
 
@@ -1474,6 +1547,8 @@ class OfflineRenderDialog(wx.Frame):
                         snapshot=fsnap,
                         master_output=master_out,
                         module_outputs=m_outs,
+                        normalize=settings.normalize,
+                        normalize_target_db=settings.normalize_target_db,
                     )
                 )
 
@@ -1500,6 +1575,8 @@ class OfflineRenderDialog(wx.Frame):
                         snapshot=qsnap,
                         master_output=master_out,
                         module_outputs=m_outs,
+                        normalize=settings.normalize,
+                        normalize_target_db=settings.normalize_target_db,
                     )
                 )
 
@@ -1521,6 +1598,10 @@ class OfflineRenderDialog(wx.Frame):
         self.choice_sr.Enable(not rendering)
         self.choice_nchnls.Enable(not rendering)
         self.choice_buf.Enable(not rendering)
+        if hasattr(self, "chk_normalize"):
+            self.chk_normalize.Enable(not rendering)
+        if hasattr(self, "txt_normalize_db"):
+            self.txt_normalize_db.Enable(not rendering and (self.chk_normalize.GetValue() if hasattr(self, "chk_normalize") else True))
         if not rendering:
             self._update_chunk_controls_enabled()
         else:

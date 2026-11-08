@@ -151,6 +151,8 @@ CeciliaVar['offlineAudioFileType'] = 'wav'
 CeciliaVar['offlineSampSize'] = 0
 CeciliaVar['offlineExportStems'] = 0
 CeciliaVar['offlineMasterOutput'] = 1
+CeciliaVar['offlineNormalize'] = 0
+CeciliaVar['offlineNormalizeTargetDb'] = -0.1
 CeciliaVar['midiPort'] = 'portmidi'
 CeciliaVar['midiDeviceIn'] = 0
 CeciliaVar['defaultFirstInput'] = 0
@@ -286,9 +288,11 @@ def readCeciliaPrefsFromFile():
         convertToInt = ['sr', 'defaultNchnls', 'audioOutput', 'audioInput', 'sampSize', 'automaticMidiBinding',
                         'midiDeviceIn', 'useTooltips', 'enableAudioInput', 'graphTexture', 'showSpectrum', 'useSoundDur',
                         'defaultFirstInput', 'defaultFirstOutput', 'offlineThreads',
-                        'offlineSr', 'offlineNchnls', 'offlineSampSize', 'offlineExportStems', 'offlineMasterOutput']
+                        'offlineSr', 'offlineNchnls', 'offlineSampSize', 'offlineExportStems', 'offlineMasterOutput',
+                        'offlineNormalize']
         convertToFloat = ['defaultTotalTime', 'globalFade', 'DEBUG',
-                          'offlineChunkMinDur', 'offlinePreroll', 'offlineCrossfade']
+                          'offlineChunkMinDur', 'offlinePreroll', 'offlineCrossfade',
+                          'offlineNormalizeTargetDb']
         convertToTuple = ['interfaceSize', 'interfacePosition']
         jackPrefs = ['client']
 
@@ -347,6 +351,10 @@ def readCeciliaPrefsFromFile():
             CeciliaVar["offlineMasterOutput"] = 1
         if "offlineExportStems" not in CeciliaVar:
             CeciliaVar["offlineExportStems"] = 0
+        if "offlineNormalize" not in CeciliaVar:
+            CeciliaVar["offlineNormalize"] = 0
+        if "offlineNormalizeTargetDb" not in CeciliaVar:
+            CeciliaVar["offlineNormalizeTargetDb"] = -0.1
 
     else:
         print('Preferences file not found. Using defaults...\n')
@@ -362,7 +370,8 @@ def writeCeciliaPrefsToFile():
                   'offlineThreads', 'offlineAccelMode', 'offlineChunkMinDur',
                   'offlinePreroll', 'offlineCrossfade', 'offlineCrossfadeShape',
                   'offlineSr', 'offlineNchnls', 'offlineBufferSize', 'offlineAudioFileType',
-                  'offlineSampSize', 'offlineExportStems', 'offlineMasterOutput']
+                  'offlineSampSize', 'offlineExportStems', 'offlineMasterOutput',
+                  'offlineNormalize', 'offlineNormalizeTargetDb']
 
     print('Writing Cecilia preferences...')
 

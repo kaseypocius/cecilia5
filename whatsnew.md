@@ -46,10 +46,18 @@
 
 - **Preferences & Cross-Session Settings Persistence**:
   - Offline render settings now persist across application sessions in `~/.cecilia5/ceciliaPrefs.txt`.
-  - Stored variables include: sample rate (`offlineSr`), channel count (`offlineNchnls`), buffer size (`offlineBufferSize`), audio file format (`offlineAudioFileType`), bit depth (`offlineSampSize`), worker thread count (`offlineThreads`), acceleration strategy (`offlineAccelMode`), chunk preroll (`offlinePreroll`), chunk crossfade (`offlineCrossfade`), crossfade curve (`offlineCrossfadeShape`), stem export toggle (`offlineExportStems`), and master mix enable toggle (`offlineMasterOutput`).
+  - Stored variables include: sample rate (`offlineSr`), channel count (`offlineNchnls`), buffer size (`offlineBufferSize`), audio file format (`offlineAudioFileType`), bit depth (`offlineSampSize`), worker thread count (`offlineThreads`), acceleration strategy (`offlineAccelMode`), chunk preroll (`offlinePreroll`), chunk crossfade (`offlineCrossfade`), crossfade curve (`offlineCrossfadeShape`), stem export toggle (`offlineExportStems`), master mix enable toggle (`offlineMasterOutput`), normalization toggle (`offlineNormalize`), and target peak dB (`offlineNormalizeTargetDb`).
   - Completely decoupled offline export settings from real-time live DAC server settings, ensuring live speaker tests do not alter high-resolution offline bounce setups.
-  - Extended `Preferences -> Export` with controls for offline sample rate, channels, buffer size, worker threads, acceleration mode, preroll, and crossfade.
+  - Extended `Preferences -> Export` with controls for offline sample rate, channels, buffer size, worker threads, acceleration mode, preroll, crossfade, and normalization.
   - Changes in either the Offline Render Studio or Preferences window are persisted immediately to disk.
+
+- **Post-Render Peak Normalization to Target dB**:
+  - Added option to automatically normalize all rendered audio files to a user-specified dBFS peak level after offline rendering completes.
+  - Interactive UI controls in the Offline Render Studio: `Normalize audio files to:` checkbox toggle and a numeric text box for specifying the target peak level in decibels (e.g., `-0.1` dBFS, `-1.0` dBFS, `0.0` dBFS).
+  - Normalizes every audio file produced by the render pass, including the Master mix and all individual module stems, across Single Bounce, Batch Presets, Batch Sound Folder, and Render Queue modes.
+  - Non-destructive linear peak scaling with sample-accurate peak detection across all audio channels.
+  - Live progress display reflects `Normalizing` status while files are processed, and final monitor rows update to display the exact post-normalization peak dB.
+  - Preference persistence in `~/.cecilia5/ceciliaPrefs.txt` via `offlineNormalize` and `offlineNormalizeTargetDb`, with companion controls added to the main Preferences -> File Export dialog.
 
 - **VU Meter & Stability Improvements**:
   - Fixed `ValueError: math domain error` in `Widgets.py` when calculating logarithmic decibels on zero or negative peak amplitude signals.

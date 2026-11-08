@@ -47,6 +47,8 @@ class OfflinePersistenceTests(unittest.TestCase):
         vars.CeciliaVar['offlineCrossfadeShape'] = 'equal_power'
         vars.CeciliaVar['offlineExportStems'] = 1
         vars.CeciliaVar['offlineMasterOutput'] = 0
+        vars.CeciliaVar['offlineNormalize'] = 1
+        vars.CeciliaVar['offlineNormalizeTargetDb'] = -1.5
 
         # Save to disk
         vars.writeCeciliaPrefsToFile()
@@ -70,6 +72,8 @@ class OfflinePersistenceTests(unittest.TestCase):
             'offlineCrossfadeShape=equal_power',
             'offlineExportStems=1',
             'offlineMasterOutput=0',
+            'offlineNormalize=1',
+            'offlineNormalizeTargetDb=-1.5',
         ]:
             self.assertIn(key, content, f"Expected {key} in preferences file")
 
@@ -78,7 +82,7 @@ class OfflinePersistenceTests(unittest.TestCase):
             'offlineSr', 'offlineNchnls', 'offlineBufferSize', 'offlineAudioFileType',
             'offlineSampSize', 'offlineThreads', 'offlineAccelMode', 'offlineChunkMinDur',
             'offlinePreroll', 'offlineCrossfade', 'offlineCrossfadeShape',
-            'offlineExportStems', 'offlineMasterOutput'
+            'offlineExportStems', 'offlineMasterOutput', 'offlineNormalize', 'offlineNormalizeTargetDb'
         ]:
             if k in vars.CeciliaVar:
                 del vars.CeciliaVar[k]
@@ -99,6 +103,8 @@ class OfflinePersistenceTests(unittest.TestCase):
         self.assertEqual(vars.CeciliaVar['offlineCrossfadeShape'], 'equal_power')
         self.assertEqual(vars.CeciliaVar['offlineExportStems'], 1)
         self.assertEqual(vars.CeciliaVar['offlineMasterOutput'], 0)
+        self.assertEqual(vars.CeciliaVar['offlineNormalize'], 1)
+        self.assertEqual(vars.CeciliaVar['offlineNormalizeTargetDb'], -1.5)
 
     def test_legacy_prefs_backward_compatibility(self):
         """Older preferences files without offline settings should load safely with fallback defaults."""
@@ -119,7 +125,8 @@ class OfflinePersistenceTests(unittest.TestCase):
 
         # Clear in-memory offline keys
         for k in ['offlineSr', 'offlineNchnls', 'offlineBufferSize', 'offlineAudioFileType',
-                  'offlineSampSize', 'offlineExportStems', 'offlineMasterOutput']:
+                  'offlineSampSize', 'offlineExportStems', 'offlineMasterOutput',
+                  'offlineNormalize', 'offlineNormalizeTargetDb']:
             if k in vars.CeciliaVar:
                 del vars.CeciliaVar[k]
 
@@ -133,6 +140,8 @@ class OfflinePersistenceTests(unittest.TestCase):
         self.assertEqual(vars.CeciliaVar['offlineSampSize'], 2)
         self.assertEqual(vars.CeciliaVar['offlineMasterOutput'], 1)
         self.assertEqual(vars.CeciliaVar['offlineExportStems'], 0)
+        self.assertEqual(vars.CeciliaVar['offlineNormalize'], 0)
+        self.assertEqual(vars.CeciliaVar['offlineNormalizeTargetDb'], -0.1)
 
     def test_dac_and_offline_independence(self):
         """Changing live audio DAC settings must not overwrite offline export preferences."""
@@ -170,6 +179,7 @@ class OfflinePersistenceTests(unittest.TestCase):
             changeOfflineAccelMode = PreferencePanel.PreferenceFrame.changeOfflineAccelMode
             changeOfflinePreroll = PreferencePanel.PreferenceFrame.changeOfflinePreroll
             changeOfflineCrossfade = PreferencePanel.PreferenceFrame.changeOfflineCrossfade
+            changeOfflineNormalize = PreferencePanel.PreferenceFrame.changeOfflineNormalize
             changeFileType = PreferencePanel.PreferenceFrame.changeFileType
             changeSampSize = PreferencePanel.PreferenceFrame.changeSampSize
 
@@ -181,6 +191,7 @@ class OfflinePersistenceTests(unittest.TestCase):
         mock.changeOfflineAccelMode(0, "chunks")
         mock.changeOfflinePreroll(0, "0.3")
         mock.changeOfflineCrossfade(0, "0.15")
+        mock.changeOfflineNormalize(0, "-1.0 dB")
         mock.changeFileType(0, "ogg")
         mock.changeSampSize(0, "24 bits int")
 
@@ -191,8 +202,13 @@ class OfflinePersistenceTests(unittest.TestCase):
         self.assertEqual(CeciliaLib.getVar('offlineAccelMode'), 'chunks')
         self.assertEqual(CeciliaLib.getVar('offlinePreroll'), 0.3)
         self.assertEqual(CeciliaLib.getVar('offlineCrossfade'), 0.15)
+        self.assertEqual(CeciliaLib.getVar('offlineNormalize'), 1)
+        self.assertEqual(CeciliaLib.getVar('offlineNormalizeTargetDb'), -1.0)
         self.assertEqual(CeciliaLib.getVar('offlineAudioFileType'), 'ogg')
         self.assertEqual(CeciliaLib.getVar('offlineSampSize'), 1)
+
+        mock.changeOfflineNormalize(0, "Disabled")
+        self.assertEqual(CeciliaLib.getVar('offlineNormalize'), 0)
 
     def test_dialog_sync_and_persistence_logic(self):
         """Test dialog persist and sync logic with mocked UI controls."""
@@ -248,6 +264,7 @@ class OfflinePersistenceTests(unittest.TestCase):
             def __init__(self, val=""): self._val = str(val)
             def GetValue(self): return self._val
             def SetValue(self, v): self._val = str(v)
+            def Enable(self, en): pass
 
         class MockDialog:
             is_rendering = False
@@ -281,6 +298,8 @@ class OfflinePersistenceTests(unittest.TestCase):
                 self.choice_xfade_shape = MockChoice("Equal-Power (Uncorrelated)", [lbl for lbl, _ in OfflineRenderDialog.XFADE_LABELS])
                 self.chk_export_stems = MockCheck(True)
                 self.chk_master_output = MockCheck(False)
+                self.chk_normalize = MockCheck(True)
+                self.txt_normalize_db = MockTextCtrl("-1.0")
 
         dlg = MockDialog()
 
@@ -297,6 +316,8 @@ class OfflinePersistenceTests(unittest.TestCase):
         self.assertEqual(settings.crossfade, 0.2)
         self.assertEqual(settings.crossfade_shape, 'equal_power')
         self.assertTrue(settings.export_stems)
+        self.assertTrue(settings.normalize)
+        self.assertEqual(settings.normalize_target_db, -1.0)
 
         # 2. Modify UI controls in dialog
         dlg.choice_sr.SetStringSelection("48000")
@@ -309,6 +330,8 @@ class OfflinePersistenceTests(unittest.TestCase):
         dlg.spin_xfade.SetValue(0.08)
         dlg.chk_export_stems.SetValue(False)
         dlg.chk_master_output.SetValue(True)
+        dlg.chk_normalize.SetValue(False)
+        dlg.txt_normalize_db.SetValue("-3.0")
 
         dlg._persist_current_settings()
         vars.writeCeciliaPrefsToFile()
@@ -324,6 +347,8 @@ class OfflinePersistenceTests(unittest.TestCase):
         self.assertEqual(CeciliaLib.getVar('offlineCrossfade'), 0.08)
         self.assertEqual(CeciliaLib.getVar('offlineExportStems'), 0)
         self.assertEqual(CeciliaLib.getVar('offlineMasterOutput'), 1)
+        self.assertEqual(CeciliaLib.getVar('offlineNormalize'), 0)
+        self.assertEqual(CeciliaLib.getVar('offlineNormalizeTargetDb'), -3.0)
 
         # 3. Test sync_from_session retains offline settings and does NOT revert to DAC settings
         CeciliaLib.setVar('sr', 44100)
@@ -342,6 +367,8 @@ class OfflinePersistenceTests(unittest.TestCase):
         self.assertEqual(dlg.choice_bitdepth.GetSelection(), 1)
         self.assertFalse(dlg.chk_export_stems.GetValue())
         self.assertTrue(dlg.chk_master_output.GetValue())
+        self.assertFalse(dlg.chk_normalize.GetValue())
+        self.assertEqual(dlg.txt_normalize_db.GetValue(), "-3.0")
 
     def test_offline_naming_scheme(self):
         """Test the Final_Master.wav and Final_Delay.wav naming convention for master and stems."""
@@ -424,6 +451,51 @@ class OfflinePersistenceTests(unittest.TestCase):
 
         finally:
             CeciliaLib.session = orig_session
+
+    def test_normalize_audio_file(self):
+        """Test normalize_audio_file on audio files with various target dB levels."""
+        from Resources.OfflineRender import (
+            normalize_audio_file,
+            _write_wav_float32,
+            _read_wav_float64,
+        )
+        import numpy as np
+
+        # 1. Stereo file with peak 0.25 (-12.04 dB)
+        stereo_wav = os.path.join(self.tmp_dir, "stereo_test.wav")
+        data = np.array([[0.1, -0.25, 0.2, -0.15], [-0.05, 0.25, -0.1, 0.05]], dtype=np.float64)
+        _write_wav_float32(data, stereo_wav, 44100)
+
+        # Normalize to -0.1 dB
+        peak_res = normalize_audio_file(stereo_wav, target_db=-0.1, sr=44100, fileformat=0, sampletype=3)
+        self.assertEqual(peak_res, -0.1)
+
+        read_back = _read_wav_float64(stereo_wav)
+        expected_amp = 10.0 ** (-0.1 / 20.0)
+        self.assertAlmostEqual(float(np.max(np.abs(read_back))), expected_amp, places=5)
+
+        # Normalize to -3.0 dB
+        peak_res_3 = normalize_audio_file(stereo_wav, target_db=-3.0, sr=44100, fileformat=0, sampletype=3)
+        self.assertEqual(peak_res_3, -3.0)
+        read_back_3 = _read_wav_float64(stereo_wav)
+        expected_amp_3 = 10.0 ** (-3.0 / 20.0)
+        self.assertAlmostEqual(float(np.max(np.abs(read_back_3))), expected_amp_3, places=5)
+
+        # 2. Mono file with peak 0.5
+        mono_wav = os.path.join(self.tmp_dir, "mono_test.wav")
+        mdata = np.array([[0.1, -0.5, 0.3, -0.2]], dtype=np.float64)
+        _write_wav_float32(mdata, mono_wav, 48000)
+
+        normalize_audio_file(mono_wav, target_db=0.0, sr=48000, fileformat=0, sampletype=3)
+        m_read = _read_wav_float64(mono_wav)
+        self.assertAlmostEqual(float(np.max(np.abs(m_read))), 1.0, places=5)
+
+        # 3. Silent file
+        silent_wav = os.path.join(self.tmp_dir, "silent_test.wav")
+        sdata = np.zeros((2, 100), dtype=np.float64)
+        _write_wav_float32(sdata, silent_wav, 44100)
+        s_res = normalize_audio_file(silent_wav, target_db=-0.1, sr=44100, fileformat=0, sampletype=3)
+        self.assertEqual(s_res, -90.0)
 
 
 if __name__ == "__main__":

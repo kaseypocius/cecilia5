@@ -1,11 +1,17 @@
 """Routing canvas gestures without a display or audio hardware."""
 import ast
 import math
+import os
 from pathlib import Path
+import tempfile
 from types import SimpleNamespace
 import sys
 import unittest
 from unittest.mock import Mock, patch
+
+TEST_HOME = tempfile.mkdtemp(prefix="cecilia_routing_test_home_")
+os.environ["HOME"] = TEST_HOME
+
 
 
 class Rect:
@@ -29,7 +35,23 @@ class RoutingSelectionTests(unittest.TestCase):
             modules=[SimpleNamespace(id=name) for name in ('source', 'a', 'b')],
             source_ids={'source'}, positions={'a': [280, 150], 'b': [490, 275]},
             history=self.history)
-        namespace = {'wx': SimpleNamespace(ScrolledWindow=object, Rect=Rect, WXK_ESCAPE=27, WXK_DELETE=127, WXK_BACK=8),
+        self.fake_font = Mock()
+        self.fake_font.GetPointSize.return_value = 10
+        self.dc = Mock()
+        self.dc.GetFont.return_value = self.fake_font
+        self.gc = Mock()
+        self.wx_ns = SimpleNamespace(
+            ScrolledWindow=object, Rect=Rect,
+            WXK_ESCAPE=27, WXK_DELETE=127, WXK_BACK=8,
+            WHITE='#ffffff', FONTWEIGHT_BOLD=700,
+            AutoBufferedPaintDC=Mock(return_value=self.dc),
+            GraphicsContext=SimpleNamespace(Create=Mock(return_value=self.gc)),
+            Brush=Mock(), Pen=Mock(),
+            Font=Mock(return_value=self.fake_font),
+            PENSTYLE_SHORT_DASH=105,
+            TRANSPARENT_BRUSH=Mock()
+        )
+        namespace = {'wx': self.wx_ns,
                      'CeciliaLib': SimpleNamespace(session=self.graph), 'math': math,
                      '__name__': 'Resources.RoutingGraph', '__package__': 'Resources'}
         exec(compile(ast.Module(body=[cls], type_ignores=[]), '<routing canvas>', 'exec'), namespace)
@@ -166,3 +188,74 @@ class RoutingSelectionTests(unittest.TestCase):
         self.assertIsNone(canvas.hover_button)
         canvas.motion(self.event((300, 170)))
         self.assertIsNone(canvas.hover_button)
+
+    def test_paint_with_offline_stems_renders_all_nodes(self):
+        canvas = self.canvas
+        canvas.GetBackgroundColour = Mock(return_value='#3e4147')
+        canvas.DoPrepareDC = Mock()
+        canvas.GetVirtualSize = Mock(return_value=SimpleNamespace(height=600))
+        canvas.port = lambda node, output: (100, 100)
+        canvas.button_rect = Mock(return_value=Rect(0, 0, 10, 10))
+        canvas.mute_rect = Mock(return_value=Rect(0, 0, 10, 10))
+        canvas.can_remove = Mock(return_value=True)
+        canvas.hover_button = None
+
+        self.graph.offline_stem_ids = ['a']
+        self.graph.active_modules = lambda: self.graph.modules
+        self.graph.connections = [('source', 'a'), ('a', 'b')]
+        self.graph.output_connections = ['b']
+        self.graph.muted_ids = []
+        self.graph.source_id = 'source'
+        self.graph.selected_id = 'a'
+        for m in self.graph.modules:
+            m.state = {'currentModuleName': m.id.capitalize()}
+
+        canvas.paint(Mock())
+
+        # Collect all text strings drawn
+        drawn_texts = [call[0][0] for call in self.dc.DrawText.call_args_list]
+
+        # Verify STEM badge text was drawn
+        self.assertIn('STEM', drawn_texts)
+
+        # Verify all module titles and Output were drawn (paint did not abort midway!)
+        self.assertIn('Source', drawn_texts)
+        self.assertIn('A', drawn_texts)
+        self.assertIn('B', drawn_texts)
+        self.assertIn('Output', drawn_texts)
+
+
+class ChainUIViewTests(unittest.TestCase):
+    def test_chain_ui_view_visibility(self):
+        from Resources import ChainUI, CeciliaLib
+        frame = Mock()
+        frame.viewChoice = Mock()
+        frame.grid = Mock()
+        frame.sliderHost = Mock()
+        frame.graphHost = Mock()
+
+        selected = Mock()
+        selected.editor = Mock()
+        session = SimpleNamespace(
+            modules=[selected],
+            selected=selected,
+            view='graph',
+            history=Mock()
+        )
+
+        with patch.object(CeciliaLib, 'session', session), \
+             patch.object(ChainUI, 'rebuild_grid', Mock()):
+            # Switch to chain (Routing) view: sliders and sliderHost must be hidden
+            ChainUI.show_view(frame, 'chain')
+            frame.grid.Show.assert_called_with(True)
+            selected.editor.graph.Show.assert_called_with(False)
+            selected.editor.sliders.Show.assert_called_with(False)
+            frame.sliderHost.Show.assert_called_with(False)
+
+            # Switch to graph (Editor) view: sliders and sliderHost must be shown
+            ChainUI.show_view(frame, 'graph')
+            frame.grid.Show.assert_called_with(False)
+            selected.editor.graph.Show.assert_called_with(True)
+            selected.editor.sliders.Show.assert_called_with(True)
+            frame.sliderHost.Show.assert_called_with(True)
+

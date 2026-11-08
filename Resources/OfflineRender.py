@@ -150,6 +150,8 @@ class RenderSettings:
     crossfade: float = 0.1
     crossfade_shape: str = "cosine"  # 'cosine' | 'equal_power'
     export_stems: bool = False
+    normalize: bool = False
+    normalize_target_db: float = -0.1
 
 
 @dataclass
@@ -160,6 +162,8 @@ class RenderJob:
     snapshot: Dict[str, Any]
     duration_override: Optional[float] = None
     export_stems: bool = False
+    normalize: bool = False
+    normalize_target_db: float = -0.1
     master_output: bool = True
     module_outputs: Dict[str, str] = field(default_factory=dict)
     status: str = "Queued"
@@ -289,8 +293,83 @@ def _save_multichannel_audio(arr: np.ndarray, path: str, sr: int, fileformat: in
         _write_wav_float32(arr, path, sr)
         return
     nchnls = arr.shape[0]
-    samples = [arr[ch].tolist() for ch in range(nchnls)]
+    samples = arr[0].tolist() if nchnls == 1 else [arr[ch].tolist() for ch in range(nchnls)]
     savefile(samples=samples, path=path, sr=sr, channels=nchnls, fileformat=fileformat, sampletype=sampletype)
+
+
+def normalize_audio_file(
+    path: str,
+    target_db: float = -0.1,
+    sr: Optional[int] = None,
+    fileformat: Optional[int] = None,
+    sampletype: Optional[int] = None,
+) -> float:
+    """Normalize peak amplitude of an audio file to `target_db`.
+
+    Returns the new peak dB level (or -90.0 if the file was pure silence).
+    """
+    if not os.path.isfile(path):
+        return -90.0
+
+    arr = _read_wav_float64(path)
+    file_sr = sr
+    file_fmt = fileformat
+    file_st = sampletype
+
+    if arr is None:
+        # Fall back to pyo SndTable for non-WAV formats (AIFF, FLAC, etc.)
+        from pyo import Server, SndTable, sndinfo
+        info = sndinfo(path)
+        if info is None:
+            raise RuntimeError(f"Cannot read audio file for normalization: {path}")
+        n_frames, _dur, info_sr, n_chnls, fmt_name, st_name = info
+        file_sr = int(file_sr or info_sr)
+        srv = Server(audio="offline").boot()
+        try:
+            tbl = SndTable(path)
+            avail_ch = len(tbl)
+            if avail_ch == 1:
+                arr = np.array([tbl.getTable()], dtype=np.float64)
+            else:
+                arr = np.vstack([np.array(tbl[ch].getTable(), dtype=np.float64) for ch in range(avail_ch)])
+            del tbl
+        finally:
+            if srv.getIsBooted():
+                srv.shutdown()
+
+    if arr is None or arr.size == 0:
+        return -90.0
+
+    curr_peak = float(np.max(np.abs(arr)))
+    if curr_peak <= 1e-9:
+        # Audio is completely silent; nothing to scale
+        return -90.0
+
+    target_amp = 10.0 ** (target_db / 20.0)
+    gain = target_amp / curr_peak
+    scaled = arr * gain
+
+    if file_sr is None or file_fmt is None or file_st is None:
+        from pyo import sndinfo
+        from .constants import AUDIO_FILE_FORMATS
+        info = sndinfo(path)
+        if info:
+            if file_sr is None:
+                file_sr = int(info[2])
+            if file_fmt is None:
+                fmt_str = str(info[4]).lower()
+                file_fmt = AUDIO_FILE_FORMATS.get(fmt_str, 0)
+            if file_st is None:
+                file_st = 0
+
+    _save_multichannel_audio(
+        scaled,
+        path,
+        sr=int(file_sr or 44100),
+        fileformat=int(file_fmt if file_fmt is not None else 0),
+        sampletype=int(file_st if file_st is not None else 0),
+    )
+    return round(target_db, 2)
 
 
 def list_module_presets(module_name: str, include_init: bool = True) -> List[str]:
@@ -2437,13 +2516,72 @@ class OfflineRenderManager:
                     for sp in job.stem_paths:
                         self._active_outputs.discard(sp)
 
-                job.status = "Done"
-                job.progress = 1.0
                 job.module_results = res.get("module_results", job.module_results)
                 if not job.master_output and job.module_results:
                     job.peak_db = max((m["peak_db"] for m in job.module_results.values()), default=-90.0)
                 else:
                     job.peak_db = res.get("peak_db")
+
+                want_normalize = bool(job.normalize if hasattr(job, 'normalize') and job.normalize else self.settings.normalize)
+                if want_normalize and not self.cancel_event.is_set():
+                    job.status = "Normalizing"
+                    notify_job(job_idx)
+                    target_db = float(getattr(job, 'normalize_target_db', None) or self.settings.normalize_target_db)
+                    from .constants import AUDIO_FILE_FORMATS
+                    fmt_code = AUDIO_FILE_FORMATS.get(self.settings.audio_file_type, 0)
+                    st_code = clamp_sampletype_for_format(fmt_code, int(self.settings.samp_size))
+
+                    if job.master_output and job.output_path and os.path.isfile(job.output_path):
+                        try:
+                            norm_peak = normalize_audio_file(
+                                job.output_path,
+                                target_db=target_db,
+                                sr=sr,
+                                fileformat=fmt_code,
+                                sampletype=st_code,
+                            )
+                            job.peak_db = norm_peak
+                        except Exception:
+                            pass
+
+                    norm_stem_peaks = []
+                    for mid, mod_info in (job.module_results or {}).items():
+                        mpath = mod_info.get("path")
+                        if mpath and os.path.isfile(mpath):
+                            try:
+                                m_peak = normalize_audio_file(
+                                    mpath,
+                                    target_db=target_db,
+                                    sr=sr,
+                                    fileformat=fmt_code,
+                                    sampletype=st_code,
+                                )
+                                mod_info["peak_db"] = m_peak
+                                norm_stem_peaks.append(m_peak)
+                            except Exception:
+                                pass
+
+                    for sp in (job.stem_paths or []):
+                        if sp and os.path.isfile(sp):
+                            already_done = any(m.get("path") == sp for m in (job.module_results or {}).values())
+                            if not already_done:
+                                try:
+                                    sp_peak = normalize_audio_file(
+                                        sp,
+                                        target_db=target_db,
+                                        sr=sr,
+                                        fileformat=fmt_code,
+                                        sampletype=st_code,
+                                    )
+                                    norm_stem_peaks.append(sp_peak)
+                                except Exception:
+                                    pass
+
+                    if not job.master_output and norm_stem_peaks:
+                        job.peak_db = max(norm_stem_peaks)
+
+                job.status = "Done"
+                job.progress = 1.0
                 job.rendered_duration = float(res.get("duration", total_dur))
                 job.elapsed = time.perf_counter() - j_t0
                 with state_lock:
