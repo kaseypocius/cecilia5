@@ -48,7 +48,7 @@ class PackagingTests(unittest.TestCase):
         self.assertEqual(Path(constants.RESOURCES_PATH), ROOT / 'Resources')
         self.assertTrue(Path(constants.SPLASH_FILE_PATH).is_file())
         self.assertTrue((Path(constants.MODULES_PATH) / 'Dynamics/Degrade.c5').is_file())
-        self.assertEqual(os.getcwd(), self.temp.name)
+        self.assertEqual(os.path.realpath(os.getcwd()), os.path.realpath(self.temp.name))
 
     def test_mac_bundle_resources_follow_executable(self):
         with patch.object(sys, 'platform', 'darwin'), \
@@ -99,7 +99,7 @@ class PackagingTests(unittest.TestCase):
         app.SetTopWindow.assert_called_once_with(frame)
         app.MainLoop.assert_called_once_with()
         variables.loadBitmaps.assert_called_once_with()
-        self.assertEqual(os.getcwd(), self.temp.name)
+        self.assertEqual(os.path.realpath(os.getcwd()), os.path.realpath(self.temp.name))
 
     def test_windows_bundle_resources_follow_executable(self):
         with patch.object(sys, 'platform', 'win32'), \

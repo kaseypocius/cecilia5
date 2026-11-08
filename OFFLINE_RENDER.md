@@ -1,0 +1,158 @@
+# Cecilia 5 — Offline Render Mode & Stem Export Studio
+
+Cecilia 5 includes an **Offline Render Mode** with a multi-threaded audio engine, multiple workflow modes, and **individual module stem rendering**.
+
+---
+
+## 1. Overview & Key Capabilities
+
+- **High-Speed Rendering**: Renders complex DSP graphs, filters, and synthesis modules at up to **10×–25× real-time**, free from real-time audio driver limitations or buffer underruns.
+- **Multithreading Support**: Distributes render jobs, disjoint graph branches, or overlapping time-sliced chunks across multiple CPU threads.
+- **Per-Module Output Soundfiles ("Stems")**: Capture isolated audio from any module in the chain directly to disk alongside or instead of the master mix.
+- **Visual Graph Feedback**: Module nodes marked for offline stem export display a green `[STEM]` badge in the interactive routing canvas.
+- **4 Studio Workflows**: Single Bounce, Batch Presets, Batch Sound Folder, and Render Queue.
+- **Uncompressed & Lossless Formats**: WAV, AIFF, FLAC, OGG, CAF, AU, and SD2, with sample bit depths up to 32-bit floating point and up to 36 audio channels.
+- **Live Monitoring & Audition**: Real-time worker lane visualization, peak dB measurement, live VU meter updates, and one-click playback of rendered files.
+
+---
+
+## 2. Launching the Offline Render Studio
+
+The Offline Render Studio is non-modal and can be opened through multiple avenues:
+
+1. **Top Control Panel**: Click the **`[Offline Render]`** button situated next to the transport controls.
+2. **Menu Bar**: Select **`Action -> Offline Render...`** (or press `Ctrl+Shift+R` / `Cmd+Shift+R`).
+3. **API / Scripts**: Call `CeciliaLib.openOfflineRenderDialog(mode="single")`.
+
+---
+
+## 3. Workflow Modes
+
+### Single Bounce
+Bounces the current module or multi-module chain session to a single destination audio file.
+- **Timeline Duration**: Custom duration in seconds, or click **`Use Input Sound Duration`** to automatically inherit the source file length.
+- **Branch Stems**: In multi-branch graph topologies, optionally export independent parallel branches feeding the Output node.
+
+### Batch Presets
+Batch-renders multiple presets for the currently active module:
+- Checklist with **`Select All`**, **`Select None`**, and **`Refresh`** buttons.
+- Target folder selection and filename prefix.
+- Options to preserve the currently loaded input audio file and restore preset-specific global settings (duration, master plugins).
+
+### Batch Sound Folder
+Processes an entire folder of input audio files through the current processing graph:
+- Source and output folder selection.
+- Automatic or manual input slot selection for modules with multiple audio inputs (`cfilein` / `csampler`).
+- Option to match each output file's duration to its corresponding input audio file.
+
+### Render Queue
+Capture-and-render queue for auditioning parameter variations and arrangements:
+- Click **`+ Capture Current Session State`** to snapshot the current parameters, curves, and duration.
+- Modify sliders, graph curves, or presets and capture additional variations.
+- Render all queued items in parallel with full progress tracking.
+
+---
+
+## 4. Individual Module Output Soundfiles ("Stems")
+
+You can configure Cecilia to output separate soundfiles for each module in the chain during offline rendering.
+
+```
+                    ┌──────────────┐
+                    │  StochGrains │ ───► [STEM 01: song_01_StochGrains.wav]
+                    └──────┬───────┘
+                           │
+                           ▼
+                    ┌──────────────┐
+                    │  Harmonizer  │ ───► [STEM 02: song_02_Harmonizer.wav]
+                    └──────┬───────┘
+                           │
+                           ▼
+                    ┌──────────────┐
+                    │  Master Mix  │ ───► [MASTER:  song.wav]
+                    └──────────────┘
+```
+
+### Enabling Stems via Routing Graph
+- Right-click any module node in the routing canvas.
+- Toggle **`Output to disk (offline stem)`**.
+- A green **`[STEM]`** badge appears on the module node.
+- The Offline Render Studio checklist automatically updates to reflect your selection.
+
+### Enabling Stems via Offline Render Studio
+In the **Module Outputs to Disk (Individual Stems)** panel:
+- **Master Mix Checkbox**: `[x] Master Mix (Final Chain Output + Master Plugins)` enables or disables the final output file.
+- **Module Checklist**: Lists every module in the session with its order and role (e.g. `01 — StochGrains (Source)`, `02 — Harmonizer (Output)`).
+- **Quick Buttons**:
+  - `Select All`: Marks all modules for stem export.
+  - `Select None`: Clears all module stem selections.
+  - `Master Only`: Re-enables Master Mix and clears all module stems.
+- **Dynamic Output Preview**: Displays the exact number of files and filenames to be generated before rendering starts.
+
+### Stem File Naming Convention
+Stems are written to the same directory as the master output file using structured suffixes:
+- Master Mix: `{basename}.{ext}` (e.g., `composition.wav`)
+- Module Stems: `{basename}_{idx:02d}_{ModuleName}.{ext}` (e.g., `composition_01_StochGrains.wav`, `composition_02_Harmonizer.wav`)
+
+### Stems-Only Rendering
+If you uncheck **Master Mix**, the engine skips rendering the final mix file and produces only the selected module stems. The **`Play Last Render`** button will automatically audition the first rendered stem.
+
+---
+
+## 5. Multithreading Engine & Acceleration Strategies
+
+The offline engine uses a persistent worker pool (`_WorkerPool`) that runs headless rendering instances (`_HeadlessRenderWorker`) inside isolated worker processes to bypass the Python GIL.
+
+### Acceleration Strategies
+
+| Strategy | Description | Best Suited For |
+| :--- | :--- | :--- |
+| **Auto** | Dynamically chooses between Single, Parallel Branches, or Time Chunks based on job count, graph topology, and render duration. | General production use |
+| **Single** | Renders jobs directly in a single pass per job. When multiple jobs are queued, jobs run across worker threads in parallel. | Short renders or exact bit-for-bit single passes |
+| **Parallel Branches** | Decomposes pairwise-disjoint graph branches into separate render tasks running on distinct threads, summing them at the master mix. | Complex routing graphs with parallel synthesizer or effect branches |
+| **Time Chunks** | Slices long timelines into overlapping time segments rendered concurrently across CPU threads, then crossfades and stitches them. | Long renders (>8s) requiring maximum acceleration |
+
+### Time-Chunk Configuration
+- **Preroll (sec)**: Pre-renders audio prior to the slice start time (0.0 to 10.0s) so filters, reverbs, and feedback delays warm up to steady state.
+- **Crossfade (sec)**: Overlap crossfade duration (0.01 to 2.0s) between stitched chunks.
+- **Crossfade Shape**: Select between `cosine`, `linear`, or `equal_power` crossfade curves.
+
+---
+
+## 6. Supported Audio Formats
+
+| Format | Extensions | Supported Bit Depths |
+| :--- | :--- | :--- |
+| **WAV** | `.wav`, `.wave` | 16-bit, 24-bit, 32-bit int, 32-bit float |
+| **AIFF** | `.aif`, `.aiff` | 16-bit, 24-bit, 32-bit int, 32-bit float |
+| **FLAC** | `.flac` | 16-bit, 24-bit int |
+| **OGG** | `.ogg` | 16-bit, 24-bit int, 32-bit float |
+| **CAF** | `.caf` | 16-bit, 24-bit, 32-bit int, 32-bit float |
+| **AU** | `.au` | 16-bit, 24-bit, 32-bit int, 32-bit float |
+| **SD2** | `.sd2` | 16-bit, 24-bit int |
+
+Supported sample rates range from **22,050 Hz** to **192,000 Hz**, with channel counts from **1 (mono)** up to **36 surround channels**.
+
+---
+
+## 7. Preferences Integration
+
+Offline render defaults can be saved under **`Cecilia -> Preferences -> Export`**:
+- **Default Worker Threads**: Configurable up to $2\times$ the logical CPU core count.
+- **Acceleration Strategy**: `Auto`, `Single`, `Parallel Branches`, or `Time Chunks`.
+- **Chunk Preroll & Crossfade**: Default overlap times and curves.
+
+---
+
+## 8. Verification & Test Suites
+
+The offline render subsystem includes comprehensive unit and GUI integration tests:
+
+```sh
+# Run the offline engine multiprocessing suite
+python3 tests/test_offline_engine.py
+
+# Run the full studio GUI & stem export integration suite
+python3 tests/test_offline_ui.py
+```
+

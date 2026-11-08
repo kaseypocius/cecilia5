@@ -1,5 +1,55 @@
 # Changes #
 
+## Version 5.6.0 ##
+
+- **Offline Render Studio**:
+  - Added a dedicated, non-modal **Offline Render Studio** window (`OfflineRenderDialog`) for high-speed offline audio rendering without real-time playback limitations.
+  - Accessible via the new `[Offline Render]` button on the main Control Panel, the menubar under `Action -> Offline Render...` (`Ctrl+Shift+R` / `Cmd+Shift+R`), or programmatically via `CeciliaLib.openOfflineRenderDialog()`.
+  - Supports four specialized workflow tabs:
+    - **Single Bounce**: Renders the active module or multi-module chain with precise timeline duration, optional input sound duration matching (`Use Input Sound Duration`), and configurable audio settings.
+    - **Batch Presets**: Automatically renders all or selected presets for the active module into separate audio files with options to preserve current input sounds and restore saved preset duration and plugins.
+    - **Batch Sound Folder**: Batch-processes an entire folder of source audio files through the current processing chain, with auto-detection or explicit input slot selection and duration matching.
+    - **Render Queue**: Snapshot capture workflow allowing users to capture multiple session states, parameter variations, or durations (`+ Capture Current Session State`) and bounce them sequentially or in parallel.
+
+- **High-Performance Multithreading Engine**:
+  - Built a persistent headless worker pool with independent IPC pipe isolation, eliminating Python GIL bottlenecks and achieving rendering speeds up to 15x–25x real-time.
+  - Implemented four acceleration strategies:
+    - **Auto**: Automatically selects the optimal execution strategy based on job count, graph topology, and duration.
+    - **Single**: Direct single-pass execution per job for maximum exactness.
+    - **Parallel Branches**: Detects pairwise-disjoint signal branches feeding the Output node and renders them simultaneously across available CPU threads before mixing at the master stage.
+    - **Time Chunks**: Splits long timelines into overlapping segments processed in parallel across worker threads, utilizing configurable filter preroll, crossfade duration (10ms–2s), and smooth crossfade curves (`cosine`, `linear`, `equal_power`).
+  - Added real-time worker lane status visualizations (`_WorkerLanesPanel`), dynamic progress bars with ETA, live VU meter updates, and peak level indicators.
+  - Instant, non-blocking cancellation (`Cancel Render`) with automatic cleanup of partial files and temporary disk artifacts.
+  - Added `Play Last Render` button to quickly audition the most recent bounce directly within the default system audio player.
+
+- **Per-Module Output Soundfiles ("Stems") & Routing Toggles**:
+  - Added the ability to output individual audio files ("stems") for any or all modules in the processing chain during offline bounces, alongside or instead of the master mix.
+  - **Routing Graph Integration**:
+    - Marked modules display a visual green `[STEM]` badge in the routing graph canvas.
+    - Added a checkable `'Output to disk (offline stem)'` item to the right-click context menu of module nodes. Toggling immediately updates the session and synchronizes the studio dialog.
+  - **Studio Dialog Controls**:
+    - Added a master output toggle checkbox (`Master Mix (Final Chain Output + Master Plugins)`) to allow rendering master mix, stems only, or both.
+    - Added an interactive module checklist showing index, module name, and signal role (`Source`, `Output`, `Module`).
+    - Quick selection buttons: `[Select All]`, `[Select None]`, and `[Master Only]`.
+    - Live dynamic preview label displaying the exact number and filenames of soundfiles to be generated (`{basename}_{idx:02d}_{modulename}.{ext}`).
+    - Distinct rows in the job monitor tracking individual completion status, duration, and peak dB for each module stem.
+    - Support for stems-only rendering with master output disabled.
+  - **Single-Pass Audio Tapping & Chunked Stem Crossfading**:
+    - Employs `pyo.Record` to tap each module's post-processed signal during the exact same offline pass with zero redundant reprocessing overhead.
+    - Full support for multi-stem time-chunked multithreading, stitching both master and module stems with sample-accurate alignment.
+
+- **Audio Export Formats & Bit Depths**:
+  - Full support for major uncompressed and lossless audio formats: WAV (`.wav`), AIFF (`.aif`), FLAC (`.flac`), OGG (`.ogg`), CAF (`.caf`), AU (`.au`), and SD2 (`.sd2`).
+  - Bit depth options: 16-bit signed integer, 24-bit signed integer, 32-bit signed integer, and 32-bit floating point, with automatic format-safe clamping for FLAC and SD2.
+  - Sampling rates from 22.05 kHz to 192 kHz and channel counts from 1 (mono) up to 36 surround channels.
+
+- **Preferences Integration**:
+  - Extended the `Preferences -> Export` settings panel with persistent offline render defaults: worker thread count, acceleration strategy, chunk preroll, and crossfade duration.
+
+- **VU Meter & Stability Improvements**:
+  - Fixed `ValueError: math domain error` in `Widgets.py` when calculating logarithmic decibels on zero or negative peak amplitude signals.
+  - Hardened VU meter rendering, graphic refresh behavior, channel peak indicators, and clipping badges to prevent heap corruption and display artifacts.
+
 ## Version 5.5.0 ##
 
 - Added new modules:
