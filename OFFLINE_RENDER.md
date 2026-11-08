@@ -135,22 +135,44 @@ Supported sample rates range from **22,050 Hz** to **192,000 Hz**, with channel 
 
 ---
 
-## 7. Preferences Integration
+## 7. Preferences Integration & Cross-Session Persistence
 
-Offline render defaults can be saved under **`Cecilia -> Preferences -> Export`**:
-- **Default Worker Threads**: Configurable up to $2\times$ the logical CPU core count.
-- **Acceleration Strategy**: `Auto`, `Single`, `Parallel Branches`, or `Time Chunks`.
-- **Chunk Preroll & Crossfade**: Default overlap times and curves.
+All offline render settings are fully decoupled from real-time audio DAC server settings and persist across application restarts in `~/.cecilia5/ceciliaPrefs.txt`.
+
+### Persisted Offline Settings
+
+| Setting | Preference Key | Values / Choices | Description |
+| :--- | :--- | :--- | :--- |
+| **Sample Rate** | `offlineSr` | `22050`, `44100`, `48000`, `88200`, `96000` | Render sample rate independent of live DAC hardware SR |
+| **Channel Count** | `offlineNchnls` | `1` to `36` channels | Output channel configuration (Mono, Stereo, Quad, 5.1, etc.) |
+| **Buffer Size** | `offlineBufferSize` | `8` to `2048` | Processing buffer size (e.g. 512, 1024, 2048 for high throughput) |
+| **File Format** | `offlineAudioFileType` | `wav`, `aif`, `flac`, `ogg`, `caf`, `au`, `sd2` | Export container format |
+| **Bit Depth** | `offlineSampSize` | `16 bits int`, `24 bits int`, `32 bits int`, `32 bits float` | Audio sample bit depth |
+| **Worker Threads** | `offlineThreads` | `1` up to $2\times$ CPU cores | Number of background worker processes |
+| **Acceleration Strategy** | `offlineAccelMode` | `auto`, `single`, `branches`, `chunks` | Single, Parallel Branches, or Time Chunks |
+| **Chunk Preroll** | `offlinePreroll` | `0.0` to `10.0` seconds | Pre-roll time for stateful filters & reverbs |
+| **Chunk Crossfade** | `offlineCrossfade` | `0.01` to `2.0` seconds | Overlap crossfade duration between slices |
+| **Crossfade Curve** | `offlineCrossfadeShape` | `cosine`, `equal_power` | Crossfade interpolation curve |
+| **Branch Stem Export** | `offlineExportStems` | `0` or `1` | Remember branch stems export toggle |
+| **Master Mix Output** | `offlineMasterOutput` | `0` or `1` | Remember Master Mix render state |
+
+### Synchronization Behavior
+- **Immediate Disk Persistence**: Changes made in the Offline Render Studio or in **`Preferences -> Export`** are saved immediately to disk.
+- **Session Decoupling**: Adjusting live audio DAC settings (such as testing low-latency 256 buffer on 2-channel laptop speakers) will never overwrite your high-resolution offline bounce preferences (such as 96 kHz, 6-channel 24-bit FLAC).
+- **Session Sync**: Clicking **`Sync Session`** updates session-dependent properties (timeline duration, presets, module list) while preserving your custom offline export preferences.
 
 ---
 
 ## 8. Verification & Test Suites
 
-The offline render subsystem includes comprehensive unit and GUI integration tests:
+The offline render subsystem includes comprehensive unit, headless persistence, and GUI integration tests:
 
 ```sh
 # Run the offline engine multiprocessing suite
 python3 tests/test_offline_engine.py
+
+# Run the cross-session persistence test suite
+python3 tests/test_offline_persistence.py
 
 # Run the full studio GUI & stem export integration suite
 python3 tests/test_offline_ui.py

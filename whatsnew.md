@@ -43,8 +43,12 @@
   - Bit depth options: 16-bit signed integer, 24-bit signed integer, 32-bit signed integer, and 32-bit floating point, with automatic format-safe clamping for FLAC and SD2.
   - Sampling rates from 22.05 kHz to 192 kHz and channel counts from 1 (mono) up to 36 surround channels.
 
-- **Preferences Integration**:
-  - Extended the `Preferences -> Export` settings panel with persistent offline render defaults: worker thread count, acceleration strategy, chunk preroll, and crossfade duration.
+- **Preferences & Cross-Session Settings Persistence**:
+  - Offline render settings now persist across application sessions in `~/.cecilia5/ceciliaPrefs.txt`.
+  - Stored variables include: sample rate (`offlineSr`), channel count (`offlineNchnls`), buffer size (`offlineBufferSize`), audio file format (`offlineAudioFileType`), bit depth (`offlineSampSize`), worker thread count (`offlineThreads`), acceleration strategy (`offlineAccelMode`), chunk preroll (`offlinePreroll`), chunk crossfade (`offlineCrossfade`), crossfade curve (`offlineCrossfadeShape`), stem export toggle (`offlineExportStems`), and master mix enable toggle (`offlineMasterOutput`).
+  - Completely decoupled offline export settings from real-time live DAC server settings, ensuring live speaker tests do not alter high-resolution offline bounce setups.
+  - Extended `Preferences -> Export` with controls for offline sample rate, channels, buffer size, worker threads, acceleration mode, preroll, and crossfade.
+  - Changes in either the Offline Render Studio or Preferences window are persisted immediately to disk.
 
 - **VU Meter & Stability Improvements**:
   - Fixed `ValueError: math domain error` in `Widgets.py` when calculating logarithmic decibels on zero or negative peak amplitude signals.

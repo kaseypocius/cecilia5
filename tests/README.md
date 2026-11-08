@@ -7,11 +7,17 @@ Run the session model and unit tests from the repository root:
 python3 -m unittest discover -s tests -v
 ```
 
-## Offline Render Multithread Engine Tests
+## Offline Render Multithread Engine & Persistence Tests
 Run the headless offline render engine test suite (exercises worker multiprocessing pools, single-pass rendering, time-chunked overlap crossfading, parallel branch decomposition, multi-stem tapping, batch rendering, and clean cancellation):
 
 ```sh
 python3 tests/test_offline_engine.py
+```
+
+Run the cross-session preferences persistence test suite (exercises serialization and deserialization of all offline settings, type conversions, legacy preference fallback, DAC decoupling, and UI sync logic):
+
+```sh
+python3 tests/test_offline_persistence.py
 ```
 
 ## GUI & Studio Integration Tests
