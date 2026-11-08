@@ -406,6 +406,15 @@ def resetControls():
                 getControlPanel().setTotalTime(getControlPanel().tmpTotalTime, True)
         callAfter(getControlPanel().vuMeter.reset)
 
+def openOfflineRenderDialog(parent=None, mode="single", auto_output_path=None, auto_start=False):
+    from .OfflineRenderDialog import OfflineRenderDialog
+    return OfflineRenderDialog.open_dialog(
+        parent=parent,
+        mode=mode,
+        auto_output_path=auto_output_path,
+        auto_start=auto_start,
+    )
+
 def queryAudioMidiDrivers():
     inputs, inputIndexes, defaultInput, outputs, outputIndexes, \
     defaultOutput, midiInputs, midiInputIndexes, defaultMidiInput = getVar("audioServer").getAvailableAudioMidiDrivers()
@@ -808,6 +817,7 @@ def completeUserInputsDict():
                 getVar("userInputs")[i]['off' + cfilein.getName()] = cfilein.getOffset()
                 getVar("userInputs")[i]['loopMode'] = cfilein.getSamplerInfo()['loopMode']
                 getVar("userInputs")[i]['startFromLoop'] = cfilein.getSamplerInfo()['startFromLoop']
+                getVar("userInputs")[i]['xfadeshape'] = cfilein.getSamplerInfo()['xfadeshape']
                 getVar("userInputs")[i]['loopX'] = cfilein.getSamplerInfo()['loopX']
                 getVar("userInputs")[i]['loopIn'] = cfilein.getSamplerInfo()['loopIn']
                 getVar("userInputs")[i]['loopOut'] = cfilein.getSamplerInfo()['loopOut']
@@ -839,7 +849,8 @@ def updateInputsFromDict():
             for key, setter in (('loopMode', 'setLoopMode'), ('loopX', 'setLoopX'),
                                 ('loopIn', 'setLoopIn'), ('loopOut', 'setLoopOut'),
                                 ('gain', 'setGain'), ('transp', 'setTransp'),
-                                ('startFromLoop', 'setStartFromLoop')):
+                                ('startFromLoop', 'setStartFromLoop'),
+                                ('xfadeshape', 'setXfadeShape')):
                 if key in saved and hasattr(frame, setter):
                     getattr(frame, setter)(saved[key])
             if 'off' + name in saved:

@@ -1367,6 +1367,7 @@ class CeciliaAmpModPlugin(CeciliaPlugin):
     def __init__(self, input, params, knobs):
         CeciliaPlugin.__init__(self, input, params, knobs)
         if self.preset == 0:
+            mode = 0
             inter = 0
         else:
             mode = self.preset - 1
@@ -1532,6 +1533,7 @@ class AudioServer():
             self.server.verbosity = 15
         if host == 'jack':
             self.server.setJackAuto(True, True)
+        self.ampCallable = None
         self.setTimeCallable()
         self.timeOpened = True
         self.recording = False
@@ -1657,14 +1659,17 @@ class AudioServer():
         if CeciliaLib.getVar("useMidi"):
             self.server.setMidiInputDevice(CeciliaLib.getVar("midiDeviceIn"))
         self.server.boot()
+        if self.ampCallable is not None:
+            self.server._server.setAmpCallable(self.ampCallable)
+        self.setTimeCallable()
 
     def reinit(self):
         jackname = CeciliaLib.getVar("jack").get("client", "cecilia5")
+        sr, bufsize, nchnls, duplex, host, outdev, indev, firstin, firstout = self.getPrefs()
         if CeciliaLib.getVar("toDac"):
-            sr, bufsize, nchnls, duplex, host, outdev, indev, firstin, firstout = self.getPrefs()
-            self.server.reinit(audio=host, jackname=jackname)
+            self.server.reinit(sr=sr, nchnls=nchnls, buffersize=bufsize, duplex=duplex, audio=host, jackname=jackname)
         else:
-            self.server.reinit(audio="offline_nb", jackname=jackname)
+            self.server.reinit(sr=sr, nchnls=nchnls, buffersize=bufsize, duplex=duplex, audio="offline_nb", jackname=jackname)
             dur = CeciliaLib.getVar("totalTime")
             filename = CeciliaLib.getVar("outputFile")
             fileformat = AUDIO_FILE_FORMATS[CeciliaLib.getVar("audioFileType")]
@@ -1672,23 +1677,30 @@ class AudioServer():
             self.server.recordOptions(dur=dur, filename=filename, fileformat=fileformat, sampletype=sampletype)
 
     def setAmpCallable(self, callable):
+        self.ampCallable = callable
         self.server._server.setAmpCallable(callable)
 
     def setTimeCallable(self):
         self.server._server.setTimeCallable(self)
 
     def setTime(self, *args):
+        grapher = CeciliaLib.getVar("grapher")
+        interface = CeciliaLib.getVar("interface")
         if len(args) >= 4 and self.timeOpened:
             time = args[1] * 60 + args[2] + args[3] * 0.001
-            CeciliaLib.getVar("grapher").cursorPanel.setTime(time)
-            CeciliaLib.getVar("interface").controlPanel.setTime(time, args[1], args[2], args[3] // 10)
+            if grapher is not None:
+                grapher.cursorPanel.setTime(time)
+            if interface is not None:
+                interface.controlPanel.setTime(time, args[1], args[2], args[3] // 10)
             if time >= (CeciliaLib.getVar("totalTime") - 0.5):
                 CeciliaLib.callAfter(CeciliaLib.getControlPanel().closeBounceToDiskDialog)
             if time >= (CeciliaLib.getVar("totalTime")):
                 CeciliaLib.callAfter(CeciliaLib.stopCeciliaSound)
         else:
-            CeciliaLib.getVar("grapher").cursorPanel.setTime(CeciliaLib.getVar("startOffset"))
-            CeciliaLib.getVar("interface").controlPanel.setTime(0, 0, 0, 0)
+            if grapher is not None:
+                grapher.cursorPanel.setTime(CeciliaLib.getVar("startOffset"))
+            if interface is not None:
+                interface.controlPanel.setTime(0, 0, 0, 0)
 
     def recstart(self):
         self.server.recstart()

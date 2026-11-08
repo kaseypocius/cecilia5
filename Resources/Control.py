@@ -450,6 +450,16 @@ class CECControl(scrolled.ScrolledPanel):
 
         outputSizer.Add(self.meterSizer, 1, wx.EXPAND)
         outputSizer.Add(self.lineSizer, 0, wx.ALIGN_LEFT | wx.LEFT | wx.BOTTOM, 7)
+
+        self.offlineRenderBtn = CloseBox(self.outputPanel, size=(220, 22),
+                                         outFunction=self.onOpenOfflineRender,
+                                         label='Offline Render...')
+        CeciliaLib.setToolTip(self.offlineRenderBtn,
+                              "Open the multithreaded Offline Render Studio (Shift+Ctrl+B).\n"
+                              "Supports single bounce, parallel chain stems, batch presets, sound folders, and render queues.")
+        self.offlineRenderBtn.Bind(wx.EVT_LEAVE_WINDOW, self.OnLooseFocus)
+        outputSizer.Add(self.offlineRenderBtn, 0, wx.ALIGN_LEFT | wx.LEFT | wx.BOTTOM, 7)
+
         outputSizer.AddGrowableRow(9)
         self.outputPanel.SetSizer(outputSizer)
 
@@ -562,7 +572,14 @@ class CECControl(scrolled.ScrolledPanel):
         else:
             CeciliaLib.stopCeciliaSound()
 
+    def onOpenOfflineRender(self):
+        if not CeciliaLib.session.modules:
+            return
+        CeciliaLib.openOfflineRenderDialog(mode="single")
+
     def onBounceToDisk(self):
+        if not CeciliaLib.session.modules:
+            return
         if self.outputFilename != '':
             filename = CeciliaLib.autoRename(self.outputFilename)
             self.filenameLabel.setLabel(CeciliaLib.shortenName(os.path.split(filename)[1], self.charNumForLabel))
@@ -573,10 +590,7 @@ class CECControl(scrolled.ScrolledPanel):
                 return
         self.outputFilename = filename
         CeciliaLib.setVar("outputFile", filename)
-        CeciliaLib.setVar("toDac", False)
-        self.showBounceDialog()
-        CeciliaLib.startCeciliaSound(timer=False)
-        self.updatePeak(0)
+        CeciliaLib.openOfflineRenderDialog(mode="single", auto_output_path=filename, auto_start=True)
 
     def showBounceDialog(self):
         self.bounce_dlg = wx.Dialog(CeciliaLib.getVar('interface'), -1, "Bounce to disk")
@@ -596,9 +610,7 @@ class CECControl(scrolled.ScrolledPanel):
     def onBatchProcessing(self, filename):
         self.outputFilename = filename
         CeciliaLib.setVar("outputFile", filename)
-        CeciliaLib.setVar("toDac", False)
-        CeciliaLib.startCeciliaSound(timer=False)
-        self.updatePeak(0)
+        CeciliaLib.openOfflineRenderDialog(mode="single", auto_output_path=filename, auto_start=True)
 
     def onSelectOutputFilename(self):
         file = CeciliaLib.saveFileDialog(self, AUDIO_FILE_WILDCARD, type='Save audio')
@@ -611,13 +623,11 @@ class CECControl(scrolled.ScrolledPanel):
 
     def updateOutputFormat(self):
         self.vuMeter.updateNchnls()
-        x, y = self.meterSizer.GetPosition()
         w, h = self.vuMeter.GetSize()
         self.meterSizer.SetMinSize((w, h + 8))
-        self.meterSizer.SetDimension(x, y, w, h + 8)
-        w2, h2 = self.lineSizer.GetSize()
-        self.lineSizer.SetDimension(7, y + h + 10, w2, h2)
+        self.outputPanel.Layout()
         self.Layout()
+        self.SetupScrolling(scroll_x=False)
         CeciliaLib.callAfter(self.Refresh)
 
     def onFormatChange(self, idx, choice):

@@ -107,12 +107,18 @@ CeciliaVar['automaticMidiBinding'] = 0
 CeciliaVar['showSpectrum'] = 0
 CeciliaVar['spectrumFrame'] = None
 
-if sys.platform.startswith("win"):
-    def_in, def_out = pa_get_default_devices_from_host("directsound")
-elif sys.platform.startswith("darwin"):
-    def_in, def_out = pa_get_default_devices_from_host("core")
+if os.environ.get("CECILIA_OFFLINE_WORKER") == "1":
+    def_in, def_out = 0, 0
 else:
-    def_in, def_out = pa_get_default_devices_from_host("alsa")
+    try:
+        if sys.platform.startswith("win"):
+            def_in, def_out = pa_get_default_devices_from_host("directsound")
+        elif sys.platform.startswith("darwin"):
+            def_in, def_out = pa_get_default_devices_from_host("core")
+        else:
+            def_in, def_out = pa_get_default_devices_from_host("alsa")
+    except Exception:
+        def_in, def_out = 0, 0
 if def_in < 0:
     def_in = 0
 if def_out < 0:
@@ -132,6 +138,12 @@ CeciliaVar['audioInput'] = def_in
 CeciliaVar['enableAudioInput'] = 0
 CeciliaVar['useMidi'] = 0
 CeciliaVar['useSoundDur'] = 0
+CeciliaVar['offlineThreads'] = max(1, min(8, os.cpu_count() or 4))
+CeciliaVar['offlineAccelMode'] = 'auto'
+CeciliaVar['offlineChunkMinDur'] = 8.0
+CeciliaVar['offlinePreroll'] = 0.5
+CeciliaVar['offlineCrossfade'] = 0.1
+CeciliaVar['offlineCrossfadeShape'] = 'cosine'
 CeciliaVar['midiPort'] = 'portmidi'
 CeciliaVar['midiDeviceIn'] = 0
 CeciliaVar['defaultFirstInput'] = 0
@@ -266,8 +278,9 @@ def readCeciliaPrefsFromFile():
         #### Some special cases ####
         convertToInt = ['sr', 'defaultNchnls', 'audioOutput', 'audioInput', 'sampSize', 'automaticMidiBinding',
                         'midiDeviceIn', 'useTooltips', 'enableAudioInput', 'graphTexture', 'showSpectrum', 'useSoundDur',
-                        'defaultFirstInput', 'defaultFirstOutput']
-        convertToFloat = ['defaultTotalTime', 'globalFade', 'DEBUG']
+                        'defaultFirstInput', 'defaultFirstOutput', 'offlineThreads']
+        convertToFloat = ['defaultTotalTime', 'globalFade', 'DEBUG',
+                          'offlineChunkMinDur', 'offlinePreroll', 'offlineCrossfade']
         convertToTuple = ['interfaceSize', 'interfacePosition']
         jackPrefs = ['client']
 
@@ -321,7 +334,9 @@ def writeCeciliaPrefsToFile():
                   'globalFade', 'bufferSize', 'soundfilePlayer', 'soundfileEditor', 'prefferedPath', 'DEBUG',
                   'openFilePath', 'saveFilePath', 'saveAudioFilePath', 'openAudioFilePath', 'grapherLinePath',
                   'defaultTotalTime', 'lastAudioFiles', 'automaticMidiBinding', 'showSpectrum', 'useSoundDur',
-                  'defaultFirstInput', 'defaultFirstOutput', 'lastCeciliaFile']
+                  'defaultFirstInput', 'defaultFirstOutput', 'lastCeciliaFile',
+                  'offlineThreads', 'offlineAccelMode', 'offlineChunkMinDur',
+                  'offlinePreroll', 'offlineCrossfade', 'offlineCrossfadeShape']
 
     print('Writing Cecilia preferences...')
 
@@ -342,5 +357,6 @@ def writeCeciliaPrefsToFile():
 
     file.close()
 
-readCeciliaPrefsFromFile()
+if os.environ.get("CECILIA_OFFLINE_WORKER") != "1":
+    readCeciliaPrefsFromFile()
 CeciliaVar['totalTime'] = CeciliaVar['defaultTotalTime']

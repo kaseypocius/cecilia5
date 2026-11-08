@@ -141,6 +141,8 @@ class InterfaceMenuBar(wx.MenuBar):
         self.actionMenu.Append(ID_PLAY_STOP, 'Play / Stop\tCtrl+.')
         self.frame.Bind(wx.EVT_MENU, self.mainFrame.onShortPlayStop, id=ID_PLAY_STOP)
         self.actionMenu.Append(wx.ID_SEPARATOR, kind=wx.ITEM_SEPARATOR)
+        self.actionMenu.Append(ID_OFFLINE_RENDER, 'Offline Render...\tShift+Ctrl+B')
+        self.frame.Bind(wx.EVT_MENU, self.mainFrame.onOfflineRender, id=ID_OFFLINE_RENDER)
         self.actionMenu.Append(ID_BOUNCE, 'Bounce to Disk\tCtrl+B')
         self.frame.Bind(wx.EVT_MENU, self.mainFrame.onBounceToDisk, id=ID_BOUNCE)
         self.actionMenu.Append(ID_BATCH_PRESET, 'Batch Processing on Preset Sequence')

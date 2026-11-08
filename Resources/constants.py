@@ -61,7 +61,7 @@ try:
         presets_version = version_file.read().strip()
 except FileNotFoundError:
     presets_version = None
-if presets_version != APP_VERSION:
+if presets_version != APP_VERSION and os.environ.get("CECILIA_OFFLINE_WORKER") != "1":
     # Wheels and app bundles keep factory presets with the other resources.
     # Source checkouts (and Windows distributions) keep them at the root.
     factory_presets = os.path.join(RESOURCES_PATH, 'presets')
@@ -240,6 +240,7 @@ ID_BOUNCE = 1035
 ID_BATCH_FOLDER = 1036
 ID_BATCH_PRESET = 1037
 ID_USE_SOUND_DUR = 1040
+ID_OFFLINE_RENDER = 1041
 ID_USE_MIDI = 2052
 ID_MARIO = 3002
 ID_OPEN_RECENT = 4000

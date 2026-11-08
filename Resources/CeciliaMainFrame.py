@@ -61,117 +61,32 @@ class CeciliaMainFrame(wx.Frame):
         else:
             CeciliaLib.stopCeciliaSound()
 
+    def onOfflineRender(self, event):
+        CeciliaLib.openOfflineRenderDialog(mode="single")
+
     def onBounceToDisk(self, event):
-        if CeciliaLib.session.selected is None:
+        if not CeciliaLib.session.modules:
             return
         CeciliaLib.getControlPanel().onBounceToDisk()
 
-    def applyBatchProcessingFolder(self, value):
-        folderName = value
-        if folderName == "":
+    def applyBatchProcessingFolder(self, value=""):
+        if not CeciliaLib.session.modules:
             return
-        old_file_type = CeciliaLib.getVar("audioFileType")
-        cfileins = CeciliaLib.getControlPanel().getCfileinList()
-        if not cfileins or not cfileins[0].filePath:
-            CeciliaLib.showErrorDialog('No source sound', 'Select a source with a sound file for folder batching.')
-            return
-        num_snds = len(cfileins[0].fileMenu.choice)
-        dlg = wx.ProgressDialog("Batch processing on sound folder", "", maximum=num_snds, parent=self,
-                               style=wx.PD_APP_MODAL | wx.PD_AUTO_HIDE | wx.PD_SMOOTH)
-        dlg.SetMinSize((600, -1))
-        dlg.SetClientSize((600, 100))
-        count = 0
-        totaltime = CeciliaLib.getVar("totalTime")
-        for snd in cfileins[0].fileMenu.choice:
-            cfileins[0].onSelectSound(-1, snd)
-            if CeciliaLib.getVar("useSoundDur"):
-                cfileins[0].setTotalTime()
-            path = os.path.split(cfileins[0].filePath)[0]
-            name, ext = os.path.splitext(snd)
-            lext = ext.lower()
-            if lext in [".wav", ".wave"]:
-                CeciliaLib.setVar('audioFileType', "wav")
-            elif lext in [".aif", ".aiff", ".aifc"]:
-                CeciliaLib.setVar('audioFileType', "aif")
-            elif lext in [".ogg"]:
-                CeciliaLib.setVar('audioFileType', "ogg")
-            elif lext in [".flac"]:
-                CeciliaLib.setVar('audioFileType', "flac")
-            elif lext in [".au"]:
-                CeciliaLib.setVar('audioFileType', "au")
-            elif lext in [".sd2"]:
-                CeciliaLib.setVar('audioFileType', "sd2")
-            elif lext in [".caf"]:
-                CeciliaLib.setVar('audioFileType', "caf")
-            if not os.path.isdir(os.path.join(path, folderName)):
-                os.mkdir(os.path.join(path, folderName))
-            filename = os.path.join(path, folderName, "%s-%s%s" % (name, folderName, ext))
-            count += 1
-            (keepGoing, skip) = dlg.Update(count, "Exporting %s" % filename)
-            CeciliaLib.getControlPanel().onBatchProcessing(filename)
-            while (CeciliaLib.getVar("audioServer").isAudioServerRunning()):
-                time.sleep(.1)
-            CeciliaLib.resetControls()
-        if CeciliaLib.getVar("useSoundDur"):
-            CeciliaLib.getControlPanel().setTotalTime(totaltime)
-            CeciliaLib.getControlPanel().updateDurationSlider()
+        CeciliaLib.openOfflineRenderDialog(mode="folder")
 
-        dlg.Destroy()
-        CeciliaLib.setVar('audioFileType', old_file_type)
-
-    def applyBatchProcessingPreset(self, value):
-        folderName = value
-        if folderName == "":
+    def applyBatchProcessingPreset(self, value=""):
+        if not CeciliaLib.session.modules:
             return
-        cfileins = CeciliaLib.getControlPanel().getCfileinList()
-        presets = CeciliaLib.getVar("presetPanel").getPresets()
-        if "init" in presets:
-            presets.remove("init")
-        if "last save" in presets:
-            presets.remove("last save")
-        num_presets = len(presets)
-        dlg = wx.ProgressDialog("Batch processing on preset sequence",
-                                "", maximum=num_presets, parent=self,
-                                style=wx.PD_APP_MODAL | wx.PD_AUTO_HIDE | wx.PD_SMOOTH)
-        dlg.SetMinSize((600, -1))
-        dlg.SetClientSize((600, 100))
-        if len(cfileins) > 0:
-            filepath = cfileins[0].filePath
-        totaltime = CeciliaLib.getVar("totalTime")
-        count = 0
-        for preset in presets:
-            CeciliaLib.loadPresetFromFile(preset)
-            if len(cfileins) == 0:
-                path = os.path.join(os.path.expanduser("~"), "Desktop")
-                name = "batch"
-                ext = "." + CeciliaLib.getVar("audioFileType")
-            else:
-                cfileins[0].onLoadFile(filepath)
-                if CeciliaLib.getVar("useSoundDur"):
-                    cfileins[0].setTotalTime()
-                path, fname = os.path.split(cfileins[0].filePath)
-                name, ext = os.path.splitext(fname)
-            if not os.path.isdir(os.path.join(path, folderName)):
-                os.mkdir(os.path.join(path, folderName))
-            filename = os.path.join(path, folderName, "%s-%s%s" % (name, preset, ext))
-            count += 1
-            (keepGoing, skip) = dlg.Update(count, "Exporting %s" % filename)
-            CeciliaLib.getControlPanel().onBatchProcessing(filename)
-            while (CeciliaLib.getVar("audioServer").isAudioServerRunning()):
-                time.sleep(.1)
-            CeciliaLib.resetControls()
-        if cfileins and CeciliaLib.getVar("useSoundDur"):
-            CeciliaLib.getControlPanel().setTotalTime(totaltime)
-            CeciliaLib.getControlPanel().updateDurationSlider()
-        dlg.Destroy()
+        CeciliaLib.openOfflineRenderDialog(mode="presets")
 
     def onBatchProcessing(self, event):
+        if not CeciliaLib.session.modules:
+            CeciliaLib.showErrorDialog('No active module', 'Open a module or chain session before running batch processing.')
+            return
         if event.GetId() == ID_BATCH_FOLDER:
-            f = BatchPopupFrame(self, self.applyBatchProcessingFolder)
+            CeciliaLib.openOfflineRenderDialog(mode="folder")
         else:
-            f = BatchPopupFrame(self, self.applyBatchProcessingPreset)
-        f.CenterOnScreen()
-        f.Show()
+            CeciliaLib.openOfflineRenderDialog(mode="presets")
 
     def onUseSoundDuration(self, evt):
         CeciliaLib.setVar("useSoundDur", evt.GetInt())

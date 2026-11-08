@@ -433,6 +433,67 @@ class PreferenceFrame(wx.Frame):
         box.Add(formatbox, 0, wx.EXPAND | wx.BOTTOM, 7)
         box.Add(depthbox, 0, wx.EXPAND | wx.BOTTOM, 7)
 
+        box.Add(Separator(fileExportPanel, size=(350, 2), colour=BORDER_COLOUR), 0, wx.EXPAND | wx.TOP | wx.BOTTOM, 6)
+
+        max_threads = max(1, os.cpu_count() or 4)
+        thread_choices = [str(i) for i in range(1, max_threads + 1)]
+        cur_threads = str(min(max_threads, max(1, int(CeciliaLib.getVar("offlineThreads") or 1))))
+
+        textThreads = wx.StaticText(fileExportPanel, 0, 'Offline Threads :')
+        textThreads.SetForegroundColour(PREFS_FOREGROUND)
+        textThreads.SetFont(self.font)
+        self.choiceOfflineThreads = CustomMenu(fileExportPanel, choice=thread_choices,
+                                               init=cur_threads, size=(150, 20),
+                                               outFunction=self.changeOfflineThreads)
+
+        accel_choices = ['auto', 'single', 'branches', 'chunks']
+        cur_accel = str(CeciliaLib.getVar("offlineAccelMode") or 'auto')
+        if cur_accel not in accel_choices:
+            cur_accel = 'auto'
+
+        textAccel = wx.StaticText(fileExportPanel, 0, 'Offline Mode :')
+        textAccel.SetForegroundColour(PREFS_FOREGROUND)
+        textAccel.SetFont(self.font)
+        self.choiceOfflineAccel = CustomMenu(fileExportPanel, choice=accel_choices,
+                                             init=cur_accel, size=(150, 20),
+                                             outFunction=self.changeOfflineAccelMode)
+
+        preroll_choices = ['0.0', '0.1', '0.25', '0.5', '1.0', '2.0']
+        cur_preroll = str(float(CeciliaLib.getVar("offlinePreroll") if CeciliaLib.getVar("offlinePreroll") is not None else 0.5))
+        if cur_preroll not in preroll_choices:
+            preroll_choices = sorted(set(preroll_choices + [cur_preroll]), key=float)
+
+        textPreroll = wx.StaticText(fileExportPanel, 0, 'Chunk Preroll (s) :')
+        textPreroll.SetForegroundColour(PREFS_FOREGROUND)
+        textPreroll.SetFont(self.font)
+        self.choiceOfflinePreroll = CustomMenu(fileExportPanel, choice=preroll_choices,
+                                               init=cur_preroll, size=(150, 20),
+                                               outFunction=self.changeOfflinePreroll)
+
+        xfade_choices = ['0.02', '0.05', '0.1', '0.2', '0.5']
+        cur_xfade = str(float(CeciliaLib.getVar("offlineCrossfade") if CeciliaLib.getVar("offlineCrossfade") is not None else 0.1))
+        if cur_xfade not in xfade_choices:
+            xfade_choices = sorted(set(xfade_choices + [cur_xfade]), key=float)
+
+        textXfade = wx.StaticText(fileExportPanel, 0, 'Chunk Xfade (s) :')
+        textXfade.SetForegroundColour(PREFS_FOREGROUND)
+        textXfade.SetFont(self.font)
+        self.choiceOfflineXfade = CustomMenu(fileExportPanel, choice=xfade_choices,
+                                             init=cur_xfade, size=(150, 20),
+                                             outFunction=self.changeOfflineCrossfade)
+
+        for lbl_widget, menu_widget in (
+            (textThreads, self.choiceOfflineThreads),
+            (textAccel, self.choiceOfflineAccel),
+            (textPreroll, self.choiceOfflinePreroll),
+            (textXfade, self.choiceOfflineXfade),
+        ):
+            row = wx.BoxSizer(wx.HORIZONTAL)
+            row.Add(lbl_widget, 0, wx.LEFT | wx.ALIGN_CENTER_VERTICAL, 5)
+            row.AddStretchSpacer(1)
+            row.Add(menu_widget, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, PADDING)
+            box.Add(row, 0, wx.EXPAND | wx.BOTTOM, 7)
+
         fileExportPanel.SetSizerAndFit(box)
 
         return fileExportPanel
@@ -599,6 +660,18 @@ class PreferenceFrame(wx.Frame):
 
     def changeSampSize(self, index, label):
         CeciliaLib.setVar("sampSize", BIT_DEPTHS[label])
+
+    def changeOfflineThreads(self, index, label):
+        CeciliaLib.setVar("offlineThreads", int(label.strip()))
+
+    def changeOfflineAccelMode(self, index, label):
+        CeciliaLib.setVar("offlineAccelMode", label.strip())
+
+    def changeOfflinePreroll(self, index, label):
+        CeciliaLib.setVar("offlinePreroll", float(label.strip()))
+
+    def changeOfflineCrossfade(self, index, label):
+        CeciliaLib.setVar("offlineCrossfade", float(label.strip()))
 
     def changeNchnls(self, index, choice):
         nchnls = int(choice)

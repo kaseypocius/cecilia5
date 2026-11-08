@@ -17,6 +17,9 @@ You should have received a copy of the GNU General Public License
 along with Cecilia 5.  If not, see <http://www.gnu.org/licenses/>.
 """
 import os, sys, random
+if len(sys.argv) >= 2 and sys.argv[1] == "--offline-worker":
+    from Resources.OfflineRender import worker_main
+    sys.exit(worker_main(sys.argv[2:]))
 import wx
 from Resources.constants import *
 from Resources.Variables import loadBitmaps

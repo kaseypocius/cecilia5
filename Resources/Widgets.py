@@ -4347,78 +4347,118 @@ class VuMeter(wx.Panel):
     def __init__(self, parent, size=(218, 11)):
         wx.Panel.__init__(self, parent, -1, size=size)
         self.parent = parent
-        self.SetMinSize((218, 6))
+        self.nchnls = CeciliaLib.getVar("nchnls")
+        h = 5 * self.nchnls + 1
+        self.SetMinSize((218, h))
+        self.SetSize((218, h))
+        self.SetMaxSize((218, h))
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
         self.SetBackgroundColour("#000000")
         self.Bind(wx.EVT_PAINT, self.OnPaint)
-        self.nchnls = CeciliaLib.getVar("nchnls")
-        self.SetSize((218, 5 * self.nchnls + 1))
-        self.SetMaxSize((218, 5 * self.nchnls + 1))
         self.bitmap = CeciliaLib.getVar("ICON_VUMETER")
         self.backBitmap = CeciliaLib.getVar("ICON_VUMETER_DARK")
-        self.amplitude = [0] * self.nchnls
-        self.oldChnls = 1
-        self.peak = 0
+        self.amplitude = [0.0] * self.nchnls
+        self.oldChnls = self.nchnls
+        self.peak = 0.0
+        self._refreshPending = False
+        self._peakDirty = False
 
     def updateNchnls(self):
         self.nchnls = CeciliaLib.getVar("nchnls")
-        self.amplitude = [0] * self.nchnls
+        self.amplitude = [0.0] * self.nchnls
         gap = (self.nchnls - self.oldChnls) * 5
         self.oldChnls = self.nchnls
         parentSize = self.parent.GetSize()
-        self.SetSize((218, 5 * self.nchnls + 1))
-        self.SetMinSize((218, 5 * self.nchnls + 1))
-        self.SetMaxSize((218, 5 * self.nchnls + 1))
+        h = 5 * self.nchnls + 1
+        self.SetMinSize((218, h))
+        self.SetMaxSize((218, h))
+        self.SetSize((218, h))
         self.parent.SetSize((parentSize[0], parentSize[1] + gap))
         CeciliaLib.callAfter(self.Refresh)
         if CeciliaLib.getVar("interface") is not None:
             CeciliaLib.getVar("interface").Layout()
 
     def setRms(self, *args):
-        if args[0] < 0:
+        if not args or args[0] < 0:
             return
-        if not args:
-            self.amplitude = [0 for i in range(self.nchnls)]
-        else:
-            self.amplitude = args
-        self.amplitude = [math.log10(amp + 0.00001) * 0.2 + 1. for amp in self.amplitude]
-        if self.seekPeak():
-            CeciliaLib.getControlPanel().updatePeak(self.peak)
-        CeciliaLib.callAfter(self.Refresh)
+        raw = [
+            max(0.0, math.log10(max(amp, 0.0) + 0.00001) * 0.2 + 1.0)
+            if not math.isnan(amp) else 0.0
+            for amp in args
+        ]
+        prev = self.amplitude
+        n = self.nchnls
+        smoothed = [0.0] * n
+        for i in range(n):
+            target = min(1.0, raw[i]) if i < len(raw) else 0.0
+            old = prev[i] if i < len(prev) else 0.0
+            if target >= old:
+                smoothed[i] = target
+            else:
+                decayed = old * 0.85
+                if target > decayed:
+                    smoothed[i] = target
+                elif decayed >= 0.005:
+                    smoothed[i] = decayed
+                else:
+                    smoothed[i] = 0.0
+        self.amplitude = smoothed
+        if self.seekPeak(raw):
+            self._peakDirty = True
+        if not self._refreshPending:
+            self._refreshPending = True
+            CeciliaLib.callAfter(self._flushGui)
+
+    def _flushGui(self):
+        self._refreshPending = False
+        if not self:
+            return
+        if self._peakDirty:
+            self._peakDirty = False
+            if CeciliaLib.getControlPanel() is not None:
+                CeciliaLib.getControlPanel().updatePeak(self.peak)
+        self.Refresh(False)
 
     def OnPaint(self, event):
         w, h = self.GetSize()
         dc = wx.AutoBufferedPaintDC(self)
         dc.SetBrush(wx.Brush("#000000"))
-        dc.Clear()
+        dc.SetPen(wx.Pen("#000000"))
         dc.DrawRectangle(0, 0, w, h)
+        amps = self.amplitude
+        bmp_w = self.bitmap.GetWidth()
         for i in range(self.nchnls):
+            y = i * 5
+            amp = amps[i] if i < len(amps) else 0.0
             try:
-                width = int(self.amplitude[i] * w)
+                width = max(0, min(bmp_w, int(amp * w)))
             except:
                 width = 0
-            dc.DrawBitmap(self.backBitmap, 0, i * 5)
+            dc.DrawBitmap(self.backBitmap, 0, y)
             if width > 0:
-                dc.SetClippingRegion(0, i * 5, width, 5)
-                dc.DrawBitmap(self.bitmap, 0, i * 5)
-                dc.DestroyClippingRegion()
+                dc.DrawBitmap(self.bitmap.GetSubBitmap(wx.Rect(0, 0, width, 5)), 0, y)
 
     def reset(self):
-        self.amplitude = [0 for i in range(self.nchnls)]
-        CeciliaLib.callAfter(self.Refresh)
+        self.amplitude = [0.0 for i in range(self.nchnls)]
+        if not self._refreshPending:
+            self._refreshPending = True
+            CeciliaLib.callAfter(self._flushGui)
 
-    def seekPeak(self):
-        newPeak = False
-        if max(self.amplitude) > self.peak:
-            self.peak = max(self.amplitude)
-            newPeak = True
-        return newPeak
+    def seekPeak(self, amps=None):
+        vals = amps if amps is not None else self.amplitude
+        if not vals:
+            return False
+        cur = max(vals)
+        if cur > self.peak:
+            self.peak = cur
+            return True
+        return False
 
     def getPeak(self):
         return self.peak
 
     def resetMax(self):
-        self.peak = 0
+        self.peak = 0.0
 
 class TabsPanel(wx.Panel):
     def __init__(self, parent, size=(230, 20), outFunction=None, backgroundColour=None, borderColour=None):

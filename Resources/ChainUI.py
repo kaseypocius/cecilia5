@@ -176,6 +176,8 @@ def refresh(frame):
                 widget.modebutton.Show()
     frame.controlPanel.pluginsPanel.Enable(bool(session.modules))
     frame.controlPanel.transportButtons.Enable(bool(session.modules))
+    if hasattr(frame.controlPanel, "offlineRenderBtn"):
+        frame.controlPanel.offlineRenderBtn.Enable(bool(session.modules))
     select(frame, session.selected, change_view=False, preserve_source=True)
     rebuild_grid(frame)
     show_view(frame, session.view)
