@@ -1,5 +1,17 @@
 # Changes #
 
+## Offline renderer memory fixes and gigabyte audit
+
+- Stream normalization, re-encoding, peak scans, chunk stitching and branch mixing in bounded blocks; stream mixed branches through the native master graph.
+- Budget workers from decoded inputs, mono replication, spectral histories and convolution IR buffers. Monitor actual worker RSS on macOS/Linux, report memory errors, and clean incomplete outputs/atomic encoder files.
+- Conservative estimates above the RAM budget now trigger a single monitored attempt on supported systems; the actual RSS cap remains enforced. Without RAM telemetry, preflight rejection remains. Auto mode avoids chunk replay with only one worker.
+- Show the RAM worker allowance in render progress when it limits concurrency. A lone single-pass job retains the whole render budget.
+- Guard reproduced native circular-read NaNs in MultiBandDelay and DetunedResonators. Fix DetunedResonators voice activation for non-stereo outputs.
+- Measure native worker RSS for every shipped module at 1 MiB, 64 MiB, 1 GiB and 1.125 GiB, with separate large auxiliary-input and longer-budget probes. Earlier sub-140-MB figures measured only the coordinator and did not establish worker memory use.
+- The [current findings](tests/reports/offline_memory_findings.md) and [size matrix](tests/reports/offline_memory.md) expose silent cases, timeouts and memory stops. Spectral short-output probes are not claimed as audible DSP passes.
+
+The reported MultiBandDelay workload was reproduced with synthetic audio: a 6:42, 48 kHz, 50-channel source to a 60-second, 96 kHz, 50-channel output. It passed in 101.42 seconds with 5.41 GiB peak worker RSS, correct channel frequencies and finite samples. [Reproduction details](tests/reports/multiband_delay_50ch_48k_96k.md).
+
 ## Latest offline-render verification
 
 The latest retest passes **all 69 shipped-module cases**: 65 with the original
@@ -12,7 +24,7 @@ The five previously non-reproducible modules also pass repeated single-pass runs
 
 Validation also passes **14 shipped-module correctness tests**, **14 focused
 replay regressions**, **all six engine scenarios**, and general discovery with
-**109 passed / 66 skipped** (175 total, replay/PCM tests enabled). GUI tests were not
+**135 passed / 66 skipped** (201 total, native DSP checks enabled). GUI tests were not
 enabled. The audit covers four channels at 44.1 kHz and 176,417 frames, init
 settings plus the documented diagnostics, not every preset or routing topology.
 
@@ -61,7 +73,7 @@ Every scenario tests file metadata (frames, rate, channels, container, bit depth
 - **`eight_sixtyfour_wav`**: 8ch WAV 32-bit float $\to$ 64ch WAV 32-bit float (48 kHz, single-pass).
 
 Ten silent init cases are retained and supplemented with **10 passing audible
-diagnostics**. General discovery passes **109 tests / 66 skipped**, and the pitch
+diagnostics**. General discovery passes **135 tests / 66 skipped**, and the pitch
 stress suite passes **300/300 renders**. The native-window workaround changes the
 effective duration by at most one sample without changing pitch. These results
 cover the listed channel-count/codec pairs, not all spatial designs or presets.
@@ -77,6 +89,27 @@ Key format fixes include:
 Exact chunk and branch replay adds CPU and temporary-storage cost; acceleration
 of a single job is not guaranteed. No bundled module defaults were changed to
 make the audit pass.
+
+## Large File Size Scaling & High-Channel Workload Verification
+
+Earlier throughput and file-integrity checks covered all **69 shipped modules** and **4 smaller file-size tiers** (276 total cases) using [`tests/check_filesize_performance.py`](tests/check_filesize_performance.py):
+- **Small (0.50 MB, 1.5s sound, 1.0s render @ 44.1 kHz, 2ch)**: Single-pass baseline.
+- **Medium (5.05 MB, 15.0s sound, 5.0s render @ 44.1 kHz, 2ch)**: Medium single-pass file.
+- **Large (21.97 MB, 60.0s sound, 10.0s render @ 48.0 kHz, 2ch)**: Extended single-pass file.
+- **Chunked Large (21.97 MB, 60.0s sound, 15.0s render @ 48.0 kHz, 4ch)**: Multi-worker time-chunking with overlap crossfade.
+
+High-channel stress benchmarks were also executed on dense topologies (`UltimateGrainer`, `Particle`, `Pelletizer`, `Harmonizer`, `StateVar2`, `ConvolutionReverb`) with **120-second (175.8 MB) audio at 96 kHz** on **8 channels** and **50 channels**.
+
+- **Benchmark Pass Rate**: **276 / 276 cases passed (100% pass rate, 0 failures)**.
+- **High-Channel Stress Pass Rate**: **12 / 12 cases passed (100%)**.
+- **Average Throughput**: **14.2x realtime** (median 14.7x, ranging from 0.7x to 34.2x).
+- Full reports: [`tests/reports/filesize_performance.md`](tests/reports/filesize_performance.md) and [`tests/reports/filesize_performance.json`](tests/reports/filesize_performance.json).
+
+Key engine hardening fixes implemented:
+- **Headless Worker GUI Callback Guard**: In [`Resources/audio.py`](Resources/audio.py), periodic metro timer callbacks (`_updateWidgets`) queried `CeciliaLib.session.active_modules()[0]`. In headless worker processes, GUI active modules are unpopulated, throwing an `IndexError`. In Python 3.13, unhandled exceptions from C audio thread callbacks leave `PyErr_Occurred()` set in the thread state, triggering SIGSEGV (`exit code 139`). Added safe exception handling and presence checks for `active_modules()`.
+- **Phase Vocoder Position Boundary Clamping**: In [`Resources/modules/Spectral/SpectralWarper.c5`](Resources/modules/Spectral/SpectralWarper.c5), pyo's `PVBuffer` receives normalized timeline positions $pos \in [0.0, 1.0]$. When $pos = 1.0$ at the end of large audio files, native C frame indexing could read past the allocated analysis buffer. Clamped $pos$ to `[0.0, 0.9999]` via `Clip`.
+- **Disk and swap headroom**: Large multichannel renders also create intermediate files. Free disk affects storage/swap availability, but no fixed 10–15 GB threshold guarantees or explains an out-of-memory failure. The current audit measures native worker RAM directly.
+- **Historical 1.00 GB input benchmark**: The earlier 42 scenarios rendered short 5–30 second outputs from large inputs. Its RSS figures measured only the coordinator and exclude native workers; they do not establish bounded renderer RAM or gigabyte-output behavior. The [historical throughput report](tests/reports/large_file_1gb_performance.md) is retained with that correction.
 
 ## Version 5.6.0 ##
 
@@ -130,6 +163,12 @@ make the audit pass.
   - **Multichannel Stem Alignment**: Confirmed exact sample frame counts ($N_{\text{stem}} \equiv N_{\text{master}}$) and active multichannel ordering across 1, 2, 6, and 64-channel stem exports.
   - **Parallel Branch Semantics**: Proved that parallel branch acceleration preserves identical 0.707 cable gain, summation, branch muting, and master plugin effects compared to full serial graphs.
   - **Instant Cancellation & Cleanup**: Validated that cancelling an in-progress render terminates worker subprocesses, deletes partial audio files and temporary slice directories from disk, and cleanly restores worker pools for immediate re-use.
+
+- **Expanded Offline RAM Budget & Concurrency Scaling**:
+  - Increased the coordinator's default memory budget from 35% of physical RAM / 50% of available RAM to **75% of physical RAM and 85% of available RAM**, preventing premature thread throttling on high-channel or dense rendering jobs.
+  - Added environment variable overrides for custom memory budgeting: `CECILIA_RAM_BUDGET_BYTES`, `CECILIA_RAM_BUDGET_MB`, `CECILIA_RAM_BUDGET_GB`, and `CECILIA_RAM_BUDGET_FRACTION`.
+  - Added preference variable support (`offlineRamBudgetMB` and `offlineRamBudgetFraction`) for configurable per-user memory budgeting.
+  - Maintained dynamic RSS monitoring guards on macOS and Linux to catch and isolate any single worker exceeding its budget before system memory exhaustion occurs.
 
 - **Audio Export Formats & Bit Depths**:
   - Full support for major uncompressed and lossless audio formats: WAV (`.wav`), AIFF (`.aif`), FLAC (`.flac`), OGG (`.ogg`), CAF (`.caf`), AU (`.au`), and SD2 (`.sd2`).

@@ -13,7 +13,7 @@ Cecilia comes with a rich library of original built-in modules for pitch shiftin
 ## What's New in Version 5.6.0
 
 - **Offline Render Studio**: A dedicated non-modal render studio (`Ctrl+Shift+R` / `Cmd+Shift+R` or via the Control Panel `[Offline Render]` button) featuring:
-  - **Single Bounce**: Faster-than-realtime timeline bouncing with input sound duration matching.
+  - **Single Bounce**: Offline timeline bouncing with input sound duration matching.
   - **Batch Presets**: Batch-render all or selected module presets.
   - **Batch Sound Folder**: Process whole folders of audio files through your current processing chain.
   - **Render Queue**: Capture parameter snapshots and render variations sequentially or in parallel.
@@ -21,6 +21,7 @@ Cecilia comes with a rich library of original built-in modules for pitch shiftin
   - Headless multiprocessing pool for offline rendering; throughput depends on the module, strategy and hardware.
   - 4 acceleration strategies: **Auto**, **Single-Pass**, **Parallel Branches**, and **Time Chunks** (with full-history replay and overlap crossfade curves).
   - Real-time worker lane visualization, ETA progress, and live VU meter feedback.
+  - Block-based export/normalization and RAM-aware worker limits, with an explicit UI note when memory reduces concurrency.
 - **Per-Module Output Soundfiles ("Stems")**:
   - Export individual audio tracks for every module in your signal chain during offline bounces.
   - Visual **`[STEM]`** badges in the routing graph and context menu toggles (`Output to disk (offline stem)`).
@@ -98,12 +99,15 @@ python3 tests/test_offline_ui.py
 
 The latest format retest passes **552/552 cases across all 69 modules**, plus
 **10 audible diagnostics** for silent init cases and **300 repeated pitch-module
-renders**. General discovery passes with **109 passed / 66 skipped**. Integer
+renders**. Current discovery passes with **135 passed / 66 skipped** (201 tests). Integer
 exports now saturate safely, float scratch paths avoid FLAC container conflicts,
 and harmonizer windows avoid the reproduced unison boundary instability.
 See the [format findings](tests/reports/multichannel_findings.md),
 [final matrix](tests/reports/multichannel_formats_final.md), and
 [earlier routing results](tests/reports/offline_modules.md).
+
+Large-file testing covers all 69 modules at 1 MiB, 64 MiB, 1 GiB and 1.125 GiB.
+The [memory audit](tests/reports/offline_memory_findings.md) distinguishes completed file checks, silent output, time limits and memory limits; it measures native worker RSS directly.
 
 For commands and scope, see [tests/README.md](tests/README.md). Exact chunks replay
 signal history; branch workers reconstruct full graph context and apply master

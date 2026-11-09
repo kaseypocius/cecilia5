@@ -112,7 +112,7 @@ The five previously non-reproducible modules also pass repeated single-pass runs
 
 Validation also passes **14 shipped-module correctness tests**, **14 focused
 replay regressions**, **all six engine scenarios**, and general discovery with
-**109 passed / 66 skipped** (175 total, replay/PCM tests enabled). GUI tests were not
+**135 passed / 66 skipped** (201 total, native DSP checks enabled). GUI tests were not
 enabled. The audit covers four channels at 44.1 kHz and 176,417 frames, init
 settings plus the documented diagnostics, not every preset or routing topology.
 
@@ -192,7 +192,68 @@ most one sample to avoid the reproduced unison circular-read edge; pitch stays
 unchanged. See the [stress report](reports/pitch_window_stability_final.md) and
 [post-fix routing checks](reports/harmonizer_routing_retest.md).
 
-Latest general discovery with replay/PCM fixtures enabled: **175 tests,
-109 passed and 66 skipped**. The six engine scenarios pass. GUI and physical
+Latest general discovery with replay/PCM fixtures enabled: **203 tests,
+136 passed and 67 skipped**. The six engine scenarios pass. GUI and physical
 hardware checks were not enabled. Exact commands for the supplemental audible
 fixtures and explicit scope limits are in the [findings](reports/multichannel_findings.md).
+
+## File size performance and scaling benchmark
+
+```sh
+cecillia/bin/python tests/check_filesize_performance.py
+```
+
+This benchmark evaluates offline rendering across all **69 shipped modules** over four file size tiers and acceleration strategies:
+- **Small (0.50 MB, 1.5s sound, 1.0s render @ 44.1 kHz, 2ch)**: Single-pass baseline.
+- **Medium (5.05 MB, 15.0s sound, 5.0s render @ 44.1 kHz, 2ch)**: Medium single-pass file.
+- **Large (21.97 MB, 60.0s sound, 10.0s render @ 48.0 kHz, 2ch)**: Extended single-pass file.
+- **Chunked Large (21.97 MB, 60.0s sound, 15.0s render @ 48.0 kHz, 4ch)**: Multi-worker time-chunking with overlap crossfade.
+
+High-channel & large-file stress testing is also conducted on dense topologies (`UltimateGrainer`, `Particle`, `Pelletizer`, `Harmonizer`, `StateVar2`, `ConvolutionReverb`) with **120-second (175.8 MB) audio at 96 kHz** across **8 channels** and **50 channels**.
+
+Results:
+- **276 / 276 benchmark cases passed** (100% pass rate, 0 failures).
+- **12 / 12 high-channel stress tests passed**.
+- **Average speedup: 14.2x realtime** (median 14.7x, up to 34.2x).
+
+Reports are saved to [`tests/reports/filesize_performance.md`](reports/filesize_performance.md) and [`tests/reports/filesize_performance.json`](reports/filesize_performance.json).
+
+## Historical 1 GB input throughput benchmark
+
+```sh
+cecillia/bin/python tests/check_1gb_performance.py
+```
+
+This historical harness rendered short 5–30 second outputs from inputs up to **1.00 GB** (`1,000,000,000 bytes` / 125,000,000 samples @ 48 kHz / 43.4 minutes of audio):
+1. **File Size Progression**: Tests memory scaling and throughput across 250 MB, 500 MB, 750 MB, and 1.00 GB audio fixtures.
+2. **Cross-Category Representative Modules**: Evaluates 18 modules across all 8 functional categories (`UltimateGrainer`, `Particle`, `Pelletizer`, `StateVar2`, `BrickWall`, `AMFMFilter`, `Distortion`, `DynamicsProcessor`, `FeedbackLooper`, `MultiBandDelay`, `MultiBandReverb`, `Harmonizer`, `ChordMaker`, `PitchLooper`, `SpectralWarper`, `SpectralDelay`, `MatrixReverb`, `StochGrains2`) processing 1.00 GB source files.
+3. **Multichannel Outputs**: Bounces 1.00 GB files to Stereo (2ch), 5.1 Surround (6ch), and Octaphonic (8ch).
+4. **Time-Chunked Multi-Worker Rendering**: Validates parallel chunking and seamless overlap-crossfading from 1.00 GB source files across multiple worker threads.
+5. **Extended Bounces**: Tests long 30-second output renders directly from 1.00 GB audio.
+
+Results:
+- **42 / 42 tests passed (100% pass rate, 0 failures)**.
+- **Average speedup: 7.5x realtime** (median 5.6x, ranging up to 31.1x).
+- **Coordinator-only RSS**: The reported sub-140-MB values exclude native worker processes and do not establish renderer memory bounds or gigabyte-output behavior.
+
+Reports are saved to [`tests/reports/large_file_1gb_performance.md`](reports/large_file_1gb_performance.md) and [`tests/reports/large_file_1gb_performance.json`](reports/large_file_1gb_performance.json).
+
+## Native worker memory and large files
+
+```sh
+cecillia/bin/python tests/check_offline_memory.py
+cecillia/bin/python tests/check_offline_memory.py --resume
+cecillia/bin/python tests/summarize_offline_memory.py
+cecillia/bin/python tests/check_offline_aux_memory.py
+cecillia/bin/python tests/check_offline_memory_utilities.py
+cecillia/bin/python tests/check_offline_memory_manager.py
+cecillia/bin/python tests/check_offline_memory_paired.py
+```
+
+The main sweep uses real 1 MiB/64 MiB/1 GiB/1.125 GiB payloads across all 69 modules, one native child at a time, with a sampled 3 GiB stop and 120-second deadline. It scans all output samples and checks exact metadata. File integrity, audible DSP correctness, timeouts and resource limits are distinct outcomes; silent cases are visible. Auxiliary-slot, 6/10 GiB input retries, and longer output retries are documented in [the findings](reports/offline_memory_findings.md). Do not run large-input copies together without budgeting their combined memory and disk use.
+
+The coordinator integration probe requests six workers with a 1.125 GiB spectral source/impulse, verifies memory-driven serial scheduling, activity events, chunk export, normalization and cleanup. Its spectral short-output result is silent and does not establish audible warmup correctness. These checks measure native child RAM rather than coordinator-only `RUSAGE_SELF`. Standalone packaging, other operating systems and arbitrary presets still need validation.
+
+## Reported 50-channel MultiBandDelay conversion
+
+`cecillia/bin/python tests/check_multiband_delay_50ch.py` generates a dense 402-second/48 kHz/50-channel float32 source and renders 60 seconds at 96 kHz/50 channels through the actual coordinator. It requests six workers in Auto mode; the RAM plan schedules one. It validates exact metadata, every output sample, channel-specific frequencies and cleanup, with a 600-second/11-GiB external watchdog. This is a synthetic reproduction using init parameters, not the user's audio or preset. [Measured result](reports/multiband_delay_50ch_48k_96k.md): 101.42 seconds, 5.41 GiB sampled peak worker RSS.

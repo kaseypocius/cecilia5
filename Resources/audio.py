@@ -1003,25 +1003,31 @@ class BaseModule:
                 slider.record.write()
 
     def _updateWidgets(self):
-        if self._samplers != {}:
-            for key in self._samplers.keys():
-                self._samplers[key].updateWidgets()
-        for slider in self._sliders.values():
-            if slider.play == 1 or slider.midi:
-                slider.updateWidget()
-        if self._openSndCtrlDict:
-            for key in self._openSndCtrlDict.keys():
-                values = self.oscReceivers[key].get(all=True)
-                for i in range(len(values)):
-                    slider = self._openSndCtrlSliderDict[key][i]
-                    if isinstance(slider, tuple):
-                        which = slider[1]
-                        slider[0].setValueFromOSC(values[i], which)
-                    else:
-                        slider.setValueFromOSC(values[i])
-        owner = CeciliaLib.moduleOwner()
-        if owner is None or owner is CeciliaLib.session.active_modules()[0]:
-            CeciliaLib.getVar("audioServer").updatePluginWidgets()
+        try:
+            if self._samplers != {}:
+                for key in self._samplers.keys():
+                    self._samplers[key].updateWidgets()
+            for slider in self._sliders.values():
+                if slider.play == 1 or slider.midi:
+                    slider.updateWidget()
+            if self._openSndCtrlDict:
+                for key in self._openSndCtrlDict.keys():
+                    values = self.oscReceivers[key].get(all=True)
+                    for i in range(len(values)):
+                        slider = self._openSndCtrlSliderDict[key][i]
+                        if isinstance(slider, tuple):
+                            which = slider[1]
+                            slider[0].setValueFromOSC(values[i], which)
+                        else:
+                            slider.setValueFromOSC(values[i])
+            owner = CeciliaLib.moduleOwner()
+            active = CeciliaLib.session.active_modules() if getattr(CeciliaLib, "session", None) else []
+            if owner is None or (active and owner is active[0]):
+                audio_srv = CeciliaLib.getVar("audioServer")
+                if audio_srv is not None and hasattr(audio_srv, "updatePluginWidgets"):
+                    audio_srv.updatePluginWidgets()
+        except Exception:
+            pass
 
     def _setWidgetValues(self):
         # graph lines

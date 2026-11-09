@@ -1,0 +1,2160 @@
+{
+  "modules": 69,
+  "passed": 69,
+  "failed": 0,
+  "inconclusive": 0,
+  "elapsed_seconds": 265.384764082999,
+  "results": [
+    {
+      "module": "Dynamics/Degrade.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 1.4901161193847656e-08,
+          "seam_max_error": 1.4901161193847656e-08,
+          "rms_error": 8.998232547146362e-10,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.16584250330924988,
+      "status": "pass"
+    },
+    {
+      "module": "Dynamics/Distortion.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 1.4901161193847656e-08,
+          "seam_max_error": 1.4901161193847656e-08,
+          "rms_error": 2.3181710242543488e-09,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.06318105012178421,
+      "status": "pass"
+    },
+    {
+      "module": "Dynamics/DynamicsProcessor.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 7.450580596923828e-09,
+          "seam_max_error": 7.450580596923828e-09,
+          "rms_error": 1.4987717629417584e-09,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.227352112531662,
+      "status": "pass"
+    },
+    {
+      "module": "Dynamics/FeedbackLooper.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 7.450580596923828e-09,
+          "seam_max_error": 7.450580596923828e-09,
+          "rms_error": 7.610466816721708e-10,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.06424073129892349,
+      "status": "pass"
+    },
+    {
+      "module": "Dynamics/UpDistoRes.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 2.9802322387695312e-08,
+          "seam_max_error": 2.9802322387695312e-08,
+          "rms_error": 5.069506260275545e-09,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.13736887276172638,
+      "status": "pass"
+    },
+    {
+      "module": "Dynamics/WaveShaper.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 2.9802322387695312e-08,
+          "seam_max_error": 2.9802322387695312e-08,
+          "rms_error": 6.6670478175652454e-09,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.1576956957578659,
+      "status": "pass"
+    },
+    {
+      "module": "Filters/AMFMFilter.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 3.725290298461914e-09,
+          "seam_max_error": 3.725290298461914e-09,
+          "rms_error": 2.275032634130133e-10,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.02266043610870838,
+      "status": "pass"
+    },
+    {
+      "module": "Filters/AutoModFilter.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 7.450580596923828e-09,
+          "seam_max_error": 7.450580596923828e-09,
+          "rms_error": 1.2319330873833192e-09,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.040030837059020996,
+      "status": "pass"
+    },
+    {
+      "module": "Filters/Binaural.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 2.9802322387695312e-08,
+          "seam_max_error": 2.9802322387695312e-08,
+          "rms_error": 1.2448047698100519e-09,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.2271592915058136,
+      "status": "pass"
+    },
+    {
+      "module": "Filters/BrickWall.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 7.450580596923828e-09,
+          "seam_max_error": 7.450580596923828e-09,
+          "rms_error": 1.4745308928897566e-09,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.0383266918361187,
+      "status": "pass"
+    },
+    {
+      "module": "Filters/Flanger.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 7.450580596923828e-09,
+          "seam_max_error": 7.450580596923828e-09,
+          "rms_error": 1.112025209586473e-09,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.13289017975330353,
+      "status": "pass"
+    },
+    {
+      "module": "Filters/MaskFilter.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 3.725290298461914e-09,
+          "seam_max_error": 3.725290298461914e-09,
+          "rms_error": 3.120688107704806e-10,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.014720634557306767,
+      "status": "pass"
+    },
+    {
+      "module": "Filters/ParamEQ.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 3.725290298461914e-09,
+          "seam_max_error": 3.725290298461914e-09,
+          "rms_error": 9.297417559397876e-10,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.15070143342018127,
+      "status": "pass"
+    },
+    {
+      "module": "Filters/Phaser.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 7.450580596923828e-09,
+          "seam_max_error": 7.450580596923828e-09,
+          "rms_error": 6.053326150836546e-10,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.10720133781433105,
+      "status": "pass"
+    },
+    {
+      "module": "Filters/StateVar.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 9.313225746154785e-10,
+          "seam_max_error": 9.313225746154785e-10,
+          "rms_error": 1.163000096317062e-10,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.0060894121415913105,
+      "status": "pass"
+    },
+    {
+      "module": "Filters/StateVar2.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 2.9802322387695312e-08,
+          "seam_max_error": 2.9802322387695312e-08,
+          "rms_error": 1.072307524026219e-09,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.21829551458358765,
+      "status": "pass"
+    },
+    {
+      "module": "Filters/Vocoder.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 7.450580596923828e-09,
+          "seam_max_error": 7.450580596923828e-09,
+          "rms_error": 8.437631808694659e-10,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.03956809639930725,
+      "status": "pass"
+    },
+    {
+      "module": "Multiband/MultiBandBeatMaker.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 3.725290298461914e-09,
+          "seam_max_error": 1.862645149230957e-09,
+          "rms_error": 9.754969436421205e-11,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.026000486686825752,
+      "status": "pass"
+    },
+    {
+      "module": "Multiband/MultiBandDelay.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 7.450580596923828e-09,
+          "seam_max_error": 3.725290298461914e-09,
+          "rms_error": 6.569833028653403e-10,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.0695824921131134,
+      "status": "pass"
+    },
+    {
+      "module": "Multiband/MultiBandDisto.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 7.450580596923828e-09,
+          "seam_max_error": 7.450580596923828e-09,
+          "rms_error": 1.6748098849650015e-09,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.04148530215024948,
+      "status": "pass"
+    },
+    {
+      "module": "Multiband/MultiBandFreqShift.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 1.862645149230957e-09,
+          "seam_max_error": 9.313225746154785e-10,
+          "rms_error": 1.584604190848993e-10,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.02389603853225708,
+      "status": "pass"
+    },
+    {
+      "module": "Multiband/MultiBandGate.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 7.450580596923828e-09,
+          "seam_max_error": 7.450580596923828e-09,
+          "rms_error": 5.896523524683966e-10,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.02709987200796604,
+      "status": "pass"
+    },
+    {
+      "module": "Multiband/MultiBandHarmonizer.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 7.450580596923828e-09,
+          "seam_max_error": 3.725290298461914e-09,
+          "rms_error": 5.578501284783288e-10,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.049668073654174805,
+      "status": "pass"
+    },
+    {
+      "module": "Multiband/MultiBandReverb.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 7.450580596923828e-09,
+          "seam_max_error": 7.450580596923828e-09,
+          "rms_error": 4.5553200077904604e-10,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.059599220752716064,
+      "status": "pass"
+    },
+    {
+      "module": "Pitch/ChordMaker.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 7.450580596923828e-09,
+          "seam_max_error": 7.450580596923828e-09,
+          "rms_error": 9.213713296321771e-10,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.0718381479382515,
+      "status": "pass"
+    },
+    {
+      "module": "Pitch/Chorus.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 1.4901161193847656e-08,
+          "seam_max_error": 1.4901161193847656e-08,
+          "rms_error": 9.993704588343669e-10,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.12247490882873535,
+      "status": "pass"
+    },
+    {
+      "module": "Pitch/FreqShift.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 1.4901161193847656e-08,
+          "seam_max_error": 1.4901161193847656e-08,
+          "rms_error": 1.036839925422139e-09,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.11129496991634369,
+      "status": "pass"
+    },
+    {
+      "module": "Pitch/Harmonizer.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 3.725290298461914e-09,
+          "seam_max_error": 1.862645149230957e-09,
+          "rms_error": 4.73588183207695e-10,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.03561028838157654,
+      "status": "pass"
+    },
+    {
+      "module": "Pitch/LooperBank.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 4.656612873077393e-10,
+          "seam_max_error": 4.656612873077393e-10,
+          "rms_error": 3.085606615979063e-11,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.0030946487095206976,
+      "status": "pass"
+    },
+    {
+      "module": "Pitch/LooperMod.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 1.862645149230957e-09,
+          "seam_max_error": 1.862645149230957e-09,
+          "rms_error": 1.5169223810738945e-10,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.007761926855891943,
+      "status": "pass"
+    },
+    {
+      "module": "Pitch/PitchLooper.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 7.450580596923828e-09,
+          "seam_max_error": 7.450580596923828e-09,
+          "rms_error": 6.76992083061217e-10,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.0609661228954792,
+      "status": "pass"
+    },
+    {
+      "module": "Pitch/RandomAccumulator.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "single_reproducibility": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 1.862645149230957e-09,
+          "seam_max_error": 9.313225746154785e-10,
+          "rms_error": 1.9971467389510404e-10,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.011345898732542992,
+      "status": "pass"
+    },
+    {
+      "module": "Resonators&Verbs/ConvolutionReverb.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 9.5367431640625e-07,
+          "seam_max_error": 4.76837158203125e-07,
+          "rms_error": 1.028067371953423e-07,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 4.4711761474609375,
+      "status": "pass"
+    },
+    {
+      "module": "Resonators&Verbs/Convolve.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 1.4901161193847656e-08,
+          "seam_max_error": 1.4901161193847656e-08,
+          "rms_error": 1.9343297051572687e-09,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.06470862030982971,
+      "status": "pass"
+    },
+    {
+      "module": "Resonators&Verbs/DetunedResonators.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 7.450580596923828e-09,
+          "seam_max_error": 7.450580596923828e-09,
+          "rms_error": 9.991292125105463e-10,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.04005467891693115,
+      "status": "pass"
+    },
+    {
+      "module": "Resonators&Verbs/MatrixReverb.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 1.4901161193847656e-08,
+          "seam_max_error": 1.4901161193847656e-08,
+          "rms_error": 1.49191002147907e-09,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.17595136165618896,
+      "status": "pass"
+    },
+    {
+      "module": "Resonators&Verbs/Resonators.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 3.725290298461914e-09,
+          "seam_max_error": 3.725290298461914e-09,
+          "rms_error": 2.877365273025465e-10,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.023977044969797134,
+      "status": "pass"
+    },
+    {
+      "module": "Resonators&Verbs/WGuideBank.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "single_reproducibility": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 2.9802322387695312e-08,
+          "seam_max_error": 1.4901161193847656e-08,
+          "rms_error": 3.3500061872086107e-09,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.12777581810951233,
+      "status": "pass"
+    },
+    {
+      "module": "Spectral/AddResynth.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 1.862645149230957e-09,
+          "seam_max_error": 1.862645149230957e-09,
+          "rms_error": 3.384115562497758e-10,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.01242049876600504,
+      "status": "pass"
+    },
+    {
+      "module": "Spectral/BinModulator.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 3.725290298461914e-09,
+          "seam_max_error": 3.725290298461914e-09,
+          "rms_error": 2.7195549557162885e-10,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.039658766239881516,
+      "status": "pass"
+    },
+    {
+      "module": "Spectral/BinWarper.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.0,
+      "status": "pass_with_diagnostic",
+      "diagnostic": {
+        "module": "Spectral/BinWarper.c5",
+        "checks": {
+          "single_master_and_tap_format": true,
+          "chunk_master_and_tap_format": true,
+          "chunks_master": {
+            "max_error": 0.0,
+            "seam_max_error": 0.0,
+            "rms_error": 0.0,
+            "pass": true
+          },
+          "chunks_a": {
+            "max_error": 0.0,
+            "seam_max_error": 0.0,
+            "rms_error": 0.0,
+            "pass": true
+          },
+          "branch_stem_formats": true,
+          "parallel_routing": {
+            "max_error": 1.4901161193847656e-08,
+            "seam_max_error": 1.4901161193847656e-08,
+            "rms_error": 2.193110506830097e-09,
+            "pass": true
+          }
+        },
+        "errors": [],
+        "peak": 0.0984458327293396,
+        "status": "pass"
+      },
+      "diagnostic_fixture": "0.5-second source, 3x amplitude"
+    },
+    {
+      "module": "Spectral/CrossSynth.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 1.862645149230957e-09,
+          "seam_max_error": 1.862645149230957e-09,
+          "rms_error": 4.1826584945287127e-10,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.012177517637610435,
+      "status": "pass"
+    },
+    {
+      "module": "Spectral/CrossSynth2.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 7.450580596923828e-09,
+          "seam_max_error": 7.450580596923828e-09,
+          "rms_error": 1.1372573504979617e-09,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.17659346759319305,
+      "status": "pass"
+    },
+    {
+      "module": "Spectral/Morphing.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 3.725290298461914e-09,
+          "seam_max_error": 3.725290298461914e-09,
+          "rms_error": 7.857354719213671e-10,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.11914524435997009,
+      "status": "pass"
+    },
+    {
+      "module": "Spectral/Shifter.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 3.725290298461914e-09,
+          "seam_max_error": 3.725290298461914e-09,
+          "rms_error": 4.5476302117175645e-10,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.0546891987323761,
+      "status": "pass"
+    },
+    {
+      "module": "Spectral/SpectralDelay.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 7.450580596923828e-09,
+          "seam_max_error": 7.450580596923828e-09,
+          "rms_error": 1.370610439246935e-09,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.04319397732615471,
+      "status": "pass"
+    },
+    {
+      "module": "Spectral/SpectralFilter.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 3.725290298461914e-09,
+          "seam_max_error": 3.725290298461914e-09,
+          "rms_error": 4.4747242063285715e-10,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.03813878819346428,
+      "status": "pass"
+    },
+    {
+      "module": "Spectral/SpectralGate.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.0,
+      "status": "pass_with_diagnostic",
+      "diagnostic": {
+        "module": "Spectral/SpectralGate.c5",
+        "checks": {
+          "single_master_and_tap_format": true,
+          "chunk_master_and_tap_format": true,
+          "chunks_master": {
+            "max_error": 0.0,
+            "seam_max_error": 0.0,
+            "rms_error": 0.0,
+            "pass": true
+          },
+          "chunks_a": {
+            "max_error": 0.0,
+            "seam_max_error": 0.0,
+            "rms_error": 0.0,
+            "pass": true
+          },
+          "branch_stem_formats": true,
+          "parallel_routing": {
+            "max_error": 1.4901161193847656e-08,
+            "seam_max_error": 0.0,
+            "rms_error": 1.1726040249187573e-09,
+            "pass": true
+          }
+        },
+        "errors": [],
+        "peak": 0.06811469793319702,
+        "status": "pass"
+      },
+      "diagnostic_fixture": "0.5-second source, 3x amplitude, gate threshold -90 dB"
+    },
+    {
+      "module": "Spectral/SpectralWarper.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.0,
+      "status": "pass_with_diagnostic",
+      "diagnostic": {
+        "module": "Spectral/SpectralWarper.c5",
+        "checks": {
+          "single_master_and_tap_format": true,
+          "chunk_master_and_tap_format": true,
+          "chunks_master": {
+            "max_error": 0.0,
+            "seam_max_error": 0.0,
+            "rms_error": 0.0,
+            "pass": true
+          },
+          "chunks_a": {
+            "max_error": 0.0,
+            "seam_max_error": 0.0,
+            "rms_error": 0.0,
+            "pass": true
+          },
+          "branch_stem_formats": true,
+          "parallel_routing": {
+            "max_error": 1.4901161193847656e-08,
+            "seam_max_error": 1.4901161193847656e-08,
+            "rms_error": 2.2305671703275934e-09,
+            "pass": true
+          }
+        },
+        "errors": [],
+        "peak": 0.11626621335744858,
+        "status": "pass"
+      },
+      "diagnostic_fixture": "0.5-second source, 3x amplitude"
+    },
+    {
+      "module": "Spectral/Transpose.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 7.450580596923828e-09,
+          "seam_max_error": 7.450580596923828e-09,
+          "rms_error": 4.5198363056098315e-10,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.06215914338827133,
+      "status": "pass"
+    },
+    {
+      "module": "Spectral/Vectral.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.0,
+      "status": "pass_with_diagnostic",
+      "diagnostic": {
+        "module": "Spectral/Vectral.c5",
+        "checks": {
+          "single_master_and_tap_format": true,
+          "chunk_master_and_tap_format": true,
+          "chunks_master": {
+            "max_error": 0.0,
+            "seam_max_error": 0.0,
+            "rms_error": 0.0,
+            "pass": true
+          },
+          "chunks_a": {
+            "max_error": 0.0,
+            "seam_max_error": 0.0,
+            "rms_error": 0.0,
+            "pass": true
+          },
+          "branch_stem_formats": true,
+          "parallel_routing": {
+            "max_error": 1.4901161193847656e-08,
+            "seam_max_error": 2.524354896707238e-29,
+            "rms_error": 9.135766082685978e-10,
+            "pass": true
+          }
+        },
+        "errors": [],
+        "peak": 0.08629275858402252,
+        "status": "pass"
+      },
+      "diagnostic_fixture": "0.5-second source, 3x amplitude, gate threshold -90 dB"
+    },
+    {
+      "module": "Synthesis/AdditiveSynth.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 2.9802322387695312e-08,
+          "seam_max_error": 1.4901161193847656e-08,
+          "rms_error": 2.085876131666556e-09,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.14101678133010864,
+      "status": "pass"
+    },
+    {
+      "module": "Synthesis/BucketBrigadeDevice.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 9.313225746154785e-10,
+          "seam_max_error": 4.656612873077393e-10,
+          "rms_error": 5.836290693054812e-11,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.009840089827775955,
+      "status": "pass"
+    },
+    {
+      "module": "Synthesis/CrossFreqMod.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 2.9802322387695312e-08,
+          "seam_max_error": 1.4901161193847656e-08,
+          "rms_error": 3.0587009517359197e-09,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.10023542493581772,
+      "status": "pass"
+    },
+    {
+      "module": "Synthesis/FrequencyModulation.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 2.9802322387695312e-08,
+          "seam_max_error": 1.4901161193847656e-08,
+          "rms_error": 4.68341649092196e-09,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.10023730993270874,
+      "status": "pass"
+    },
+    {
+      "module": "Synthesis/Pulsar.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 2.9802322387695312e-08,
+          "seam_max_error": 1.4901161193847656e-08,
+          "rms_error": 1.8485521274125114e-09,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.09363666921854019,
+      "status": "pass"
+    },
+    {
+      "module": "Synthesis/SpitSideBandSynth.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 1.4901161193847656e-08,
+          "seam_max_error": 1.4901161193847656e-08,
+          "rms_error": 2.3356542254392325e-09,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.10119996964931488,
+      "status": "pass"
+    },
+    {
+      "module": "Synthesis/StochGrains.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "single_reproducibility": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 1.4901161193847656e-08,
+          "seam_max_error": 1.4901161193847656e-08,
+          "rms_error": 1.0152170421643968e-09,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.11058423668146133,
+      "status": "pass"
+    },
+    {
+      "module": "Synthesis/StochGrains2.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "single_reproducibility": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 1.862645149230957e-09,
+          "seam_max_error": 1.862645149230957e-09,
+          "rms_error": 1.5949314579999375e-10,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.02510189823806286,
+      "status": "pass"
+    },
+    {
+      "module": "Synthesis/SuperSaw.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 7.450580596923828e-09,
+          "seam_max_error": 3.725290298461914e-09,
+          "rms_error": 6.94914244110265e-10,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.055642496794462204,
+      "status": "pass"
+    },
+    {
+      "module": "Synthesis/WaveScanSynth.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 3.725290298461914e-09,
+          "seam_max_error": 3.725290298461914e-09,
+          "rms_error": 9.014731818401343e-10,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.02130209654569626,
+      "status": "pass"
+    },
+    {
+      "module": "Time/4Delays.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 3.725290298461914e-09,
+          "seam_max_error": 3.725290298461914e-09,
+          "rms_error": 4.668259259255009e-10,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.04344341531395912,
+      "status": "pass"
+    },
+    {
+      "module": "Time/BeatMaker.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 1.862645149230957e-09,
+          "seam_max_error": 1.862645149230957e-09,
+          "rms_error": 1.1773622814841985e-10,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.019869517534971237,
+      "status": "pass"
+    },
+    {
+      "module": "Time/DelayMod.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 7.450580596923828e-09,
+          "seam_max_error": 3.725290298461914e-09,
+          "rms_error": 6.488296807833399e-10,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.06356574594974518,
+      "status": "pass"
+    },
+    {
+      "module": "Time/Granulator.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 3.725290298461914e-09,
+          "seam_max_error": 1.862645149230957e-09,
+          "rms_error": 3.686848615854081e-10,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.02615119144320488,
+      "status": "pass"
+    },
+    {
+      "module": "Time/Particle.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 3.725290298461914e-09,
+          "seam_max_error": 1.862645149230957e-09,
+          "rms_error": 4.483841857607789e-10,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.04552331566810608,
+      "status": "pass"
+    },
+    {
+      "module": "Time/Pelletizer.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 1.862645149230957e-09,
+          "seam_max_error": 1.862645149230957e-09,
+          "rms_error": 1.8150617781765887e-10,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.016434669494628906,
+      "status": "pass"
+    },
+    {
+      "module": "Time/Stutterer.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "single_reproducibility": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 7.450580596923828e-09,
+          "seam_max_error": 7.450580596923828e-09,
+          "rms_error": 1.6397933443162466e-09,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.04275272414088249,
+      "status": "pass"
+    },
+    {
+      "module": "Time/UltimateGrainer.c5",
+      "checks": {
+        "single_master_and_tap_format": true,
+        "chunk_master_and_tap_format": true,
+        "chunks_master": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "chunks_a": {
+          "max_error": 0.0,
+          "seam_max_error": 0.0,
+          "rms_error": 0.0,
+          "pass": true
+        },
+        "branch_stem_formats": true,
+        "parallel_routing": {
+          "max_error": 7.450580596923828e-09,
+          "seam_max_error": 3.725290298461914e-09,
+          "rms_error": 5.436090769397281e-10,
+          "pass": true
+        }
+      },
+      "errors": [],
+      "peak": 0.05120449140667915,
+      "status": "pass"
+    }
+  ]
+}

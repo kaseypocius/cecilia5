@@ -262,5 +262,12 @@ def run_tests():
         shutil.rmtree(work, ignore_errors=True)
 
 
+import unittest
+
+class OfflineEngineTests(unittest.TestCase):
+    def test_offline_engine_scenarios(self):
+        run_tests()
+
+
 if __name__ == "__main__":
-    run_tests()
+    unittest.main()

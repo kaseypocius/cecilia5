@@ -11,7 +11,7 @@ Cecilia 5 includes an **Offline Render Mode** with a multi-threaded audio engine
 - **Per-Module Output Soundfiles ("Stems")**: Capture isolated audio from any module in the chain directly to disk alongside or instead of the master mix.
 - **Visual Graph Feedback**: Module nodes marked for offline stem export display a green `[STEM]` badge in the interactive routing canvas.
 - **4 Studio Workflows**: Single Bounce, Batch Presets, Batch Sound Folder, and Render Queue.
-- **Uncompressed & Lossless Formats**: WAV, AIFF, FLAC, OGG, CAF, AU, and SD2, with sample bit depths up to 32-bit floating point and up to 64 audio channels.
+- **Audio Formats**: WAV, AIFF, FLAC, OGG, CAF, AU, and SD2, with sample bit depths up to 32-bit floating point and up to 64 audio channels.
 - **Live Monitoring & Audition**: Real-time worker lane visualization, peak dB measurement, live VU meter updates, and one-click playback of rendered files.
 
 ---
@@ -219,7 +219,7 @@ The five previously non-reproducible modules also pass repeated single-pass runs
 
 Validation also passes **14 shipped-module correctness tests**, **14 focused
 replay regressions**, **all six engine scenarios**, and general discovery with
-**109 passed / 66 skipped** (175 total, replay/PCM tests enabled). GUI tests were not
+**135 passed / 66 skipped** (201 total, native DSP checks enabled). GUI tests were not
 enabled. The audit covers four channels at 44.1 kHz and 176,417 frames, init
 settings plus the documented diagnostics, not every preset or routing topology.
 
@@ -380,6 +380,50 @@ The tested containers are WAV/AIFF/FLAC/CAF; OGG/AU/SD2 are outside this matrix.
 
 The harmonizer workaround adjusts the effective window by at most one sample;
 pitch is unchanged and corresponding dry delays use the effective window.
-General discovery passes **109 tests with 66 skipped**; all six engine scenarios
+General discovery passes **135 tests with 66 skipped**; all six engine scenarios
 pass. See [detailed format findings](tests/reports/multichannel_findings.md) for
 baseline failures, stress evidence, diagnostic commands and environment versions.
+
+---
+
+## 13. Large Files and Render Memory
+
+The current audit measures native worker RAM directly. Earlier [`check_1gb_performance.py`](tests/check_1gb_performance.py) numbers use `RUSAGE_SELF` in the coordinator, which excludes its worker subprocesses. The reported 73–127 MiB therefore cannot establish bounded worker memory. Those historical tests also render short 5–30 second outputs from large inputs; their 42 passing cases do not verify gigabyte-sized outputs or all 69 modules. The historical [throughput report](tests/reports/large_file_1gb_performance.md) remains available with those limits.
+
+### Current audit
+
+[`tests/check_offline_memory.py`](tests/check_offline_memory.py) tests every shipped module with actual audio payloads of 1 MiB, 64 MiB, 1 GiB and **1.125 GiB (1.208 GB)**. Input and output growth are tested separately at 48 kHz/eight channels. Every native case runs in a fresh, externally monitored subprocess with a 3 GiB sampled RSS stop and a 120-second deadline. Fixtures contain physically written samples. Outputs are checked for exact length, channel count, sample rate, and finite samples throughout.
+
+Large-input cases load the complete primary file and render one second; auxiliary inputs remain small. Large-output cases loop a small primary input. Generators without a file input are marked not applicable. These settings do not cover every preset, long impulse response, full-input spectral analysis, or sustained leak behavior in a reused native process. A timeout or memory stop is a limitation, never a pass.
+
+The standard sweep recorded **552 cases: 507 completed file/memory checks, 28 not applicable, 13 deadline stops and four memory stops**. Thirty-five completed outputs were silent and are not audible-DSP passes. All four memory-limited spectral inputs completed with a 6 GiB allowance; the separate large impulse tests completed with 10 GiB. Fifteen longer-output retries passed; gigabyte Binaural outputs remain time-limited. See the [per-module matrix](tests/reports/offline_memory.md), [findings and fixes](tests/reports/offline_memory_findings.md), and [raw attempt history](tests/reports/offline_memory.jsonl). Source fingerprints identify cases needing repetition after concurrent edits.
+
+### Changes to memory use
+
+- Normalization, peak scanning, trim/re-encoding, chunk stitching and branch accumulation now process bounded blocks rather than whole-file float64 arrays/Python lists. Branch mastering streams the intermediate file through the native graph.
+- Native module input tables still load complete files. Separate workers each have their own tables; mono `cfilein` can replicate a table across output channels. DSP analysis buffers require additional memory.
+- The coordinator budgets up to 75% of physical RAM and 85% of reported available RAM (expanded from the prior 35% and 50% limits), estimates decoded input memory including mono replication, and schedules concurrent workers accordingly. Users can explicitly override this allocation via environment variables (`CECILIA_RAM_BUDGET_BYTES`, `CECILIA_RAM_BUDGET_MB`, `CECILIA_RAM_BUDGET_GB`, or `CECILIA_RAM_BUDGET_FRACTION`) or preferences (`offlineRamBudgetMB`, `offlineRamBudgetFraction`). Estimates control scheduling, not automatic rejection: when resident-memory monitoring is available, a job estimated above the budget is tried with one worker under the actual RSS cap. Without monitoring, that estimate is still rejected before creating output files. Auto mode uses one pass when only one worker is allowed, avoiding serial chunk replay.
+- On macOS/Linux it also samples actual worker RSS and stops a worker exceeding its share of the budget. This is sampled protection, not a hard allocation cap. RAM telemetry on other platforms and standalone packaged builds remains unverified.
+- Cancellation/errors remove incomplete outputs and destination-specific encoder temporary files after workers stop. Completed outputs, untouched existing destinations on failure/cancellation, and files rejected before dispatch are retained.
+
+A 64 MiB normalization probe dropped from **492.6 MB to 60.8 MB RSS** after streaming. Physically written 1.125 GiB helper cases completed with approximately **76–87 MB RSS** for normalization/encoding/trim, **157 MB** for stitching, and **211 MB** for branch mixing/mastering; the mixer check compares every sample after its startup ramp. See [measured utility results](tests/reports/offline_memory_utilities_final.jsonl). Output sizes vary with encoding; the AIFF24 output uses three bytes per sample.
+
+Temporary renders and atomic normalization also consume disk space. Retain headroom for intermediates and OS swap; there is no fixed free-disk threshold that guarantees a render will fit RAM. Use a single worker when memory, rather than CPU throughput, limits the job.
+
+Three paired probes also completed with **1.125 GiB inputs and outputs simultaneously** (StateVar2, MultiBandDelay, ConvolutionReverb with a small IR), peaking around **1.26–1.35 GiB RSS**. See [paired results](tests/reports/offline_memory_paired.jsonl). The full 69-module matrix varies input/output growth separately.
+
+### Reported 50-channel MultiBandDelay workload
+
+A generated 6:42, 48 kHz, 50-channel source rendered to 60 seconds at 96 kHz/50 channels in **101.42 seconds**, using one monitored worker from six requested. Peak worker RSS was **5.41 GiB**, versus the conservative **14.63 GiB** estimate. Exact metadata, all-sample finiteness, and channel-specific test frequencies passed. Initialization took at least 75 seconds before the output file grew; the worker activity heartbeat remained visible. This confirms the estimate must not be a hard rejection when actual RAM monitoring is available. [Configuration, assumptions and results](tests/reports/multiband_delay_50ch_48k_96k.md).
+
+### Repeat the checks
+
+```sh
+cecillia/bin/python tests/check_offline_memory.py
+cecillia/bin/python tests/check_offline_memory.py --resume
+cecillia/bin/python tests/summarize_offline_memory.py
+cecillia/bin/python tests/check_offline_memory_utilities.py
+CECILIA_DSP_TESTS=1 cecillia/bin/python -m unittest discover -s tests
+```
+
+Run the large-file sweep serially. Its 3 GiB stop applies per native child, not system-wide. `--resume` retains valid attempts and repeats cases invalidated by source changes. `--retry-status timeout` also repeats timeout records.

@@ -1,0 +1,324 @@
+{
+  "modules": 1,
+  "cases": 8,
+  "passed": 8,
+  "failed": 0,
+  "silent_cases": 0,
+  "elapsed_seconds": 11.15,
+  "scenarios": [
+    [
+      "mono_stereo_wav",
+      1,
+      "wav",
+      0,
+      2,
+      "wav",
+      1,
+      44100,
+      0.75,
+      "single"
+    ],
+    [
+      "stereo_mono_flac",
+      2,
+      "aif",
+      1,
+      1,
+      "flac",
+      1,
+      48000,
+      0.75,
+      "single"
+    ],
+    [
+      "quad_stereo_aiff_chunks",
+      4,
+      "flac",
+      1,
+      2,
+      "aif",
+      1,
+      44100,
+      2.1,
+      "chunks"
+    ],
+    [
+      "surround_quad_caf",
+      6,
+      "wav",
+      3,
+      4,
+      "caf",
+      3,
+      48000,
+      0.75,
+      "single"
+    ],
+    [
+      "eight_surround_wav_chunks",
+      8,
+      "aif",
+      1,
+      6,
+      "wav",
+      3,
+      44100,
+      2.1,
+      "chunks"
+    ],
+    [
+      "stereo_eight_pcm32",
+      2,
+      "wav",
+      3,
+      8,
+      "wav",
+      2,
+      48000,
+      0.75,
+      "single"
+    ],
+    [
+      "surround_sixteen_wav",
+      6,
+      "caf",
+      3,
+      16,
+      "wav",
+      3,
+      44100,
+      0.5,
+      "single"
+    ],
+    [
+      "eight_sixtyfour_wav",
+      8,
+      "wav",
+      3,
+      64,
+      "wav",
+      3,
+      48000,
+      0.25,
+      "single"
+    ]
+  ],
+  "results": [
+    {
+      "module": "Resonators&Verbs/DetunedResonators.c5",
+      "scenario": "mono_stereo_wav",
+      "uses_input": true,
+      "input_roundtrip_error": 1.5258258366956934e-05,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 5.960464477539063e-08,
+          "absolute_tolerance": 2.119209289550781e-06,
+          "reference_peak": 0.003611320396885276,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 5.960464477539063e-08,
+          "absolute_tolerance": 2.119209289550781e-06,
+          "reference_peak": 0.057235557585954666,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "audible_diagnostic": false,
+      "frames": 33092,
+      "peak": 0.003611320396885276,
+      "status": "pass"
+    },
+    {
+      "module": "Resonators&Verbs/DetunedResonators.c5",
+      "scenario": "stereo_mono_flac",
+      "uses_input": true,
+      "input_roundtrip_error": 6.613971365032612e-08,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 6.007030606269836e-08,
+          "absolute_tolerance": 2.119209289550781e-06,
+          "reference_peak": 0.004742795135825872,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 6.705522537231445e-08,
+          "absolute_tolerance": 2.119209289550781e-06,
+          "reference_peak": 0.07516838610172272,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "audible_diagnostic": false,
+      "frames": 36017,
+      "peak": 0.004742795135825872,
+      "status": "pass"
+    },
+    {
+      "module": "Resonators&Verbs/DetunedResonators.c5",
+      "scenario": "quad_stereo_aiff_chunks",
+      "uses_input": true,
+      "input_roundtrip_error": 6.645237206337473e-08,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 6.007030606269836e-08,
+          "absolute_tolerance": 2.119209289550781e-06,
+          "reference_peak": 0.005702820140868425,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 6.705522537231445e-08,
+          "absolute_tolerance": 2.119209289550781e-06,
+          "reference_peak": 0.09038358926773071,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "audible_diagnostic": false,
+      "frames": 92627,
+      "peak": 0.005702820140868425,
+      "status": "pass"
+    },
+    {
+      "module": "Resonators&Verbs/DetunedResonators.c5",
+      "scenario": "surround_quad_caf",
+      "uses_input": true,
+      "input_roundtrip_error": 7.3391168697867215e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 0.0,
+          "absolute_tolerance": 2e-06,
+          "reference_peak": 0.005385687109082937,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 0.0,
+          "absolute_tolerance": 2e-06,
+          "reference_peak": 0.08535756170749664,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "audible_diagnostic": false,
+      "frames": 36017,
+      "peak": 0.005385687109082937,
+      "status": "pass"
+    },
+    {
+      "module": "Resonators&Verbs/DetunedResonators.c5",
+      "scenario": "eight_surround_wav_chunks",
+      "uses_input": true,
+      "input_roundtrip_error": 6.667517178648996e-08,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 0.0,
+          "absolute_tolerance": 2e-06,
+          "reference_peak": 0.0052037714049220085,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 0.0,
+          "absolute_tolerance": 2e-06,
+          "reference_peak": 0.08247420191764832,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "audible_diagnostic": false,
+      "frames": 92627,
+      "peak": 0.0052037714049220085,
+      "status": "pass"
+    },
+    {
+      "module": "Resonators&Verbs/DetunedResonators.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.0038963702972978354,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.06175343319773674,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "audible_diagnostic": false,
+      "frames": 36017,
+      "peak": 0.0038963702972978354,
+      "status": "pass"
+    },
+    {
+      "module": "Resonators&Verbs/DetunedResonators.c5",
+      "scenario": "surround_sixteen_wav",
+      "uses_input": true,
+      "input_roundtrip_error": 8.522141214939438e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 0.0,
+          "absolute_tolerance": 2e-06,
+          "reference_peak": 0.0037508364766836166,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 0.0,
+          "absolute_tolerance": 2e-06,
+          "reference_peak": 0.05944673717021942,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "audible_diagnostic": false,
+      "frames": 22067,
+      "peak": 0.0037508364766836166,
+      "status": "pass"
+    },
+    {
+      "module": "Resonators&Verbs/DetunedResonators.c5",
+      "scenario": "eight_sixtyfour_wav",
+      "uses_input": true,
+      "input_roundtrip_error": 1.0728836041806744e-08,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 0.0,
+          "absolute_tolerance": 2e-06,
+          "reference_peak": 0.003615450579673052,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 0.0,
+          "absolute_tolerance": 2e-06,
+          "reference_peak": 0.05730114504694939,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "audible_diagnostic": false,
+      "frames": 12017,
+      "peak": 0.003615450579673052,
+      "status": "pass"
+    }
+  ]
+}

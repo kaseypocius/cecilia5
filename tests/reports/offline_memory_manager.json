@@ -1,0 +1,38 @@
+[
+  {
+    "module": "Spectral/BinWarper.c5",
+    "input_slot": "snd",
+    "input_fixture": {
+      "bytes": 1207959596,
+      "allocated_bytes": 1207963648,
+      "frames": 37748736
+    },
+    "requested_workers": 6,
+    "pool_workers": 1,
+    "worker_rss_limit_bytes": 12025908428,
+    "sampled_worker_peak_rss_bytes": 6226984960,
+    "elapsed_seconds": 72.47342487499918,
+    "status": "pass",
+    "job_error": null,
+    "activity_seen": true,
+    "peak": 0.0
+  },
+  {
+    "module": "Resonators&Verbs/ConvolutionReverb.c5",
+    "input_slot": "impulse",
+    "input_fixture": {
+      "bytes": 1207959596,
+      "allocated_bytes": 1207963648,
+      "frames": 37748736
+    },
+    "requested_workers": 6,
+    "pool_workers": 1,
+    "worker_rss_limit_bytes": 12025908428,
+    "sampled_worker_peak_rss_bytes": 7562100736,
+    "elapsed_seconds": 170.04282895899814,
+    "status": "pass",
+    "job_error": null,
+    "activity_seen": true,
+    "peak": 0.9885531067848206
+  }
+]

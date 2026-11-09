@@ -183,13 +183,15 @@ class WorkerActivityTests(unittest.TestCase):
             progress_bar=Mock(),worker_lanes=Mock(),_update_peak_badge=Mock())
         first = {'workers':[{'active':False,'label':'Idle','fraction':0.0}]}
         last = {'workers':[{'active':True,'label':'Preparing','fraction':0.0}],
-                'overall_fraction':0,'completed_jobs':0,'total_jobs':1,'elapsed':.5,'eta':None}
+                'overall_fraction':0,'completed_jobs':0,'total_jobs':1,'elapsed':.5,'eta':None,
+                'memory_worker_limit':2}
         with patch('Resources.OfflineRenderDialog.wx.CallAfter') as queued:
             OfflineRenderDialog._on_worker_progress_bg(panel,first)
             OfflineRenderDialog._on_worker_progress_bg(panel,last)
             queued.assert_called_once()
         OfflineRenderDialog._flush_progress_ui(panel)
         panel.worker_lanes.update_workers.assert_called_once_with(last['workers'])
+        self.assertIn('RAM budget: up to 2 worker(s)',panel.progress_bar.set_state.call_args.args[1])
 
 
 if __name__ == '__main__':

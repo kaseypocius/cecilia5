@@ -1,0 +1,30 @@
+{
+  "ac205e34bc6fa5ef3a14d86db0247049aa51c4a88480e6f4921e68cb5645f50d": {
+    "native_pipeline_sha256": "262b15d007856d8bd0b35239161d4d0994e6d069e999a33ebef4d37d923fe8bd",
+    "scope": "All AST nodes except coordinator/worker-pool/process-handle classes; direct size probes do not invoke these classes."
+  },
+  "e882c3a3dcd4d7c2d5b72f0a75040d3ecaa5ac0df245ff00ea5474701f0c44c8": {
+    "native_pipeline_sha256": "262b15d007856d8bd0b35239161d4d0994e6d069e999a33ebef4d37d923fe8bd",
+    "scope": "All AST nodes except coordinator/worker-pool/process-handle classes; direct size probes do not invoke these classes."
+  },
+  "443c91657d17831a7e8ae23b4703447b8143591faffb934b1272735bc887399d": {
+    "native_pipeline_sha256": "262b15d007856d8bd0b35239161d4d0994e6d069e999a33ebef4d37d923fe8bd",
+    "scope": "All AST nodes except coordinator/worker-pool/process-handle classes; direct size probes do not invoke these classes."
+  },
+  "7b6c22fe1047d0ab87e2a762579c6af6c95afe79bf14b6bffa5a3493eaaa9bf0": {
+    "native_pipeline_sha256": "262b15d007856d8bd0b35239161d4d0994e6d069e999a33ebef4d37d923fe8bd",
+    "scope": "All AST nodes except coordinator/worker-pool/process-handle classes; direct size probes do not invoke these classes."
+  },
+  "29b1f811203d34a21086a4a683a8b0907a72540d3a95320b12e5e7a6ca6baeaf": {
+    "native_pipeline_sha256": "262b15d007856d8bd0b35239161d4d0994e6d069e999a33ebef4d37d923fe8bd",
+    "scope": "All AST nodes except coordinator/worker-pool/process-handle classes; direct size probes do not invoke these classes."
+  },
+  "e3191022986426ea7a0f5eab703b3ad8a9eaa45b6fc766d1aa082acac53bc4f2": {
+    "native_pipeline_sha256": "262b15d007856d8bd0b35239161d4d0994e6d069e999a33ebef4d37d923fe8bd",
+    "scope": "All AST nodes except coordinator/worker-pool/process-handle classes; direct size probes do not invoke these classes."
+  },
+  "fa6e4256d2ad09eb079f581d3024453adcc309b551a52451d499d8e57bfd0613": {
+    "native_pipeline_sha256": "262b15d007856d8bd0b35239161d4d0994e6d069e999a33ebef4d37d923fe8bd",
+    "scope": "All AST nodes except coordinator/worker-pool/process-handle classes; direct size probes do not invoke these classes."
+  }
+}

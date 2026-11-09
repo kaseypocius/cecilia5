@@ -1697,6 +1697,9 @@ class OfflineRenderDialog(wx.Frame):
         elapsed = float(ev.get("elapsed", 0.0))
         eta = ev.get("eta")
         lbl = f"Rendering {done_n}/{tot_n} • Elapsed {_fmt_time(elapsed)} • ETA {_fmt_time(eta)}"
+        memory_limit = ev.get("memory_worker_limit")
+        if memory_limit is not None:
+            lbl += f" • RAM budget: up to {int(memory_limit)} worker(s)"
         if self.is_rendering:
             self.progress_bar.set_state(frac, lbl, accent="#2EA043")
         self.worker_lanes.update_workers(ev.get("workers", []))

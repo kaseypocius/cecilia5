@@ -47,7 +47,9 @@ class Module(BaseModule):
         wintype = self.wtype_index
 
         self.fin = PVAnal(self.snd, size=size, overlaps=olaps, wintype=wintype)
-        self.buf = PVBuffer(self.fin, self.pos, CentsToTranspo(self.pitch), length=snddur)
+        # Prevent off-by-one buffer overrun at the end of the sound on large files
+        self.pos_safe = Clip(self.pos, 0.0, 0.9999)
+        self.buf = PVBuffer(self.fin, self.pos_safe, CentsToTranspo(self.pitch), length=snddur)
         self.fout = PVSynth(self.buf, wintype=wintype, mul=self.env)
 
         self.fade = SigTo(value=1, time=.05, init=1)

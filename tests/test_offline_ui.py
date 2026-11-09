@@ -318,5 +318,16 @@ def main():
         shutil.rmtree(TEST_HOME, ignore_errors=True)
 
 
+import unittest
+
+@unittest.skipUnless(os.environ.get("CECILIA_GUI_TESTS") == "1", "Requires CECILIA_GUI_TESTS=1, wx, pyo and a display")
+class OfflineUITests(unittest.TestCase):
+    def test_offline_ui_integration(self):
+        main()
+
+
 if __name__ == "__main__":
-    main()
+    if os.environ.get("CECILIA_GUI_TESTS") == "1":
+        main()
+    else:
+        unittest.main()

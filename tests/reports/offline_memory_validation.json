@@ -1,0 +1,32 @@
+{
+  "platform": "macOS-12.6-arm64-arm-64bit-Mach-O",
+  "python": "3.13.3",
+  "physical_ram_bytes": 34359738368,
+  "unit_tests": {
+    "total": 201,
+    "passed": 135,
+    "skipped": 66,
+    "failed": 0
+  },
+  "engine_scenarios": {
+    "passed": 6,
+    "failed": 0
+  },
+  "module_correctness": {
+    "modules": 69,
+    "passed": 69,
+    "failed": 0,
+    "inconclusive": 0
+  },
+  "codec_matrix": {
+    "cases": 552,
+    "passed": 552,
+    "failed": 0
+  },
+  "limitations": [
+    "Display-dependent tests skipped.",
+    "Memory/file-integrity passes do not establish audible DSP for silent cases.",
+    "Native module size sweep is separate from the unit/correctness checks."
+  ],
+  "estimate_policy_followup": "Above-budget conservative estimates run serially under the actual RSS guard when telemetry is available; unavailable telemetry retains preflight rejection. Native render AST unchanged."
+}

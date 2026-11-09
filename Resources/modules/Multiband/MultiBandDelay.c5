@@ -59,7 +59,14 @@ class Module(BaseModule):
         freqs = self.splitter.get(True)
         self.FBfade = SigTo(value=1, time=.01, init=1)
         self.split = FourBand(input=self.snd, freq1=freqs[0], freq2=freqs[1], freq3=freqs[2], mul=self.FBfade)
-        self.dels = self.duplicate([self.del1,self.del2,self.del3,self.del4], len(self.snd))
+        # Float32 circular reads can round a tiny negative index to the
+        # buffer length. Keep fractional delay positions away from that edge.
+        import math
+        guard = 2.0 ** (math.frexp(15 * self.sr)[1] - 23)
+        self.delay_samples = [value * self.sr for value in (self.del1, self.del2, self.del3, self.del4)]
+        self.safe_delays = [(value + Clip(guard - (value - Floor(value)), min=0, max=guard)) / self.sr
+                            for value in self.delay_samples]
+        self.dels = self.duplicate(self.safe_delays, len(self.snd))
         self.fbs = self.duplicate([self.fb1,self.fb2,self.fb3,self.fb4], len(self.snd))
         self.mul1 = DBToA(self.gain1)
         self.mul2 = DBToA(self.gain2)

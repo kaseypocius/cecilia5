@@ -1,0 +1,15 @@
+{"elapsed": 154.92559099999926, "changed": ["Resources/OfflineRender.py", "Resources/AudioFileIO.py"]}
+{"elapsed": 470.67622912500156, "changed": ["Resources/modules/Multiband/MultiBandDelay.c5"]}
+{"elapsed": 780.6408365409989, "changed": ["Resources/modules/Resonators&Verbs/DetunedResonators.c5"]}
+{"elapsed": 865.207823916, "changed": ["Resources/modules/Resonators&Verbs/DetunedResonators.c5"]}
+{"elapsed": 951.7980362910021, "changed": ["OFFLINE_RENDER.md"]}
+{"elapsed": 3754.889675999999, "changed": ["Resources/OfflineRender.py"]}
+{"elapsed": 4101.026293125, "changed": ["Resources/RenderMemory.py"]}
+{"elapsed": 4896.5218485000005, "changed": ["Resources/OfflineRender.py"]}
+{"elapsed": 4898.537798833, "changed": ["Resources/OfflineRenderDialog.py"]}
+{"elapsed": 5055.637911083002, "changed": ["README.md", "whatsnew.md"]}
+{"elapsed": 5877.439450500002, "changed": ["README.md", "OFFLINE_RENDER.md", "whatsnew.md"]}
+{"elapsed": 6431.209309624999, "changed": ["Resources/OfflineRender.py"]}
+{"elapsed": 6509.762765915999, "changed": ["Resources/OfflineRender.py"]}
+{"elapsed": 6747.41795725, "changed": ["README.md", "OFFLINE_RENDER.md", "whatsnew.md"]}
+{"elapsed": 7533.335996041002, "changed": ["OFFLINE_RENDER.md", "whatsnew.md"]}

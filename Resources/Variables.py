@@ -153,6 +153,8 @@ CeciliaVar['offlineExportStems'] = 0
 CeciliaVar['offlineMasterOutput'] = 1
 CeciliaVar['offlineNormalize'] = 0
 CeciliaVar['offlineNormalizeTargetDb'] = -0.1
+CeciliaVar['offlineRamBudgetMB'] = 0
+CeciliaVar['offlineRamBudgetFraction'] = 0.0
 CeciliaVar['midiPort'] = 'portmidi'
 CeciliaVar['midiDeviceIn'] = 0
 CeciliaVar['defaultFirstInput'] = 0
@@ -289,10 +291,10 @@ def readCeciliaPrefsFromFile():
                         'midiDeviceIn', 'useTooltips', 'enableAudioInput', 'graphTexture', 'showSpectrum', 'useSoundDur',
                         'defaultFirstInput', 'defaultFirstOutput', 'offlineThreads',
                         'offlineSr', 'offlineNchnls', 'offlineSampSize', 'offlineExportStems', 'offlineMasterOutput',
-                        'offlineNormalize']
+                        'offlineNormalize', 'offlineRamBudgetMB']
         convertToFloat = ['defaultTotalTime', 'globalFade', 'DEBUG',
                           'offlineChunkMinDur', 'offlinePreroll', 'offlineCrossfade',
-                          'offlineNormalizeTargetDb']
+                          'offlineNormalizeTargetDb', 'offlineRamBudgetFraction']
         convertToTuple = ['interfaceSize', 'interfacePosition']
         jackPrefs = ['client']
 
@@ -371,7 +373,8 @@ def writeCeciliaPrefsToFile():
                   'offlinePreroll', 'offlineCrossfade', 'offlineCrossfadeShape',
                   'offlineSr', 'offlineNchnls', 'offlineBufferSize', 'offlineAudioFileType',
                   'offlineSampSize', 'offlineExportStems', 'offlineMasterOutput',
-                  'offlineNormalize', 'offlineNormalizeTargetDb']
+                  'offlineNormalize', 'offlineNormalizeTargetDb',
+                  'offlineRamBudgetMB', 'offlineRamBudgetFraction']
 
     print('Writing Cecilia preferences...')
 

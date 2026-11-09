@@ -1,0 +1,4405 @@
+{
+  "summary": {
+    "total_modules": 69,
+    "total_cases": 276,
+    "passed_cases": 276,
+    "failed_cases": 0,
+    "stress_total": 12,
+    "stress_passed": 12,
+    "total_elapsed_sec": 224.89,
+    "speedup_avg": 14.16,
+    "speedup_median": 14.71,
+    "speedup_min": 0.7,
+    "speedup_max": 34.19
+  },
+  "tiers": [
+    {
+      "tier": "small",
+      "path": "/var/folders/ll/syhnl7wd1d9cttys48yz29l40000gn/T/cec_filesize_bench_x1ujl38k/small.wav",
+      "dur": 1.5,
+      "render_dur": 1.0,
+      "sr": 44100,
+      "chnls": 2,
+      "size_mb": 0.5047264099121094,
+      "mode": "single"
+    },
+    {
+      "tier": "medium",
+      "path": "/var/folders/ll/syhnl7wd1d9cttys48yz29l40000gn/T/cec_filesize_bench_x1ujl38k/medium.wav",
+      "dur": 15.0,
+      "render_dur": 5.0,
+      "sr": 44100,
+      "chnls": 2,
+      "size_mb": 5.046886444091797,
+      "mode": "single"
+    },
+    {
+      "tier": "large",
+      "path": "/var/folders/ll/syhnl7wd1d9cttys48yz29l40000gn/T/cec_filesize_bench_x1ujl38k/large.wav",
+      "dur": 60.0,
+      "render_dur": 10.0,
+      "sr": 48000,
+      "chnls": 2,
+      "size_mb": 21.972698211669922,
+      "mode": "single"
+    },
+    {
+      "tier": "chunked_large",
+      "path": "/var/folders/ll/syhnl7wd1d9cttys48yz29l40000gn/T/cec_filesize_bench_x1ujl38k/large.wav",
+      "dur": 60.0,
+      "render_dur": 15.0,
+      "sr": 48000,
+      "chnls": 4,
+      "size_mb": 21.972698211669922,
+      "mode": "chunks"
+    }
+  ],
+  "modules": [
+    {
+      "module": "Dynamics/Degrade.c5",
+      "name": "Degrade",
+      "category": "Dynamics",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2916,
+          "speedup": 3.43,
+          "peak_db": -20.34,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3198,
+          "speedup": 15.63,
+          "peak_db": -20.33,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3655,
+          "speedup": 27.36,
+          "peak_db": -20.38,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.6601,
+          "speedup": 22.72,
+          "peak_db": -20.38,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Dynamics/Distortion.c5",
+      "name": "Distortion",
+      "category": "Dynamics",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2168,
+          "speedup": 4.61,
+          "peak_db": -26.64,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3075,
+          "speedup": 16.26,
+          "peak_db": -26.64,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3888,
+          "speedup": 25.72,
+          "peak_db": -26.64,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.6974,
+          "speedup": 21.51,
+          "peak_db": -26.64,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Dynamics/DynamicsProcessor.c5",
+      "name": "DynamicsProcessor",
+      "category": "Dynamics",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2818,
+          "speedup": 3.55,
+          "peak_db": -17.38,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2976,
+          "speedup": 16.8,
+          "peak_db": -17.38,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3413,
+          "speedup": 29.3,
+          "peak_db": -17.38,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.5862,
+          "speedup": 25.59,
+          "peak_db": -17.38,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Dynamics/FeedbackLooper.c5",
+      "name": "FeedbackLooper",
+      "category": "Dynamics",
+      "kind": "cfilein",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2137,
+          "speedup": 4.68,
+          "peak_db": -23.4,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2741,
+          "speedup": 18.24,
+          "peak_db": -23.33,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3749,
+          "speedup": 26.67,
+          "peak_db": -23.4,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.6325,
+          "speedup": 23.71,
+          "peak_db": -23.4,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Dynamics/UpDistoRes.c5",
+      "name": "UpDistoRes",
+      "category": "Dynamics",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2872,
+          "speedup": 3.48,
+          "peak_db": -20.27,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.4531,
+          "speedup": 11.03,
+          "peak_db": -20.27,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.726,
+          "speedup": 13.77,
+          "peak_db": -20.36,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 1.8439,
+          "speedup": 8.13,
+          "peak_db": -20.36,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Dynamics/WaveShaper.c5",
+      "name": "WaveShaper",
+      "category": "Dynamics",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2592,
+          "speedup": 3.86,
+          "peak_db": -21.51,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2836,
+          "speedup": 17.63,
+          "peak_db": -21.51,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.349,
+          "speedup": 28.65,
+          "peak_db": -21.48,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.6077,
+          "speedup": 24.68,
+          "peak_db": -21.48,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Filters/AMFMFilter.c5",
+      "name": "AMFMFilter",
+      "category": "Filters",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2224,
+          "speedup": 4.5,
+          "peak_db": -25.18,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3432,
+          "speedup": 14.57,
+          "peak_db": -24.58,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3939,
+          "speedup": 25.39,
+          "peak_db": -22.72,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.755,
+          "speedup": 19.87,
+          "peak_db": -22.72,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Filters/AutoModFilter.c5",
+      "name": "AutoModFilter",
+      "category": "Filters",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2478,
+          "speedup": 4.04,
+          "peak_db": -16.29,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3036,
+          "speedup": 16.47,
+          "peak_db": -16.43,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3827,
+          "speedup": 26.13,
+          "peak_db": -16.43,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.6281,
+          "speedup": 23.88,
+          "peak_db": -16.43,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Filters/Binaural.c5",
+      "name": "Binaural",
+      "category": "Filters",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.936,
+          "speedup": 1.07,
+          "peak_db": -13.68,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 3.4816,
+          "speedup": 1.44,
+          "peak_db": -13.29,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 7.2426,
+          "speedup": 1.38,
+          "peak_db": -13.4,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 21.495,
+          "speedup": 0.7,
+          "peak_db": -13.55,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Filters/BrickWall.c5",
+      "name": "BrickWall",
+      "category": "Filters",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2627,
+          "speedup": 3.81,
+          "peak_db": -17.39,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.4126,
+          "speedup": 12.12,
+          "peak_db": -17.39,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.5793,
+          "speedup": 17.26,
+          "peak_db": -17.4,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 1.4624,
+          "speedup": 10.26,
+          "peak_db": -17.4,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Filters/Flanger.c5",
+      "name": "Flanger",
+      "category": "Filters",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2264,
+          "speedup": 4.42,
+          "peak_db": -14.11,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2678,
+          "speedup": 18.67,
+          "peak_db": -14.02,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3529,
+          "speedup": 28.34,
+          "peak_db": -14.02,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.6006,
+          "speedup": 24.98,
+          "peak_db": -14.02,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Filters/MaskFilter.c5",
+      "name": "MaskFilter",
+      "category": "Filters",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2395,
+          "speedup": 4.18,
+          "peak_db": -39.03,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.4058,
+          "speedup": 12.32,
+          "peak_db": -39.83,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.4693,
+          "speedup": 21.31,
+          "peak_db": -39.87,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.915,
+          "speedup": 16.39,
+          "peak_db": -39.87,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Filters/ParamEQ.c5",
+      "name": "ParamEQ",
+      "category": "Filters",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2199,
+          "speedup": 4.55,
+          "peak_db": -20.94,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2856,
+          "speedup": 17.51,
+          "peak_db": -20.94,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3893,
+          "speedup": 25.69,
+          "peak_db": -20.94,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.7271,
+          "speedup": 20.63,
+          "peak_db": -20.94,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Filters/Phaser.c5",
+      "name": "Phaser",
+      "category": "Filters",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.252,
+          "speedup": 3.97,
+          "peak_db": -19.13,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3349,
+          "speedup": 14.93,
+          "peak_db": -19.04,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.4728,
+          "speedup": 21.15,
+          "peak_db": -27.7,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.9935,
+          "speedup": 15.1,
+          "peak_db": -27.7,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Filters/StateVar.c5",
+      "name": "StateVar",
+      "category": "Filters",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2243,
+          "speedup": 4.46,
+          "peak_db": -42.13,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2857,
+          "speedup": 17.5,
+          "peak_db": -42.13,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3636,
+          "speedup": 27.5,
+          "peak_db": -42.11,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.6057,
+          "speedup": 24.76,
+          "peak_db": -42.11,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Filters/StateVar2.c5",
+      "name": "StateVar2",
+      "category": "Filters",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2175,
+          "speedup": 4.6,
+          "peak_db": -20.17,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2444,
+          "speedup": 20.46,
+          "peak_db": -20.17,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3586,
+          "speedup": 27.89,
+          "peak_db": -20.17,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.6274,
+          "speedup": 23.91,
+          "peak_db": -20.17,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Filters/Vocoder.c5",
+      "name": "Vocoder",
+      "category": "Filters",
+      "kind": "csampler,csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2755,
+          "speedup": 3.63,
+          "peak_db": -12.61,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3727,
+          "speedup": 13.41,
+          "peak_db": -13.37,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.4538,
+          "speedup": 22.03,
+          "peak_db": -13.41,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.8512,
+          "speedup": 17.62,
+          "peak_db": -13.41,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Multiband/MultiBandBeatMaker.c5",
+      "name": "MultiBandBeatMaker",
+      "category": "Multiband",
+      "kind": "cfilein",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2506,
+          "speedup": 3.99,
+          "peak_db": -21.91,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3701,
+          "speedup": 13.51,
+          "peak_db": -21.18,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.4288,
+          "speedup": 23.32,
+          "peak_db": -20.44,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.6831,
+          "speedup": 21.96,
+          "peak_db": -20.44,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Multiband/MultiBandDelay.c5",
+      "name": "MultiBandDelay",
+      "category": "Multiband",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2198,
+          "speedup": 4.55,
+          "peak_db": -20.8,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2834,
+          "speedup": 17.64,
+          "peak_db": -17.88,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3598,
+          "speedup": 27.79,
+          "peak_db": -17.86,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.7075,
+          "speedup": 21.2,
+          "peak_db": -17.86,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Multiband/MultiBandDisto.c5",
+      "name": "MultiBandDisto",
+      "category": "Multiband",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2513,
+          "speedup": 3.98,
+          "peak_db": -27.97,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3191,
+          "speedup": 15.67,
+          "peak_db": -27.97,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.4104,
+          "speedup": 24.36,
+          "peak_db": -27.95,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.6995,
+          "speedup": 21.44,
+          "peak_db": -27.95,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Multiband/MultiBandFreqShift.c5",
+      "name": "MultiBandFreqShift",
+      "category": "Multiband",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2671,
+          "speedup": 3.74,
+          "peak_db": -34.25,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3388,
+          "speedup": 14.76,
+          "peak_db": -34.19,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.4566,
+          "speedup": 21.9,
+          "peak_db": -34.19,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.9518,
+          "speedup": 15.76,
+          "peak_db": -34.19,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Multiband/MultiBandGate.c5",
+      "name": "MultiBandGate",
+      "category": "Multiband",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2154,
+          "speedup": 4.64,
+          "peak_db": -17.2,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3006,
+          "speedup": 16.63,
+          "peak_db": -17.2,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.4099,
+          "speedup": 24.39,
+          "peak_db": -17.2,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.7776,
+          "speedup": 19.29,
+          "peak_db": -17.2,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Multiband/MultiBandHarmonizer.c5",
+      "name": "MultiBandHarmonizer",
+      "category": "Multiband",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3189,
+          "speedup": 3.14,
+          "peak_db": -18.38,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3435,
+          "speedup": 14.55,
+          "peak_db": -18.19,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.4451,
+          "speedup": 22.47,
+          "peak_db": -18.01,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.7949,
+          "speedup": 18.87,
+          "peak_db": -18.01,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Multiband/MultiBandReverb.c5",
+      "name": "MultiBandReverb",
+      "category": "Multiband",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2361,
+          "speedup": 4.24,
+          "peak_db": -29.21,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3614,
+          "speedup": 13.83,
+          "peak_db": -29.57,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.4569,
+          "speedup": 21.88,
+          "peak_db": -29.28,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 1.0035,
+          "speedup": 14.95,
+          "peak_db": -29.04,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Pitch/ChordMaker.c5",
+      "name": "ChordMaker",
+      "category": "Pitch",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2738,
+          "speedup": 3.65,
+          "peak_db": -14.5,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2853,
+          "speedup": 17.52,
+          "peak_db": -13.77,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3811,
+          "speedup": 26.24,
+          "peak_db": -13.76,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.7806,
+          "speedup": 19.22,
+          "peak_db": -13.21,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Pitch/Chorus.c5",
+      "name": "Chorus",
+      "category": "Pitch",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2427,
+          "speedup": 4.12,
+          "peak_db": -19.16,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3315,
+          "speedup": 15.08,
+          "peak_db": -16.74,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3669,
+          "speedup": 27.25,
+          "peak_db": -16.76,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.6188,
+          "speedup": 24.24,
+          "peak_db": -16.3,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Pitch/FreqShift.c5",
+      "name": "FreqShift",
+      "category": "Pitch",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2094,
+          "speedup": 4.77,
+          "peak_db": -17.3,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3288,
+          "speedup": 15.21,
+          "peak_db": -17.24,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3969,
+          "speedup": 25.19,
+          "peak_db": -17.24,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.7315,
+          "speedup": 20.51,
+          "peak_db": -17.24,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Pitch/Harmonizer.c5",
+      "name": "Harmonizer",
+      "category": "Pitch",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2629,
+          "speedup": 3.8,
+          "peak_db": -21.56,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3282,
+          "speedup": 15.23,
+          "peak_db": -21.41,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3475,
+          "speedup": 28.78,
+          "peak_db": -21.24,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.6516,
+          "speedup": 23.02,
+          "peak_db": -21.12,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Pitch/LooperBank.c5",
+      "name": "LooperBank",
+      "category": "Pitch",
+      "kind": "cfilein",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3447,
+          "speedup": 2.9,
+          "peak_db": -40.18,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.8777,
+          "speedup": 5.7,
+          "peak_db": -40.18,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 1.5388,
+          "speedup": 6.5,
+          "peak_db": -40.18,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 4.2083,
+          "speedup": 3.56,
+          "peak_db": -40.18,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Pitch/LooperMod.c5",
+      "name": "LooperMod",
+      "category": "Pitch",
+      "kind": "cfilein",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2395,
+          "speedup": 4.18,
+          "peak_db": -30.79,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.281,
+          "speedup": 17.8,
+          "peak_db": -30.35,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3375,
+          "speedup": 29.63,
+          "peak_db": -30.11,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.5449,
+          "speedup": 27.53,
+          "peak_db": -30.11,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Pitch/PitchLooper.c5",
+      "name": "PitchLooper",
+      "category": "Pitch",
+      "kind": "cfilein",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2064,
+          "speedup": 4.85,
+          "peak_db": -19.23,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3101,
+          "speedup": 16.12,
+          "peak_db": -19.23,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3387,
+          "speedup": 29.52,
+          "peak_db": -18.36,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.5357,
+          "speedup": 28.0,
+          "peak_db": -18.36,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Pitch/RandomAccumulator.c5",
+      "name": "RandomAccumulator",
+      "category": "Pitch",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.262,
+          "speedup": 3.82,
+          "peak_db": -29.42,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2843,
+          "speedup": 17.59,
+          "peak_db": -25.93,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3421,
+          "speedup": 29.23,
+          "peak_db": -24.75,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.6116,
+          "speedup": 24.53,
+          "peak_db": -24.75,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Resonators&Verbs/ConvolutionReverb.c5",
+      "name": "ConvolutionReverb",
+      "category": "Resonators&Verbs",
+      "kind": "csampler,cfilein",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2396,
+          "speedup": 4.17,
+          "peak_db": 25.24,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.7645,
+          "speedup": 6.54,
+          "peak_db": 39.42,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 5.2894,
+          "speedup": 1.89,
+          "peak_db": 46.31,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 14.9949,
+          "speedup": 1.0,
+          "peak_db": 49.81,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Resonators&Verbs/Convolve.c5",
+      "name": "Convolve",
+      "category": "Resonators&Verbs",
+      "kind": "csampler,cfilein",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2788,
+          "speedup": 3.59,
+          "peak_db": -7.73,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.5255,
+          "speedup": 9.52,
+          "peak_db": 6.52,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.9447,
+          "speedup": 10.59,
+          "peak_db": 7.98,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 2.4255,
+          "speedup": 6.18,
+          "peak_db": 7.98,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Resonators&Verbs/DetunedResonators.c5",
+      "name": "DetunedResonators",
+      "category": "Resonators&Verbs",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2861,
+          "speedup": 3.5,
+          "peak_db": -17.84,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3696,
+          "speedup": 13.53,
+          "peak_db": -19.89,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.5112,
+          "speedup": 19.56,
+          "peak_db": -18.99,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 1.0239,
+          "speedup": 14.65,
+          "peak_db": -25.6,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Resonators&Verbs/MatrixReverb.c5",
+      "name": "MatrixReverb",
+      "category": "Resonators&Verbs",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2392,
+          "speedup": 4.18,
+          "peak_db": -18.43,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3641,
+          "speedup": 13.73,
+          "peak_db": -18.3,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.4162,
+          "speedup": 24.03,
+          "peak_db": -19.35,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.6194,
+          "speedup": 24.22,
+          "peak_db": -13.33,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Resonators&Verbs/Resonators.c5",
+      "name": "Resonators",
+      "category": "Resonators&Verbs",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2716,
+          "speedup": 3.68,
+          "peak_db": -22.24,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3133,
+          "speedup": 15.96,
+          "peak_db": -25.82,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.457,
+          "speedup": 21.88,
+          "peak_db": -25.91,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.9771,
+          "speedup": 15.35,
+          "peak_db": -29.75,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Resonators&Verbs/WGuideBank.c5",
+      "name": "WGuideBank",
+      "category": "Resonators&Verbs",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2644,
+          "speedup": 3.78,
+          "peak_db": -25.21,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.4006,
+          "speedup": 12.48,
+          "peak_db": -7.33,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.5782,
+          "speedup": 17.29,
+          "peak_db": -6.18,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 1.9504,
+          "speedup": 7.69,
+          "peak_db": -6.76,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Spectral/AddResynth.c5",
+      "name": "AddResynth",
+      "category": "Spectral",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.4693,
+          "speedup": 2.13,
+          "peak_db": -29.16,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.6348,
+          "speedup": 7.88,
+          "peak_db": -29.16,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.9578,
+          "speedup": 10.44,
+          "peak_db": -29.2,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 1.9693,
+          "speedup": 7.62,
+          "peak_db": -29.2,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Spectral/BinModulator.c5",
+      "name": "BinModulator",
+      "category": "Spectral",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.4859,
+          "speedup": 2.06,
+          "peak_db": -27.86,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.4844,
+          "speedup": 10.32,
+          "peak_db": -27.86,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.6021,
+          "speedup": 16.61,
+          "peak_db": -27.89,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 1.0269,
+          "speedup": 14.61,
+          "peak_db": -27.89,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Spectral/BinWarper.c5",
+      "name": "BinWarper",
+      "category": "Spectral",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3294,
+          "speedup": 3.04,
+          "peak_db": -120.0,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.4486,
+          "speedup": 11.15,
+          "peak_db": -120.0,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 1.1426,
+          "speedup": 8.75,
+          "peak_db": -120.0,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 2.0987,
+          "speedup": 7.15,
+          "peak_db": -120.0,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Spectral/CrossSynth.c5",
+      "name": "CrossSynth",
+      "category": "Spectral",
+      "kind": "csampler,csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.4496,
+          "speedup": 2.22,
+          "peak_db": -13.49,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.5209,
+          "speedup": 9.6,
+          "peak_db": -13.49,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.7273,
+          "speedup": 13.75,
+          "peak_db": -13.44,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 1.2059,
+          "speedup": 12.44,
+          "peak_db": -13.44,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Spectral/CrossSynth2.c5",
+      "name": "CrossSynth2",
+      "category": "Spectral",
+      "kind": "csampler,csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.4448,
+          "speedup": 2.25,
+          "peak_db": -19.73,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.6021,
+          "speedup": 8.3,
+          "peak_db": -19.73,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.6564,
+          "speedup": 15.23,
+          "peak_db": -19.71,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 1.2273,
+          "speedup": 12.22,
+          "peak_db": -19.71,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Spectral/Morphing.c5",
+      "name": "Morphing",
+      "category": "Spectral",
+      "kind": "csampler,csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.4963,
+          "speedup": 2.02,
+          "peak_db": -22.98,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.5312,
+          "speedup": 9.41,
+          "peak_db": -22.98,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.6499,
+          "speedup": 15.39,
+          "peak_db": -22.98,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 1.1266,
+          "speedup": 13.31,
+          "peak_db": -22.98,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Spectral/Shifter.c5",
+      "name": "Shifter",
+      "category": "Spectral",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.4454,
+          "speedup": 2.25,
+          "peak_db": -23.97,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.5307,
+          "speedup": 9.42,
+          "peak_db": -23.91,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.6368,
+          "speedup": 15.7,
+          "peak_db": -23.07,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 1.1892,
+          "speedup": 12.61,
+          "peak_db": -23.07,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Spectral/SpectralDelay.c5",
+      "name": "SpectralDelay",
+      "category": "Spectral",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.4536,
+          "speedup": 2.2,
+          "peak_db": -17.54,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.5114,
+          "speedup": 9.78,
+          "peak_db": -17.67,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.6159,
+          "speedup": 16.24,
+          "peak_db": -17.31,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 1.2002,
+          "speedup": 12.5,
+          "peak_db": -17.31,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Spectral/SpectralFilter.c5",
+      "name": "SpectralFilter",
+      "category": "Spectral",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.4869,
+          "speedup": 2.05,
+          "peak_db": -28.68,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.4768,
+          "speedup": 10.49,
+          "peak_db": -28.68,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.5984,
+          "speedup": 16.71,
+          "peak_db": -29.41,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 1.0223,
+          "speedup": 14.67,
+          "peak_db": -29.41,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Spectral/SpectralGate.c5",
+      "name": "SpectralGate",
+      "category": "Spectral",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.4658,
+          "speedup": 2.15,
+          "peak_db": -19.89,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.496,
+          "speedup": 10.08,
+          "peak_db": -19.89,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.5847,
+          "speedup": 17.1,
+          "peak_db": -19.89,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 1.0125,
+          "speedup": 14.81,
+          "peak_db": -19.89,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Spectral/SpectralWarper.c5",
+      "name": "SpectralWarper",
+      "category": "Spectral",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2327,
+          "speedup": 4.3,
+          "peak_db": -120.0,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3682,
+          "speedup": 13.58,
+          "peak_db": -120.0,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.4278,
+          "speedup": 23.38,
+          "peak_db": -120.0,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.8579,
+          "speedup": 17.48,
+          "peak_db": -120.0,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Spectral/Transpose.c5",
+      "name": "Transpose",
+      "category": "Spectral",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.4433,
+          "speedup": 2.26,
+          "peak_db": -23.41,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.5641,
+          "speedup": 8.86,
+          "peak_db": -23.61,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.6575,
+          "speedup": 15.21,
+          "peak_db": -23.71,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 1.2813,
+          "speedup": 11.71,
+          "peak_db": -23.71,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Spectral/Vectral.c5",
+      "name": "Vectral",
+      "category": "Spectral",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.4345,
+          "speedup": 2.3,
+          "peak_db": -20.03,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.5328,
+          "speedup": 9.38,
+          "peak_db": -20.57,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.5933,
+          "speedup": 16.86,
+          "peak_db": -21.3,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 1.0149,
+          "speedup": 14.78,
+          "peak_db": -21.3,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Synthesis/AdditiveSynth.c5",
+      "name": "AdditiveSynth",
+      "category": "Synthesis",
+      "kind": "synthesis",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2393,
+          "speedup": 4.18,
+          "peak_db": -23.47,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.4143,
+          "speedup": 12.07,
+          "peak_db": -23.47,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.5118,
+          "speedup": 19.54,
+          "peak_db": -23.47,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 1.2713,
+          "speedup": 11.8,
+          "peak_db": -23.39,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Synthesis/BucketBrigadeDevice.c5",
+      "name": "BucketBrigadeDevice",
+      "category": "Synthesis",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2418,
+          "speedup": 4.14,
+          "peak_db": -43.27,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2929,
+          "speedup": 17.07,
+          "peak_db": -31.15,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.4269,
+          "speedup": 23.42,
+          "peak_db": -26.77,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.6808,
+          "speedup": 22.03,
+          "peak_db": -26.77,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Synthesis/CrossFreqMod.c5",
+      "name": "CrossFreqMod",
+      "category": "Synthesis",
+      "kind": "synthesis",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2886,
+          "speedup": 3.46,
+          "peak_db": -25.98,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2779,
+          "speedup": 17.99,
+          "peak_db": -25.98,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2924,
+          "speedup": 34.19,
+          "peak_db": -25.98,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.5406,
+          "speedup": 27.75,
+          "peak_db": -25.98,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Synthesis/FrequencyModulation.c5",
+      "name": "FrequencyModulation",
+      "category": "Synthesis",
+      "kind": "synthesis",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2372,
+          "speedup": 4.22,
+          "peak_db": -25.98,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2968,
+          "speedup": 16.85,
+          "peak_db": -25.98,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3486,
+          "speedup": 28.69,
+          "peak_db": -25.98,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.5129,
+          "speedup": 29.24,
+          "peak_db": -25.98,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Synthesis/Pulsar.c5",
+      "name": "Pulsar",
+      "category": "Synthesis",
+      "kind": "synthesis",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2368,
+          "speedup": 4.22,
+          "peak_db": -26.57,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2748,
+          "speedup": 18.19,
+          "peak_db": -26.57,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3145,
+          "speedup": 31.8,
+          "peak_db": -26.57,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.5251,
+          "speedup": 28.57,
+          "peak_db": -26.57,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Synthesis/SpitSideBandSynth.c5",
+      "name": "SpitSideBandSynth",
+      "category": "Synthesis",
+      "kind": "synthesis",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2412,
+          "speedup": 4.15,
+          "peak_db": -27.32,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.298,
+          "speedup": 16.78,
+          "peak_db": -27.32,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3913,
+          "speedup": 25.55,
+          "peak_db": -26.94,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.6949,
+          "speedup": 21.59,
+          "peak_db": -26.94,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Synthesis/StochGrains.c5",
+      "name": "StochGrains",
+      "category": "Synthesis",
+      "kind": "synthesis",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3534,
+          "speedup": 2.83,
+          "peak_db": -26.86,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.6004,
+          "speedup": 8.33,
+          "peak_db": -24.27,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.981,
+          "speedup": 10.19,
+          "peak_db": -24.31,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 1.5796,
+          "speedup": 9.5,
+          "peak_db": -25.12,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Synthesis/StochGrains2.c5",
+      "name": "StochGrains2",
+      "category": "Synthesis",
+      "kind": "cfilein",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3052,
+          "speedup": 3.28,
+          "peak_db": -26.55,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.5749,
+          "speedup": 8.7,
+          "peak_db": -27.38,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.9258,
+          "speedup": 10.8,
+          "peak_db": -26.62,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 1.6579,
+          "speedup": 9.05,
+          "peak_db": -27.18,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Synthesis/SuperSaw.c5",
+      "name": "SuperSaw",
+      "category": "Synthesis",
+      "kind": "synthesis",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2588,
+          "speedup": 3.86,
+          "peak_db": -35.32,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2813,
+          "speedup": 17.78,
+          "peak_db": -30.67,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3155,
+          "speedup": 31.7,
+          "peak_db": -30.75,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.608,
+          "speedup": 24.67,
+          "peak_db": -24.69,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Synthesis/WaveScanSynth.c5",
+      "name": "WaveScanSynth",
+      "category": "Synthesis",
+      "kind": "cfilein",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2528,
+          "speedup": 3.96,
+          "peak_db": -20.77,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3116,
+          "speedup": 16.05,
+          "peak_db": -20.52,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3411,
+          "speedup": 29.32,
+          "peak_db": -20.45,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.5987,
+          "speedup": 25.06,
+          "peak_db": -20.45,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Time/4Delays.c5",
+      "name": "4Delays",
+      "category": "Time",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2364,
+          "speedup": 4.23,
+          "peak_db": -22.55,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3352,
+          "speedup": 14.92,
+          "peak_db": -22.36,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3656,
+          "speedup": 27.35,
+          "peak_db": -22.37,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.709,
+          "speedup": 21.16,
+          "peak_db": -22.37,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Time/BeatMaker.c5",
+      "name": "BeatMaker",
+      "category": "Time",
+      "kind": "cfilein",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2528,
+          "speedup": 3.96,
+          "peak_db": -22.94,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3587,
+          "speedup": 13.94,
+          "peak_db": -19.22,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.4903,
+          "speedup": 20.4,
+          "peak_db": -17.75,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.7201,
+          "speedup": 20.83,
+          "peak_db": -17.75,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Time/DelayMod.c5",
+      "name": "DelayMod",
+      "category": "Time",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2371,
+          "speedup": 4.22,
+          "peak_db": -22.32,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2513,
+          "speedup": 19.89,
+          "peak_db": -21.7,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3335,
+          "speedup": 29.98,
+          "peak_db": -21.67,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.563,
+          "speedup": 26.64,
+          "peak_db": -21.29,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Time/Granulator.c5",
+      "name": "Granulator",
+      "category": "Time",
+      "kind": "cfilein",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2833,
+          "speedup": 3.53,
+          "peak_db": -23.86,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.4162,
+          "speedup": 12.01,
+          "peak_db": -22.17,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.5296,
+          "speedup": 18.88,
+          "peak_db": -21.32,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.8369,
+          "speedup": 17.92,
+          "peak_db": -21.5,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Time/Particle.c5",
+      "name": "Particle",
+      "category": "Time",
+      "kind": "cfilein",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2342,
+          "speedup": 4.27,
+          "peak_db": -21.06,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.4223,
+          "speedup": 11.84,
+          "peak_db": -21.02,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.5047,
+          "speedup": 19.81,
+          "peak_db": -20.48,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.9943,
+          "speedup": 15.09,
+          "peak_db": -15.26,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Time/Pelletizer.c5",
+      "name": "Pelletizer",
+      "category": "Time",
+      "kind": "cfilein",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2849,
+          "speedup": 3.51,
+          "peak_db": -34.62,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3936,
+          "speedup": 12.7,
+          "peak_db": -29.49,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.4765,
+          "speedup": 20.99,
+          "peak_db": -29.26,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.9352,
+          "speedup": 16.04,
+          "peak_db": -30.37,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Time/Stutterer.c5",
+      "name": "Stutterer",
+      "category": "Time",
+      "kind": "cfilein",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2443,
+          "speedup": 4.09,
+          "peak_db": -15.8,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.2525,
+          "speedup": 19.8,
+          "peak_db": -15.8,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3567,
+          "speedup": 28.03,
+          "peak_db": -15.82,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.5345,
+          "speedup": 28.06,
+          "peak_db": -15.81,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    },
+    {
+      "module": "Time/UltimateGrainer.c5",
+      "name": "UltimateGrainer",
+      "category": "Time",
+      "kind": "cfilein",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.273,
+          "speedup": 3.66,
+          "peak_db": -21.81,
+          "finite": true,
+          "out_size_mb": 0.336,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.5414,
+          "speedup": 9.24,
+          "peak_db": -19.39,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.7631,
+          "speedup": 13.11,
+          "peak_db": -18.47,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 2.0871,
+          "speedup": 7.19,
+          "peak_db": -13.85,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    }
+  ],
+  "stress_tests": [
+    {
+      "status": "pass",
+      "error": null,
+      "elapsed_sec": 1.2556,
+      "speedup": 1.59,
+      "peak_db": -15.92,
+      "finite": true,
+      "out_size_mb": 5.86,
+      "shape": [
+        8,
+        192000
+      ],
+      "module": "Time/UltimateGrainer.c5",
+      "channels": 8,
+      "input_file_size_mb": 175.78129196166992,
+      "sr": 96000
+    },
+    {
+      "status": "pass",
+      "error": null,
+      "elapsed_sec": 5.0453,
+      "speedup": 0.4,
+      "peak_db": -16.12,
+      "finite": true,
+      "out_size_mb": 36.622,
+      "shape": [
+        50,
+        192000
+      ],
+      "module": "Time/UltimateGrainer.c5",
+      "channels": 50,
+      "input_file_size_mb": 175.78129196166992,
+      "sr": 96000
+    },
+    {
+      "status": "pass",
+      "error": null,
+      "elapsed_sec": 0.7513,
+      "speedup": 2.66,
+      "peak_db": -18.38,
+      "finite": true,
+      "out_size_mb": 5.86,
+      "shape": [
+        8,
+        192000
+      ],
+      "module": "Time/Particle.c5",
+      "channels": 8,
+      "input_file_size_mb": 175.78129196166992,
+      "sr": 96000
+    },
+    {
+      "status": "pass",
+      "error": null,
+      "elapsed_sec": 1.9045,
+      "speedup": 1.05,
+      "peak_db": -17.5,
+      "finite": true,
+      "out_size_mb": 36.622,
+      "shape": [
+        50,
+        192000
+      ],
+      "module": "Time/Particle.c5",
+      "channels": 50,
+      "input_file_size_mb": 175.78129196166992,
+      "sr": 96000
+    },
+    {
+      "status": "pass",
+      "error": null,
+      "elapsed_sec": 0.7053,
+      "speedup": 2.84,
+      "peak_db": -28.53,
+      "finite": true,
+      "out_size_mb": 5.86,
+      "shape": [
+        8,
+        192000
+      ],
+      "module": "Time/Pelletizer.c5",
+      "channels": 8,
+      "input_file_size_mb": 175.78129196166992,
+      "sr": 96000
+    },
+    {
+      "status": "pass",
+      "error": null,
+      "elapsed_sec": 1.5307,
+      "speedup": 1.31,
+      "peak_db": -29.77,
+      "finite": true,
+      "out_size_mb": 36.622,
+      "shape": [
+        50,
+        192000
+      ],
+      "module": "Time/Pelletizer.c5",
+      "channels": 50,
+      "input_file_size_mb": 175.78129196166992,
+      "sr": 96000
+    },
+    {
+      "status": "pass",
+      "error": null,
+      "elapsed_sec": 0.6043,
+      "speedup": 3.31,
+      "peak_db": -22.08,
+      "finite": true,
+      "out_size_mb": 5.86,
+      "shape": [
+        8,
+        192000
+      ],
+      "module": "Pitch/Harmonizer.c5",
+      "channels": 8,
+      "input_file_size_mb": 175.78129196166992,
+      "sr": 96000
+    },
+    {
+      "status": "pass",
+      "error": null,
+      "elapsed_sec": 0.9281,
+      "speedup": 2.15,
+      "peak_db": -22.08,
+      "finite": true,
+      "out_size_mb": 36.622,
+      "shape": [
+        50,
+        192000
+      ],
+      "module": "Pitch/Harmonizer.c5",
+      "channels": 50,
+      "input_file_size_mb": 175.78129196166992,
+      "sr": 96000
+    },
+    {
+      "status": "pass",
+      "error": null,
+      "elapsed_sec": 0.592,
+      "speedup": 3.38,
+      "peak_db": -20.02,
+      "finite": true,
+      "out_size_mb": 5.86,
+      "shape": [
+        8,
+        192000
+      ],
+      "module": "Filters/StateVar2.c5",
+      "channels": 8,
+      "input_file_size_mb": 175.78129196166992,
+      "sr": 96000
+    },
+    {
+      "status": "pass",
+      "error": null,
+      "elapsed_sec": 0.8566,
+      "speedup": 2.33,
+      "peak_db": -20.02,
+      "finite": true,
+      "out_size_mb": 36.622,
+      "shape": [
+        50,
+        192000
+      ],
+      "module": "Filters/StateVar2.c5",
+      "channels": 50,
+      "input_file_size_mb": 175.78129196166992,
+      "sr": 96000
+    },
+    {
+      "status": "pass",
+      "error": null,
+      "elapsed_sec": 1.1088,
+      "speedup": 1.8,
+      "peak_db": 38.26,
+      "finite": true,
+      "out_size_mb": 5.86,
+      "shape": [
+        8,
+        192000
+      ],
+      "module": "Resonators&Verbs/ConvolutionReverb.c5",
+      "channels": 8,
+      "input_file_size_mb": 2.197307586669922,
+      "sr": 96000
+    },
+    {
+      "status": "pass",
+      "error": null,
+      "elapsed_sec": 5.6185,
+      "speedup": 0.36,
+      "peak_db": 38.26,
+      "finite": true,
+      "out_size_mb": 36.622,
+      "shape": [
+        50,
+        192000
+      ],
+      "module": "Resonators&Verbs/ConvolutionReverb.c5",
+      "channels": 50,
+      "input_file_size_mb": 2.197307586669922,
+      "sr": 96000
+    }
+  ]
+}

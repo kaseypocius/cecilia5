@@ -270,67 +270,23 @@ def _read_wav_float64(path: str) -> Optional[np.ndarray]:
 
 
 def _write_wav_float32(arr: np.ndarray, path: str, sr: int):
-    """Fast pure-numpy IEEE float32 RIFF WAVE writer for `(nchnls, frames)` array."""
-    nchnls, frames = arr.shape
-    interleaved = np.ascontiguousarray(arr.T, dtype="<f4")
-    raw_bytes = interleaved.tobytes()
-    block_align = nchnls * 4
-    byte_rate = sr * block_align
-    data_size = len(raw_bytes)
-    riff_size = 36 + data_size
-    with open(path, "wb") as f:
-        f.write(b"RIFF" + struct.pack("<I", riff_size) + b"WAVE")
-        f.write(b"fmt " + struct.pack("<IHHIIHH", 16, 3, nchnls, sr, byte_rate, block_align, 32))
-        f.write(b"data" + struct.pack("<I", data_size))
-        f.write(raw_bytes)
+    _save_multichannel_audio(arr, path, sr, 0, 3)
 
 
 def _write_wav_pcm(arr: np.ndarray, path: str, sr: int, bits: int):
-    """Write saturated integer PCM with one rounding step and full-scale bounds."""
-    channels, frames = arr.shape
-    scale = 2 ** (bits - 1)
-    quantized = np.clip(np.rint(np.asarray(arr, dtype=np.float64) * scale),
-                        -scale, scale - 1).astype("<i4")
-    interleaved = np.ascontiguousarray(quantized.T)
-    if bits == 16:
-        raw = interleaved.astype("<i2").tobytes()
-    elif bits == 24:
-        raw = interleaved.view(np.uint8).reshape(-1, 4)[:, :3].tobytes()
-    else:
-        raw = interleaved.tobytes()
-    block_align = channels * (bits // 8)
-    with open(path, "wb") as stream:
-        stream.write(b"RIFF" + struct.pack("<I", 36 + len(raw) + (len(raw) & 1)) + b"WAVE")
-        stream.write(b"fmt " + struct.pack("<IHHIIHH", 16, 1, channels, sr,
-                                          sr * block_align, block_align, bits))
-        stream.write(b"data" + struct.pack("<I", len(raw)) + raw)
-        if len(raw) & 1:
-            stream.write(b"\x00")
+    _save_multichannel_audio(arr, path, sr, 0, {16:0, 24:1, 32:2}[bits])
 
 
 def _save_multichannel_audio(arr: np.ndarray, path: str, sr: int, fileformat: int, sampletype: int):
-    """Save `(nchnls, frames)` float64 array to disk without creating pyo Server/DataTable pointers."""
-    from pyo import savefile
+    """Encode channel-major samples without whole-file interleaving or lists."""
+    from .AudioFileIO import AudioWriter, BLOCK_SAMPLES
 
     os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
-    if not np.isfinite(arr).all():
-        raise ValueError("Cannot encode non-finite audio samples.")
-    if fileformat == 0 and sampletype in (0, 1, 2):
-        _write_wav_pcm(arr, path, sr, {0: 16, 1: 24, 2: 32}[sampletype])
-        return
-    if fileformat == 0 and sampletype == 3:
-        _write_wav_float32(arr, path, sr)
-        return
-    if sampletype in (0, 1, 2):
-        # libsndfile's float-to-PCM path can wrap overloads. Saturate before
-        # conversion, including a float32-safe upper limit for 32-bit PCM.
-        bits = {0: 16, 1: 24, 2: 32}[sampletype]
-        maximum = min(1.0 - 2.0 ** (1 - bits),
-                      float(np.nextafter(np.float32(1), np.float32(0))))
-        arr = np.clip(arr, -1.0, maximum)
-    nchnls = arr.shape[0]
-    samples = arr[0].tolist() if nchnls == 1 else [arr[ch].tolist() for ch in range(nchnls)]
-    savefile(samples=samples, path=path, sr=sr, channels=nchnls, fileformat=fileformat, sampletype=sampletype)
+    channels, frames = arr.shape
+    block_frames = max(1, BLOCK_SAMPLES // channels)
+    with AudioWriter(path, sr, channels, frames, fileformat, sampletype) as destination:
+        for start in range(0, frames, block_frames):
+            destination.write(arr[:, start:start + block_frames].T)
 
 
 def normalize_audio_file(
@@ -344,69 +300,30 @@ def normalize_audio_file(
 
     Returns the new peak dB level (or -90.0 if the file was pure silence).
     """
+    from .AudioFileIO import AudioReader, AudioWriter, audio_peak
+
     if not os.path.isfile(path):
         return -90.0
-
-    arr = _read_wav_float64(path)
-    file_sr = sr
-    file_fmt = fileformat
-    file_st = sampletype
-
-    if arr is None:
-        # Fall back to pyo SndTable for non-WAV formats (AIFF, FLAC, etc.)
-        from pyo import Server, SndTable, sndinfo
-        info = sndinfo(path)
-        if info is None:
-            raise RuntimeError(f"Cannot read audio file for normalization: {path}")
-        n_frames, _dur, info_sr, n_chnls, fmt_name, st_name = info
-        file_sr = int(file_sr or info_sr)
-        srv = Server(audio="offline").boot()
-        try:
-            tbl = SndTable(path)
-            avail_ch = len(tbl)
-            if avail_ch == 1:
-                arr = np.array([tbl.getTable()], dtype=np.float64)
-            else:
-                arr = np.vstack([np.array(tbl[ch].getTable(), dtype=np.float64) for ch in range(avail_ch)])
-            del tbl
-        finally:
-            if srv.getIsBooted():
-                srv.shutdown()
-
-    if arr is None or arr.size == 0:
+    peak = audio_peak(path)
+    if peak <= 1e-9:
         return -90.0
-
-    curr_peak = float(np.max(np.abs(arr)))
-    if curr_peak <= 1e-9:
-        # Audio is completely silent; nothing to scale
-        return -90.0
-
-    target_amp = 10.0 ** (target_db / 20.0)
-    gain = target_amp / curr_peak
-    scaled = arr * gain
-
-    if file_sr is None or file_fmt is None or file_st is None:
-        from pyo import sndinfo
-        from .constants import AUDIO_FILE_FORMATS
-        info = sndinfo(path)
-        if info:
-            if file_sr is None:
-                file_sr = int(info[2])
-            if file_fmt is None:
-                fmt_str = str(info[4]).lower()
-                file_fmt = AUDIO_FILE_FORMATS.get(fmt_str, 0)
-            if file_st is None:
-                file_st = 0
-
-    _save_multichannel_audio(
-        scaled,
-        path,
-        sr=int(file_sr or 44100),
-        fileformat=int(file_fmt if file_fmt is not None else 0),
-        sampletype=int(file_st if file_st is not None else 0),
-    )
-    return round(target_db, 2)
-
+    gain = 10.0 ** (target_db / 20.0) / peak
+    fd, temporary = tempfile.mkstemp(prefix=".cec_normalize_", suffix=".tmp", dir=os.path.dirname(os.path.abspath(path)))
+    os.close(fd)
+    try:
+        with AudioReader(path) as source:
+            info = source.info
+            kwargs = {"native_format":info.format} if fileformat is None and sampletype is None else {}
+            with AudioWriter(temporary, sr or info.sample_rate, info.channels, info.frames,
+                             fileformat if fileformat is not None else 0,
+                             sampletype if sampletype is not None else 3, **kwargs) as destination:
+                for block in source.blocks():
+                    destination.write(block * gain)
+        os.replace(temporary, path)
+    finally:
+        if os.path.exists(temporary):
+            os.remove(temporary)
+    return round(amp_to_db(10.0 ** (target_db / 20.0)), 2)
 
 def list_module_presets(module_name: str, include_init: bool = True) -> List[str]:
     from .constants import PRESETS_PATH
@@ -1579,9 +1496,9 @@ class _HeadlessRenderWorker:
         if raw_output and spec.get("raw_export_path"):
             public_format = AUDIO_FILE_FORMATS.get(spec["export_audio_file_type"], 0)
             public_sampletype = clamp_sampletype_for_format(public_format, spec["export_samp_size"])
-            audio = self._read_audio_channels(output_path, sr, nchnls)
-            _save_multichannel_audio(audio[:, warmup_frames:warmup_frames + expected_frames],
-                                     spec["raw_export_path"], sr, public_format, public_sampletype)
+            self._trim_audio_file(output_path, sr, nchnls, expected_frames, public_format,
+                                  public_sampletype, discard_frames=warmup_frames,
+                                  force_reencode=True, output_path=spec["raw_export_path"], keep_source=True)
 
         output_path = public_output_path
         module_outputs = public_module_outputs
@@ -1591,17 +1508,8 @@ class _HeadlessRenderWorker:
                 minfo = sndinfo(mpath)
                 mframes = minfo[0] if minfo else 0
                 mdur = minfo[1] if minfo else total_time
-                m_peak = -90.0
-                try:
-                    m_arr = _read_wav_float64(mpath)
-                    if m_arr is not None and m_arr.size:
-                        m_peak = round(amp_to_db(float(np.max(np.abs(m_arr)))), 2)
-                    else:
-                        m_arr = self._read_audio_channels(mpath, sr, nchnls)
-                        if m_arr.size:
-                            m_peak = round(amp_to_db(float(np.max(np.abs(m_arr)))), 2)
-                except Exception:
-                    pass
+                from .AudioFileIO import audio_peak
+                m_peak = round(amp_to_db(audio_peak(mpath)), 2)
                 module_results[mid] = {
                     "path": mpath,
                     "frames": mframes,
@@ -1634,19 +1542,29 @@ class _HeadlessRenderWorker:
         }
 
     def _trim_audio_file(self, path, sr, nchnls, frames, fileformat, sampletype,
-                         discard_frames=0, force_reencode=False, output_path=None):
-        from pyo import sndinfo
+                         discard_frames=0, force_reencode=False, output_path=None, keep_source=False):
+        from .AudioFileIO import AudioReader, AudioWriter, encoding_temp_prefix
 
-        info = sndinfo(path)
-        if info is None or info[0] < frames + discard_frames:
-            raise RuntimeError(f"Incomplete render: {path} (expected {frames + discard_frames} frames)")
         destination = output_path or path
-        if info[0] != frames or discard_frames or force_reencode or destination != path:
-            audio = self._read_audio_channels(path, sr, nchnls)
-            _save_multichannel_audio(audio[:, discard_frames:discard_frames + frames],
-                                     destination, sr, fileformat, sampletype)
-            if destination != path:
-                os.remove(path)
+        with AudioReader(path) as source:
+            info = source.info
+            if info.frames < frames + discard_frames:
+                raise RuntimeError(f"Incomplete render: {path} (expected {frames + discard_frames} frames)")
+            if info.frames == frames and not discard_frames and not force_reencode and destination == path:
+                return
+            fd, temporary = tempfile.mkstemp(prefix=encoding_temp_prefix(destination), suffix=".tmp",
+                                             dir=os.path.dirname(os.path.abspath(destination)))
+            os.close(fd)
+            try:
+                with AudioWriter(temporary, sr, info.channels, frames, fileformat, sampletype) as target:
+                    for block in source.blocks(discard_frames, frames):
+                        target.write(block)
+                os.replace(temporary, destination)
+            finally:
+                if os.path.exists(temporary):
+                    os.remove(temporary)
+        if destination != path and not keep_source:
+            os.remove(path)
 
     def _read_audio_channels(self, path: str, sr: int, nchnls: int) -> np.ndarray:
         """Read an audio file into `(avail_chnls, frames)` float64 without dangling C memoryviews."""
@@ -1689,54 +1607,52 @@ class _HeadlessRenderWorker:
         fileformat = AUDIO_FILE_FORMATS.get(file_type, 0)
         sampletype = clamp_sampletype_for_format(fileformat, int(spec["samp_size"]))
 
-        accum = np.zeros((nchnls, total_frames), dtype=np.float64)
+        from contextlib import ExitStack
+        from .AudioFileIO import AudioReader, AudioWriter, BLOCK_SAMPLES
 
-        if xfade_frames > 0:
-            u = np.linspace(0.0, 1.0, xfade_frames, dtype=np.float64)
-            if xfade_shape == "equal_power":
-                w_out = np.cos(0.5 * np.pi * u)
-                w_in = np.sin(0.5 * np.pi * u)
-                # Replayed overlaps are correlated: unity-sum weights avoid
-                # the +3 dB seam bump of an unnormalized equal-power fade.
-                weight_sum = w_out + w_in
-                w_out = w_out / weight_sum
-                w_in = w_in / weight_sum
-            else:
-                w_out = 0.5 * (1.0 + np.cos(np.pi * u))
-                w_in = 0.5 * (1.0 - np.cos(np.pi * u))
-        else:
-            w_out = w_in = np.ones(0, dtype=np.float64)
-
-        num_chunks = len(chunks)
-        for idx, cinfo in enumerate(chunks):
-            raw_ch = self._read_audio_channels(cinfo["path"], sr, nchnls)
-            discard = int(cinfo["discard_frames"])
-            a_k = int(cinfo["a_frame"])
-            b_k = int(cinfo["b_frame"])
-            need = b_k - a_k
-
-            seg = np.zeros((nchnls, need), dtype=np.float64)
-            avail_ch = raw_ch.shape[0]
-            for ch in range(nchnls):
-                sliced = raw_ch[min(ch, avail_ch - 1), discard:discard + need]
-                seg[ch, :len(sliced)] = sliced
-
-            if xfade_frames > 0:
-                if idx > 0 and need >= xfade_frames:
-                    seg[:, :xfade_frames] *= w_in
-                if idx < num_chunks - 1 and need >= xfade_frames:
-                    seg[:, -xfade_frames:] *= w_out
-
-            accum[:, a_k:b_k] += seg
-
+        peak_amp = 0.0
         fade_samps = min(total_frames // 2, int(round(global_fade * sr)))
-        if fade_samps > 1:
-            ramp = np.linspace(0.0, 1.0, fade_samps, dtype=np.float64)
-            accum[:, :fade_samps] *= ramp
-            accum[:, -fade_samps:] *= ramp[::-1]
-
-        peak_amp = float(np.max(np.abs(accum))) if accum.size else 0.0
-        _save_multichannel_audio(accum, output_path, sr, fileformat, sampletype)
+        with ExitStack() as stack:
+            readers = [stack.enter_context(AudioReader(c["path"])) for c in chunks]
+            writer = stack.enter_context(AudioWriter(output_path, sr, nchnls, total_frames,
+                                                     fileformat, sampletype))
+            for start in range(0, total_frames, max(1, BLOCK_SAMPLES // nchnls)):
+                stop = min(total_frames, start + max(1, BLOCK_SAMPLES // nchnls))
+                accum = np.zeros((stop-start, nchnls), dtype=np.float64)
+                for idx, (cinfo, reader) in enumerate(zip(chunks, readers)):
+                    a, b = int(cinfo["a_frame"]), int(cinfo["b_frame"])
+                    lo, hi = max(start, a), min(stop, b)
+                    if lo >= hi:
+                        continue
+                    offset = int(cinfo["discard_frames"]) + lo-a
+                    available = max(0, min(hi-lo, reader.info.frames-offset))
+                    if not available:
+                        continue
+                    reader.seek(offset)
+                    raw = reader.read(available)
+                    seg = raw[:, np.minimum(np.arange(nchnls), reader.info.channels-1)]
+                    positions = np.arange(lo-a, lo-a+available)
+                    if xfade_frames > 0 and b-a >= xfade_frames:
+                        for enabled, incoming in ((idx > 0, True), (idx < len(chunks)-1, False)):
+                            if not enabled:
+                                continue
+                            indices = positions if incoming else positions-(b-a-xfade_frames)
+                            mask = (indices >= 0) & (indices < xfade_frames)
+                            u = indices[mask] / max(1, xfade_frames-1)
+                            if xfade_shape == "equal_power":
+                                out, ins = np.cos(0.5*np.pi*u), np.sin(0.5*np.pi*u)
+                                weights = (ins if incoming else out)/(out+ins)
+                            else:
+                                weights = 0.5*(1.0 + (-1 if incoming else 1)*np.cos(np.pi*u))
+                            seg[mask] *= weights[:, None]
+                    accum[lo-start:lo-start+available] += seg
+                if fade_samps > 1 and (start < fade_samps or stop > total_frames - fade_samps):
+                    positions = np.arange(start, stop)
+                    weights = np.minimum(1.0, np.minimum(positions, total_frames-1-positions)/(fade_samps-1))
+                    accum *= weights[:, None]
+                if accum.size:
+                    peak_amp = max(peak_amp, float(np.max(np.abs(accum))))
+                writer.write(accum)
 
         elapsed = time.perf_counter() - t0
         return {
@@ -1753,7 +1669,7 @@ class _HeadlessRenderWorker:
         """Mix rendered parallel chain branches (0.707 multi-cable rule) and run optional master plugins."""
         from .constants import AUDIO_FILE_FORMATS
         from .Session import ChainSession, instance_context
-        from pyo import Fader, Server, Sig, SndTable, TableRead, sndinfo
+        from pyo import Fader, Server, Sig, SfPlayer, sndinfo
 
         t0 = time.perf_counter()
         job_id = spec["job_id"]
@@ -1778,22 +1694,25 @@ class _HeadlessRenderWorker:
 
         temp_mixed_wav = None
         try:
-            mixed = np.zeros((nchnls, total_frames + warmup_frames), dtype=np.float64)
-            for bpath in branch_files:
-                if not bpath or not os.path.isfile(bpath):
-                    continue
-                raw_ch = self._read_audio_channels(bpath, sr, nchnls)
-                avail_ch = raw_ch.shape[0]
-                for ch in range(nchnls):
-                    src = raw_ch[min(ch, avail_ch - 1)]
-                    n_copy = min(total_frames + warmup_frames, len(src))
-                    mixed[ch, :n_copy] += src[:n_copy] * cable_gain
-
+            from contextlib import ExitStack
+            from .AudioFileIO import AudioReader, AudioWriter, BLOCK_SAMPLES
             os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
-
             fd, temp_mixed_wav = tempfile.mkstemp(prefix="cec_branch_mix_", suffix=".wav", dir=spec.get("scratch_dir"))
             os.close(fd)
-            _write_wav_float32(mixed, temp_mixed_wav, sr)
+            length = total_frames + warmup_frames
+            with ExitStack() as stack:
+                readers = [stack.enter_context(AudioReader(path)) for path in branch_files
+                           if path and os.path.isfile(path)]
+                writer = stack.enter_context(AudioWriter(temp_mixed_wav, sr, nchnls, length))
+                for start in range(0, length, max(1, BLOCK_SAMPLES // nchnls)):
+                    count = min(length-start, max(1, BLOCK_SAMPLES // nchnls))
+                    mixed = np.zeros((count, nchnls), dtype=np.float64)
+                    for reader in readers:
+                        available = min(count, max(0, reader.info.frames-start))
+                        if available:
+                            raw = reader.read(available)
+                            mixed[:available] += raw[:, np.minimum(np.arange(nchnls), reader.info.channels-1)] * cable_gain
+                    writer.write(mixed)
 
             CeciliaLib = self.CeciliaLib
             CeciliaLib.setVar("sr", sr)
@@ -1826,8 +1745,7 @@ class _HeadlessRenderWorker:
             chain.modules = [inst]
             CeciliaLib.session = chain
 
-            stem_tbl = SndTable(temp_mixed_wav)
-            stem_reader = TableRead(stem_tbl, freq=stem_tbl.getRate(), loop=False, interp=1).play()
+            stem_reader = SfPlayer(temp_mixed_wav, speed=1, loop=False, interp=1).play()
             self.srv_shell.out = Sig(stem_reader)
             with instance_context(inst):
                 self.srv_shell._loadOutputPlugins()
@@ -1840,7 +1758,6 @@ class _HeadlessRenderWorker:
             if srv.getIsStarted():
                 srv.stop()
             stem_reader = None
-            stem_tbl = None
             self.srv_shell.cleanup_module()
             gc.collect()
             if srv.getIsBooted():
@@ -2031,7 +1948,30 @@ class _SubprocessWorkerHandle:
             self._proc.stdin.write(payload)
             self._proc.stdin.flush()
 
+            last_memory_check = 0.0
             while True:
+                now = time.monotonic()
+                memory_limit = getattr(self, "memory_limit_bytes", None)
+                if memory_limit and now-last_memory_check >= 0.1:
+                    from .RenderMemory import process_rss
+                    resident = process_rss(self._proc.pid)
+                    last_memory_check = now
+                    if resident is not None and resident > memory_limit:
+                        # Keep this pool slot reusable after rejecting one large job.
+                        with self._shutdown_lock:
+                            proc = self._proc
+                            if proc.poll() is None:
+                                proc.terminate()
+                                try:
+                                    proc.wait(timeout=0.5)
+                                except subprocess.TimeoutExpired:
+                                    proc.kill()
+                                    proc.wait()
+                            self._close_pipes()
+                        raise MemoryError("Offline worker exceeded its memory budget "
+                                          f"({resident/1024**3:.1f} GiB resident; "
+                                          f"limit {memory_limit/1024**3:.1f} GiB). "
+                                          "Reduce input length or channel count.")
                 if cancel_event.is_set():
                     self.terminate()
                     raise InterruptedError("Render cancelled.")
@@ -2161,6 +2101,7 @@ class _WorkerPool:
             if on_worker_start:
                 on_worker_start(handle.worker_index)
             try:
+                handle.memory_limit_bytes = getattr(self, "memory_limit_bytes", None)
                 return handle.execute(cmd, spec, cancel_event, on_progress=on_progress)
             finally:
                 if on_worker_end:
@@ -2218,6 +2159,7 @@ class OfflineRenderManager:
         self._running = False
         self._temp_dirs: List[str] = []
         self._active_outputs: set = set()
+        self._initial_output_stats: Dict[str, Any] = {}
 
     @property
     def is_running(self) -> bool:
@@ -2258,16 +2200,45 @@ class OfflineRenderManager:
             self._temp_dirs.append(d)
         return d
 
+    @staticmethod
+    def _output_signature(path):
+        try:
+            info = os.stat(path)
+            return (info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns)
+        except OSError:
+            return None
+
+    def _track_output(self, path):
+        """Called with the coordinator lock held before dispatch."""
+        if path not in self._initial_output_stats:
+            self._initial_output_stats[path] = self._output_signature(path)
+        self._active_outputs.add(path)
+
     def _cleanup_temps(self, cancelled: bool):
         with self._lock:
             dirs = list(self._temp_dirs)
             self._temp_dirs.clear()
             incomplete = list(self._active_outputs) if cancelled else []
+            initial = dict(self._initial_output_stats)
+            self._initial_output_stats.clear()
             self._active_outputs.clear()
         for d in dirs:
             shutil.rmtree(d, ignore_errors=True)
         for fpath in incomplete:
+            if fpath:
+                # SIGTERM cannot execute the encoder's finally block. Remove
+                # only temporary encodes belonging to this incomplete output.
+                from .AudioFileIO import encoding_temp_prefix
+                from pathlib import Path
+                parent = Path(os.path.dirname(os.path.abspath(fpath)))
+                for temporary in parent.glob(encoding_temp_prefix(fpath) + "*.tmp"):
+                    try:
+                        temporary.unlink()
+                    except OSError:
+                        pass
             if fpath and os.path.exists(fpath):
+                if initial.get(fpath) is not None and self._output_signature(fpath) == initial[fpath]:
+                    continue  # The worker never modified the previous destination.
                 try:
                     os.remove(fpath)
                 except OSError:
@@ -2315,8 +2286,18 @@ class OfflineRenderManager:
 
     def _run_coordinator(self, jobs: List[RenderJob]):
         t_start = time.perf_counter()
-        num_threads = max(1, int(self.settings.num_threads))
+        from .RenderMemory import render_memory_budget, estimate_snapshot_memory, worker_limit, process_rss
+        rss_monitoring_available = process_rss(os.getpid()) is not None
+        memory_budget = render_memory_budget()
+        memory_estimates = [estimate_snapshot_memory(job.snapshot, int(self.settings.nchnls or
+                            job.snapshot["output"]["nchnls"])) for job in jobs]
+        num_threads = worker_limit(memory_estimates, max(1, int(self.settings.num_threads)), memory_budget)
+        memory_worker_limit = num_threads if num_threads < max(1, int(self.settings.num_threads)) else None
+        if all(self._choose_single_strategy(job, len(jobs)) == "single" for job in jobs):
+            # Unused pool slots must not reserve RAM away from the one active job.
+            num_threads = min(num_threads, max(1, len(jobs)))
         pool = _WorkerPool(num_threads)
+        pool.memory_limit_bytes = memory_budget // num_threads
         self._pool = pool
 
         total_jobs = len(jobs)
@@ -2349,6 +2330,7 @@ class OfflineRenderManager:
                 "eta": eta,
                 "peak_db": peak_copy,
                 "workers": workers_copy,
+                "memory_worker_limit": memory_worker_limit,
             })
 
         def set_worker_active(widx: int, label: str):
@@ -2400,16 +2382,31 @@ class OfflineRenderManager:
 
             j_t0 = time.perf_counter()
             strategy = self._choose_single_strategy(job, total_jobs)
+            if (num_threads == 1 and self.settings.accel_mode == "auto"
+                    and not (job.export_stems or self.settings.export_stems)):
+                strategy = "single"
             total_dur = float(job.duration_override or job.snapshot["output"]["totalTime"])
             nchnls = int(self.settings.nchnls or job.snapshot["output"]["nchnls"])
             sr = int(self.settings.sr)
             buffersize = int(self.settings.buffersize)
 
+            if memory_estimates[job_idx] > memory_budget and not rss_monitoring_available:
+                job.status = "Error"
+                job.error = ("Offline input tables exceed the render memory budget "
+                             f"(estimated {memory_estimates[job_idx]/1024**3:.1f} GiB; "
+                             f"budget {memory_budget/1024**3:.1f} GiB). "
+                             "Resident-memory monitoring is unavailable on this system, "
+                             "so an oversized estimate cannot be tried safely. "
+                             "Reduce input length or channel count before rendering.")
+                job.elapsed = time.perf_counter() - j_t0
+                notify_job(job_idx)
+                return
+
             with self._lock:
                 if job.master_output:
-                    self._active_outputs.add(job.output_path)
+                    self._track_output(job.output_path)
                 for sp in job.module_outputs.values():
-                    self._active_outputs.add(sp)
+                    self._track_output(sp)
 
             job.status = f"Rendering ({strategy})" if strategy != "single" else "Rendering"
             notify_job(job_idx)
@@ -2480,7 +2477,7 @@ class OfflineRenderManager:
                             export_path = f"{base_no_ext}_{b_lbl}{out_ext}"
                             job.stem_paths.append(export_path)
                             with self._lock:
-                                self._active_outputs.add(export_path)
+                                self._track_output(export_path)
                         stem_path = os.path.join(tmp_dir, f"{b_lbl}.wav")
                         branch_files[b_i] = stem_path
                         context_snapshot = copy.deepcopy(job.snapshot)
@@ -2697,8 +2694,10 @@ class OfflineRenderManager:
 
                 with self._lock:
                     self._active_outputs.discard(job.output_path)
+                    self._initial_output_stats.pop(job.output_path, None)
                     for sp in job.stem_paths:
                         self._active_outputs.discard(sp)
+                        self._initial_output_stats.pop(sp, None)
 
                 job.module_results = res.get("module_results", job.module_results)
                 if not job.master_output and job.module_results:
@@ -2815,7 +2814,7 @@ class OfflineRenderManager:
             hb_thread.join(timeout=1.0)
             cancelled = self.cancel_event.is_set()
             pool.shutdown()
-            self._cleanup_temps(cancelled=cancelled)
+            self._cleanup_temps(cancelled=cancelled or any(j.status == "Error" for j in jobs))
             self._pool = None
             self._running = False
             with state_lock:

@@ -1,0 +1,325 @@
+{
+  "summary": {
+    "total_modules": 1,
+    "total_cases": 4,
+    "passed_cases": 4,
+    "failed_cases": 0,
+    "stress_total": 12,
+    "stress_passed": 12,
+    "total_elapsed_sec": 25.51,
+    "speedup_avg": 15.67,
+    "speedup_median": 18.12,
+    "speedup_min": 2.9,
+    "speedup_max": 23.55
+  },
+  "tiers": [
+    {
+      "tier": "small",
+      "path": "/var/folders/ll/syhnl7wd1d9cttys48yz29l40000gn/T/cec_filesize_bench_belh1407/small.wav",
+      "dur": 1.5,
+      "render_dur": 1.0,
+      "sr": 44100,
+      "chnls": 2,
+      "size_mb": 0.5047683715820312,
+      "mode": "single"
+    },
+    {
+      "tier": "medium",
+      "path": "/var/folders/ll/syhnl7wd1d9cttys48yz29l40000gn/T/cec_filesize_bench_belh1407/medium.wav",
+      "dur": 15.0,
+      "render_dur": 5.0,
+      "sr": 44100,
+      "chnls": 2,
+      "size_mb": 5.046928405761719,
+      "mode": "single"
+    },
+    {
+      "tier": "large",
+      "path": "/var/folders/ll/syhnl7wd1d9cttys48yz29l40000gn/T/cec_filesize_bench_belh1407/large.wav",
+      "dur": 60.0,
+      "render_dur": 10.0,
+      "sr": 48000,
+      "chnls": 2,
+      "size_mb": 21.972740173339844,
+      "mode": "single"
+    },
+    {
+      "tier": "chunked_large",
+      "path": "/var/folders/ll/syhnl7wd1d9cttys48yz29l40000gn/T/cec_filesize_bench_belh1407/large.wav",
+      "dur": 60.0,
+      "render_dur": 15.0,
+      "sr": 48000,
+      "chnls": 4,
+      "size_mb": 21.972740173339844,
+      "mode": "chunks"
+    }
+  ],
+  "modules": [
+    {
+      "module": "Filters/StateVar2.c5",
+      "name": "StateVar2",
+      "category": "Filters",
+      "kind": "csampler",
+      "tiers": {
+        "small": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3453,
+          "speedup": 2.9,
+          "peak_db": -20.17,
+          "finite": true,
+          "out_size_mb": 0.337,
+          "shape": [
+            2,
+            44100
+          ]
+        },
+        "medium": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.3111,
+          "speedup": 16.07,
+          "peak_db": -20.17,
+          "finite": true,
+          "out_size_mb": 1.682,
+          "shape": [
+            2,
+            220500
+          ]
+        },
+        "large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.4247,
+          "speedup": 23.55,
+          "peak_db": -20.17,
+          "finite": true,
+          "out_size_mb": 3.662,
+          "shape": [
+            2,
+            480000
+          ]
+        },
+        "chunked_large": {
+          "status": "pass",
+          "error": null,
+          "elapsed_sec": 0.7432,
+          "speedup": 20.18,
+          "peak_db": -20.17,
+          "finite": true,
+          "out_size_mb": 10.986,
+          "shape": [
+            4,
+            720000
+          ]
+        }
+      }
+    }
+  ],
+  "stress_tests": [
+    {
+      "status": "pass",
+      "error": null,
+      "elapsed_sec": 1.4592,
+      "speedup": 1.37,
+      "peak_db": -15.92,
+      "finite": true,
+      "out_size_mb": 5.86,
+      "shape": [
+        8,
+        192000
+      ],
+      "module": "Time/UltimateGrainer.c5",
+      "channels": 8,
+      "input_file_size_mb": 175.7813491821289,
+      "sr": 96000
+    },
+    {
+      "status": "pass",
+      "error": null,
+      "elapsed_sec": 5.6026,
+      "speedup": 0.36,
+      "peak_db": -16.12,
+      "finite": true,
+      "out_size_mb": 36.622,
+      "shape": [
+        50,
+        192000
+      ],
+      "module": "Time/UltimateGrainer.c5",
+      "channels": 50,
+      "input_file_size_mb": 175.7813491821289,
+      "sr": 96000
+    },
+    {
+      "status": "pass",
+      "error": null,
+      "elapsed_sec": 1.0108,
+      "speedup": 1.98,
+      "peak_db": -18.38,
+      "finite": true,
+      "out_size_mb": 5.86,
+      "shape": [
+        8,
+        192000
+      ],
+      "module": "Time/Particle.c5",
+      "channels": 8,
+      "input_file_size_mb": 175.7813491821289,
+      "sr": 96000
+    },
+    {
+      "status": "pass",
+      "error": null,
+      "elapsed_sec": 2.002,
+      "speedup": 1.0,
+      "peak_db": -17.5,
+      "finite": true,
+      "out_size_mb": 36.622,
+      "shape": [
+        50,
+        192000
+      ],
+      "module": "Time/Particle.c5",
+      "channels": 50,
+      "input_file_size_mb": 175.7813491821289,
+      "sr": 96000
+    },
+    {
+      "status": "pass",
+      "error": null,
+      "elapsed_sec": 0.9232,
+      "speedup": 2.17,
+      "peak_db": -28.53,
+      "finite": true,
+      "out_size_mb": 5.86,
+      "shape": [
+        8,
+        192000
+      ],
+      "module": "Time/Pelletizer.c5",
+      "channels": 8,
+      "input_file_size_mb": 175.7813491821289,
+      "sr": 96000
+    },
+    {
+      "status": "pass",
+      "error": null,
+      "elapsed_sec": 1.7327,
+      "speedup": 1.15,
+      "peak_db": -29.77,
+      "finite": true,
+      "out_size_mb": 36.622,
+      "shape": [
+        50,
+        192000
+      ],
+      "module": "Time/Pelletizer.c5",
+      "channels": 50,
+      "input_file_size_mb": 175.7813491821289,
+      "sr": 96000
+    },
+    {
+      "status": "pass",
+      "error": null,
+      "elapsed_sec": 0.6223,
+      "speedup": 3.21,
+      "peak_db": -22.08,
+      "finite": true,
+      "out_size_mb": 5.86,
+      "shape": [
+        8,
+        192000
+      ],
+      "module": "Pitch/Harmonizer.c5",
+      "channels": 8,
+      "input_file_size_mb": 175.7813491821289,
+      "sr": 96000
+    },
+    {
+      "status": "pass",
+      "error": null,
+      "elapsed_sec": 1.0628,
+      "speedup": 1.88,
+      "peak_db": -22.08,
+      "finite": true,
+      "out_size_mb": 36.622,
+      "shape": [
+        50,
+        192000
+      ],
+      "module": "Pitch/Harmonizer.c5",
+      "channels": 50,
+      "input_file_size_mb": 175.7813491821289,
+      "sr": 96000
+    },
+    {
+      "status": "pass",
+      "error": null,
+      "elapsed_sec": 0.5978,
+      "speedup": 3.35,
+      "peak_db": -20.02,
+      "finite": true,
+      "out_size_mb": 5.86,
+      "shape": [
+        8,
+        192000
+      ],
+      "module": "Filters/StateVar2.c5",
+      "channels": 8,
+      "input_file_size_mb": 175.7813491821289,
+      "sr": 96000
+    },
+    {
+      "status": "pass",
+      "error": null,
+      "elapsed_sec": 0.9375,
+      "speedup": 2.13,
+      "peak_db": -20.02,
+      "finite": true,
+      "out_size_mb": 36.622,
+      "shape": [
+        50,
+        192000
+      ],
+      "module": "Filters/StateVar2.c5",
+      "channels": 50,
+      "input_file_size_mb": 175.7813491821289,
+      "sr": 96000
+    },
+    {
+      "status": "pass",
+      "error": null,
+      "elapsed_sec": 1.1517,
+      "speedup": 1.74,
+      "peak_db": 38.26,
+      "finite": true,
+      "out_size_mb": 5.86,
+      "shape": [
+        8,
+        192000
+      ],
+      "module": "Resonators&Verbs/ConvolutionReverb.c5",
+      "channels": 8,
+      "input_file_size_mb": 2.1973495483398438,
+      "sr": 96000
+    },
+    {
+      "status": "pass",
+      "error": null,
+      "elapsed_sec": 5.6901,
+      "speedup": 0.35,
+      "peak_db": 38.26,
+      "finite": true,
+      "out_size_mb": 36.622,
+      "shape": [
+        50,
+        192000
+      ],
+      "module": "Resonators&Verbs/ConvolutionReverb.c5",
+      "channels": 50,
+      "input_file_size_mb": 2.1973495483398438,
+      "sr": 96000
+    }
+  ]
+}
