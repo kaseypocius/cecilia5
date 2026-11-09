@@ -66,7 +66,7 @@ class Module(BaseModule):
         self.discr = Choice(choice=self.discreet_value, freq=1000)
         self.pitch = CentsToTranspo(self.transp, mul=self.polyphony_spread)
         self.pospos = Sig(self.pos, mul=self.table.getSize(False), add=self.posr)
-        initpan = [float(i) / (self.nchnls-1) for i in range(self.nchnls)]
+        initpan = [float(i) / (self.nchnls - 1) for i in range(self.nchnls)] if self.nchnls > 1 else [0.5]
         self.panr = Noise(self.pan, add=initpan)
         self.panw = Clip(self.panr, 0, 1)
 
@@ -81,10 +81,11 @@ class Module(BaseModule):
                            chnls=self.nchnls, 
                            mul=self.env*0.2
                            )
+        self.grmix = self.gr.mix(self.nchnls)
 
         self.osc = Sine(10000,mul=.1)
-        self.balanced = Balance(self.gr, self.osc, freq=10)
-        self.out = Interp(self.gr, self.balanced)
+        self.balanced = Balance(self.grmix, self.osc, freq=10)
+        self.out = Interp(self.grmix, self.balanced)
 
 #INIT
         self.balance(self.balance_index, self.balance_value)
@@ -97,7 +98,7 @@ class Module(BaseModule):
            self.balanced.input2 = self.osc
         elif index == 2:
            self.out.interp = 1
-           self.balanced.input2 = self.gr
+           self.balanced.input2 = self.grmix
 
     def discreet(self, value):
         self.discr.choice = value

@@ -1,0 +1,277 @@
+{
+  "renders": 80,
+  "completed": 70,
+  "failed": 10,
+  "traces": [
+    {
+      "job": 10,
+      "status": "Error",
+      "error": "Cannot encode non-finite audio samples.",
+      "nonfinite_stages": {
+        "harm1": [
+          0,
+          2400
+        ],
+        "harms": [
+          0,
+          2400
+        ],
+        "deg": [
+          0,
+          2400
+        ],
+        "balanced": [
+          0,
+          2400
+        ],
+        "out": [
+          0,
+          2400
+        ]
+      }
+    },
+    {
+      "job": 20,
+      "status": "Error",
+      "error": "Cannot encode non-finite audio samples.",
+      "nonfinite_stages": {
+        "harm1": [
+          4,
+          2400
+        ],
+        "harms": [
+          4,
+          2400
+        ],
+        "deg": [
+          4,
+          2400
+        ],
+        "balanced": [
+          4,
+          2400
+        ],
+        "out": [
+          4,
+          2400
+        ]
+      }
+    },
+    {
+      "job": 24,
+      "status": "Error",
+      "error": "Cannot encode non-finite audio samples.",
+      "nonfinite_stages": {
+        "harm1": [
+          4,
+          2400
+        ],
+        "harms": [
+          4,
+          2400
+        ],
+        "deg": [
+          4,
+          2400
+        ],
+        "balanced": [
+          4,
+          2400
+        ],
+        "out": [
+          4,
+          2400
+        ]
+      }
+    },
+    {
+      "job": 33,
+      "status": "Error",
+      "error": "Cannot encode non-finite audio samples.",
+      "nonfinite_stages": {
+        "harm1": [
+          1,
+          2400
+        ],
+        "harms": [
+          1,
+          2400
+        ],
+        "deg": [
+          1,
+          2400
+        ],
+        "balanced": [
+          1,
+          2400
+        ],
+        "out": [
+          1,
+          2400
+        ]
+      }
+    },
+    {
+      "job": 35,
+      "status": "Error",
+      "error": "Cannot encode non-finite audio samples.",
+      "nonfinite_stages": {
+        "harm1": [
+          3,
+          2400
+        ],
+        "harms": [
+          3,
+          2400
+        ],
+        "deg": [
+          3,
+          2400
+        ],
+        "balanced": [
+          3,
+          2400
+        ],
+        "out": [
+          3,
+          2400
+        ]
+      }
+    },
+    {
+      "job": 37,
+      "status": "Error",
+      "error": "Cannot encode non-finite audio samples.",
+      "nonfinite_stages": {
+        "harm1": [
+          3,
+          2400
+        ],
+        "harms": [
+          3,
+          2400
+        ],
+        "deg": [
+          3,
+          2400
+        ],
+        "balanced": [
+          3,
+          2400
+        ],
+        "out": [
+          3,
+          2400
+        ]
+      }
+    },
+    {
+      "job": 39,
+      "status": "Error",
+      "error": "Cannot encode non-finite audio samples.",
+      "nonfinite_stages": {
+        "harm1": [
+          3,
+          2400
+        ],
+        "harms": [
+          3,
+          2400
+        ],
+        "deg": [
+          3,
+          2400
+        ],
+        "balanced": [
+          3,
+          2400
+        ],
+        "out": [
+          3,
+          2400
+        ]
+      }
+    },
+    {
+      "job": 48,
+      "status": "Error",
+      "error": "Cannot encode non-finite audio samples.",
+      "nonfinite_stages": {
+        "harm1": [
+          1,
+          2400
+        ],
+        "harms": [
+          1,
+          2400
+        ],
+        "deg": [
+          1,
+          2400
+        ],
+        "balanced": [
+          1,
+          2400
+        ],
+        "out": [
+          1,
+          2400
+        ]
+      }
+    },
+    {
+      "job": 53,
+      "status": "Error",
+      "error": "Cannot encode non-finite audio samples.",
+      "nonfinite_stages": {
+        "harm1": [
+          1,
+          2400
+        ],
+        "harms": [
+          1,
+          2400
+        ],
+        "deg": [
+          1,
+          2400
+        ],
+        "balanced": [
+          1,
+          2400
+        ],
+        "out": [
+          1,
+          2400
+        ]
+      }
+    },
+    {
+      "job": 67,
+      "status": "Error",
+      "error": "Cannot encode non-finite audio samples.",
+      "nonfinite_stages": {
+        "harm1": [
+          2,
+          2400
+        ],
+        "harms": [
+          2,
+          2400
+        ],
+        "deg": [
+          2,
+          2400
+        ],
+        "balanced": [
+          2,
+          2400
+        ],
+        "out": [
+          2,
+          2400
+        ]
+      }
+    }
+  ]
+}

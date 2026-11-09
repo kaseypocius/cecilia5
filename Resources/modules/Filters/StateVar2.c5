@@ -83,7 +83,7 @@ class Module(BaseModule):
            self.balanced.input2 = self.snd
 
     def order(self, value):
-        self.filtOrder = value[:]
+        self.filtOrder = [int(x) for x in value]
         self.dsp.order = self.filtOrder
         self.filterType.mul = len(self.filtOrder)
         

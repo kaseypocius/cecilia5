@@ -420,7 +420,7 @@ class CECControl(scrolled.ScrolledPanel):
         formatSizer.Add(self.formatText, 0, wx.ALIGN_LEFT | wx.LEFT, 2)
 
         self.formatChoice = CustomMenu(self.outputPanel,
-                                        choice=[str(x) for x in range(1, 37)],
+                                        choice=[str(x) for x in range(1, 65)],
                                         init=str(CeciliaLib.getVar("nchnls")),
                                         outFunction=self.onFormatChange,
                                         colour=CONTROLLABEL_BACK_COLOUR)

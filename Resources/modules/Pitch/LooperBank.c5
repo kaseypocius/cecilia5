@@ -55,14 +55,15 @@ class Module(BaseModule):
         self.snd = self.addFilein("snd")
         self.gain = DBToA(self.boost, mul=self.env)
         self.transpo = CentsToTranspo(self.pitch, mul=self.snd.getRate())
-        self.out = OscBank(self.snd, self.transpo, self.spread, self.slope, self.frndf, self.frnda, self.arndf, self.arnda, 
-                           [int(self.num.get())]*self.nchnls, self.fjit_value, self.gain).out()
+        self.osc = OscBank(self.snd, self.transpo, self.spread, self.slope, self.frndf, self.frnda, self.arndf, self.arnda, 
+                           [int(self.num.get())]*self.nchnls, self.fjit_value, self.gain)
+        self.out = Mix(self.osc, voices=self.nchnls)
 
     def num_up(self, value):
         pass
 
     def fjit(self, value):
-        self.out.fjit = value
+        self.osc.fjit = value
 
 Interface = [   cfilein(name="snd"), 
                 cgraph(name="env", label="Overall Amplitude", func=[(0,1),(1,1)], col="blue1"),

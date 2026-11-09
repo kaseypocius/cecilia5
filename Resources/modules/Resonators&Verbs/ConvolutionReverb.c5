@@ -32,7 +32,8 @@ class Module(BaseModule):
         BaseModule.__init__(self)
         self.snd = self.addSampler("snd")
         self.table = self.addFilein("impulse")
-        self.out = CvlVerb(self.snd, self.table.path, bal=self.drywet, mul=self.env)
+        self.verb = CvlVerb(self.snd, self.table.path, bal=self.drywet, mul=self.env)
+        self.out = Mix(self.verb, voices=self.nchnls)
         
 Interface = [
             csampler(name="snd", label="Audio"),

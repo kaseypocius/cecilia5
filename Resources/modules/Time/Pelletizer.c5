@@ -70,7 +70,8 @@ class Module(BaseModule):
         self.pospos = Sig(self.pos, mul=self.t.getSize(False), add=self.posr)
         self.durr = Noise(self.durrnd*self.dur, add=self.dur)
         self.gr = Granule(self.t, self.grainenv, dens=self.densr, pitch=self.pitch*self.discr, pos=self.pospos, dur=self.durr, mul=self.env* 0.1)
-        self.gro = Biquadx(self.gr, freq=self.cut, q=self.filterq, type=self.filttype_index, stages=2, mul=self.polyphony_scaling)
+        self.grmix = self.gr.mix(self.nchnls)
+        self.gro = Biquadx(self.grmix, freq=self.cut, q=self.filterq, type=self.filttype_index, stages=2, mul=self.polyphony_scaling)
 
         self.osc = Sine(10000,mul=.1)
         self.balanced = Balance(self.gro, self.osc, freq=10)
@@ -86,7 +87,7 @@ class Module(BaseModule):
            self.balanced.input2 = self.osc
         elif index == 2:
            self.out.interp = 1
-           self.balanced.input2 = self.gr
+           self.balanced.input2 = self.grmix
 
     def filttype(self, index, value):
         self.gro.type = index

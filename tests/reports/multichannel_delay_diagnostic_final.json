@@ -1,0 +1,51 @@
+{
+  "modules": 1,
+  "cases": 1,
+  "passed": 1,
+  "failed": 0,
+  "silent_cases": 0,
+  "elapsed_seconds": 3.03,
+  "scenarios": [
+    [
+      "eight_sixtyfour_wav",
+      8,
+      "wav",
+      3,
+      64,
+      "wav",
+      3,
+      48000,
+      0.25,
+      "single"
+    ]
+  ],
+  "results": [
+    {
+      "module": "Multiband/MultiBandDelay.c5",
+      "scenario": "eight_sixtyfour_wav",
+      "uses_input": true,
+      "input_roundtrip_error": 1.0728836041806744e-08,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 0.0,
+          "absolute_tolerance": 2e-06,
+          "reference_peak": 0.005854780785739422,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 0.0,
+          "absolute_tolerance": 2e-06,
+          "reference_peak": 0.09279221296310425,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "audible_diagnostic": true,
+      "frames": 60017,
+      "peak": 0.005854780785739422,
+      "status": "pass"
+    }
+  ]
+}

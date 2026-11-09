@@ -65,13 +65,13 @@ class Module(BaseModule):
         self.mul3 = DBToA(self.gain3, mul=self.onoffv3_value)
         self.mul4 = DBToA(self.gain4, mul=self.onoffv4_value)
         self.mul5 = DBToA(self.gain5, mul=self.onoffv5_value)
-        self.harm1 = Harmonizer(input=self.snd, transpo=self.transp1, feedback=self.fb, winsize=float(self.winsize_value), mul=self.mul1*0.3)
-        self.harm2 = Harmonizer(input=self.snd, transpo=self.transp2, feedback=self.fb, winsize=float(self.winsize_value), mul=self.mul2*0.3)
-        self.harm3 = Harmonizer(input=self.snd, transpo=self.transp3, feedback=self.fb, winsize=float(self.winsize_value), mul=self.mul3*0.3)
-        self.harm4 = Harmonizer(input=self.snd, transpo=self.transp4, feedback=self.fb, winsize=float(self.winsize_value), mul=self.mul4*0.3)
-        self.harm5 = Harmonizer(input=self.snd, transpo=self.transp5, feedback=self.fb, winsize=float(self.winsize_value), mul=self.mul5*0.3)
+        self.harm1 = Harmonizer(input=self.snd, transpo=self.transp1, feedback=self.fb, winsize=self._harmonizerWindow(self.winsize_value), mul=self.mul1*0.3)
+        self.harm2 = Harmonizer(input=self.snd, transpo=self.transp2, feedback=self.fb, winsize=self._harmonizerWindow(self.winsize_value), mul=self.mul2*0.3)
+        self.harm3 = Harmonizer(input=self.snd, transpo=self.transp3, feedback=self.fb, winsize=self._harmonizerWindow(self.winsize_value), mul=self.mul3*0.3)
+        self.harm4 = Harmonizer(input=self.snd, transpo=self.transp4, feedback=self.fb, winsize=self._harmonizerWindow(self.winsize_value), mul=self.mul4*0.3)
+        self.harm5 = Harmonizer(input=self.snd, transpo=self.transp5, feedback=self.fb, winsize=self._harmonizerWindow(self.winsize_value), mul=self.mul5*0.3)
         self.harms = self.harm1+self.harm2+self.harm3+self.harm4+self.harm5
-        self.drydel = Delay(self.snd, delay=float(self.winsize_value)*0.5)
+        self.drydel = Delay(self.snd, delay=self._harmonizerWindow(self.winsize_value)*0.5)
         self.deg = Interp(self.drydel, self.harms, self.drywet, mul=self.env)
 
         self.osc = Sine(10000,mul=.1)
@@ -92,12 +92,12 @@ class Module(BaseModule):
           self.balanced.input2 = self.snd
         
     def winsize(self, index, value):
-        self.harm1.winsize = float(value)
-        self.harm2.winsize = float(value)
-        self.harm3.winsize = float(value)
-        self.harm4.winsize = float(value)
-        self.harm5.winsize = float(value)
-        self.drydel.delay = float(value)*0.5
+        self.harm1.winsize = self._harmonizerWindow(value)
+        self.harm2.winsize = self._harmonizerWindow(value)
+        self.harm3.winsize = self._harmonizerWindow(value)
+        self.harm4.winsize = self._harmonizerWindow(value)
+        self.harm5.winsize = self._harmonizerWindow(value)
+        self.drydel.delay = self._harmonizerWindow(value)*0.5
 
     def onoffv1(self, value):
         self.mul1.mul = value

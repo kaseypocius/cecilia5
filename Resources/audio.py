@@ -52,6 +52,18 @@ class CeciliaFilein:
     def sig(self):
         return self.table
 
+def _harmonizer_window_seconds(value, sample_rate):
+    """Keep the native half-window read away from a circular-buffer boundary.
+
+    A half-integer sample window gives a quarter-sample fractional read at
+    unison. This avoids float32 wrap rounding to the end of pyo's delay buffer.
+    The nominal window changes by at most one sample; pitch is unchanged.
+    """
+    rate = float(sample_rate)
+    samples = max(1, round(float(value) * rate))
+    return min(1.0, (samples - 0.5) / rate)
+
+
 class CeciliaSampler:
     def __init__(self, parent, name, user_pitch, user_amp):
         self.type = "sampler"
@@ -890,6 +902,9 @@ class BaseModule:
         tmp = [x for x in seq for i in range(num)]
         return tmp
 
+    def _harmonizerWindow(self, value):
+        return _harmonizer_window_seconds(value, self.sr)
+
     def setGlobalSeed(self, x):
         """
         Sets the Server's global seed used by objects from the random family.
@@ -1445,7 +1460,8 @@ class CeciliaHarmonizerPlugin(CeciliaPlugin):
             inter = 0
         else:
             inter = 1
-        self.harmo = Harmonizer(self.input, transpo=self.sig1(), feedback=self.sig2())
+        self.harmo = Harmonizer(self.input, transpo=self.sig1(), feedback=self.sig2(),
+                                winsize=_harmonizer_window_seconds(0.1, CeciliaLib.getVar("sr")))
         self.mix = Interp(self.input, self.harmo, self.sig3())
         self.out = Interp(self.input, self.mix, inter)
 
@@ -1883,9 +1899,14 @@ class AudioServer():
                     instance.module_class.__init__(currentModule)
                     currentModule._createOpenSndCtrlReceivers()
                     currentModule._setWidgetValues()
-                    processed = (currentModule.out if len(instances) == 1 else
-                                 Mix(currentModule.out, voices=CeciliaLib.getVar('nchnls')))
-                    bypass = instance.upstream if upstream else Sig([0] * CeciliaLib.getVar('nchnls'))
+                    target_nchnls = CeciliaLib.getVar('nchnls')
+                    mod_out = currentModule.out
+                    mod_out_len = len(mod_out) if hasattr(mod_out, '__len__') else 1
+                    if len(instances) > 1 or mod_out_len != target_nchnls:
+                        processed = Mix(mod_out, voices=target_nchnls)
+                    else:
+                        processed = mod_out
+                    bypass = instance.upstream if upstream else Sig([0] * target_nchnls)
                     muted = int(instance.id in graph.muted_ids)
                     fade = SigTo(value=muted, time=.02, init=muted)
                     self.moduleMuteSignals[instance.id] = fade

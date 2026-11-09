@@ -1,0 +1,37 @@
+{
+  "renders": 100,
+  "checks": 144,
+  "failures": [
+    {
+      "index": 10,
+      "kind": "job",
+      "pass": false,
+      "max_error": 0,
+      "errors": [
+        null,
+        "Cannot encode non-finite audio samples.\nTraceback (most recent call last):\n  File \"/Users/kasey/Downloads/cecilia5-master/Resources/OfflineRender.py\", line 1906, in worker_main\n    res = worker.render_snapshot(msg[\"spec\"])\n  File \"/Users/kasey/Downloads/cecilia5-master/Resources/OfflineRender.py\", line 1571, in render_snapshot\n    self._trim_audio_file(output_path, sr, nchnls,\n    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^\n                          expected_frames + (warmup_frames if raw_output else 0),\n                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n                          fileformat, sampletype, force_reencode=encode_public,\n                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n                          output_path=public_output_path)\n                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/kasey/Downloads/cecilia5-master/Resources/OfflineRender.py\", line 1646, in _trim_audio_file\n    _save_multichannel_audio(audio[:, discard_frames:discard_frames + frames],\n    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n                             destination, sr, fileformat, sampletype)\n                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/kasey/Downloads/cecilia5-master/Resources/OfflineRender.py\", line 317, in _save_multichannel_audio\n    raise ValueError(\"Cannot encode non-finite audio samples.\")\nValueError: Cannot encode non-finite audio samples."
+      ]
+    },
+    {
+      "index": 39,
+      "kind": "job",
+      "pass": false,
+      "max_error": 0,
+      "errors": [
+        null,
+        "Cannot encode non-finite audio samples.\nTraceback (most recent call last):\n  File \"/Users/kasey/Downloads/cecilia5-master/Resources/OfflineRender.py\", line 1906, in worker_main\n    res = worker.render_snapshot(msg[\"spec\"])\n  File \"/Users/kasey/Downloads/cecilia5-master/Resources/OfflineRender.py\", line 1571, in render_snapshot\n    self._trim_audio_file(output_path, sr, nchnls,\n    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^\n                          expected_frames + (warmup_frames if raw_output else 0),\n                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n                          fileformat, sampletype, force_reencode=encode_public,\n                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n                          output_path=public_output_path)\n                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/kasey/Downloads/cecilia5-master/Resources/OfflineRender.py\", line 1646, in _trim_audio_file\n    _save_multichannel_audio(audio[:, discard_frames:discard_frames + frames],\n    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n                             destination, sr, fileformat, sampletype)\n                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/kasey/Downloads/cecilia5-master/Resources/OfflineRender.py\", line 317, in _save_multichannel_audio\n    raise ValueError(\"Cannot encode non-finite audio samples.\")\nValueError: Cannot encode non-finite audio samples."
+      ]
+    },
+    {
+      "index": 41,
+      "kind": "job",
+      "pass": false,
+      "max_error": 0,
+      "errors": [
+        null,
+        "Cannot encode non-finite audio samples.\nTraceback (most recent call last):\n  File \"/Users/kasey/Downloads/cecilia5-master/Resources/OfflineRender.py\", line 1906, in worker_main\n    res = worker.render_snapshot(msg[\"spec\"])\n  File \"/Users/kasey/Downloads/cecilia5-master/Resources/OfflineRender.py\", line 1571, in render_snapshot\n    self._trim_audio_file(output_path, sr, nchnls,\n    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^\n                          expected_frames + (warmup_frames if raw_output else 0),\n                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n                          fileformat, sampletype, force_reencode=encode_public,\n                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n                          output_path=public_output_path)\n                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/kasey/Downloads/cecilia5-master/Resources/OfflineRender.py\", line 1646, in _trim_audio_file\n    _save_multichannel_audio(audio[:, discard_frames:discard_frames + frames],\n    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n                             destination, sr, fileformat, sampletype)\n                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/kasey/Downloads/cecilia5-master/Resources/OfflineRender.py\", line 317, in _save_multichannel_audio\n    raise ValueError(\"Cannot encode non-finite audio samples.\")\nValueError: Cannot encode non-finite audio samples."
+      ]
+    }
+  ],
+  "max_error": 2.3283064365386963e-10
+}

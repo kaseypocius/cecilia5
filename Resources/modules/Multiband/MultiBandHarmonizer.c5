@@ -68,12 +68,12 @@ class Module(BaseModule):
         self.mul4 = DBToA(self.gain4)
         self.muls = self.duplicate([self.mul1,self.mul2,self.mul3,self.mul4], len(self.snd))
         self.fbs = self.duplicate([self.fb1, self.fb2, self.fb3, self.fb4], len(self.snd))
-        self.harm = Harmonizer(input=self.split, transpo=self.transps, feedback=self.fbs, winsize=float(self.winsize_value), mul=self.muls)
+        self.harm = Harmonizer(input=self.split, transpo=self.transps, feedback=self.fbs, winsize=self._harmonizerWindow(self.winsize_value), mul=self.muls)
         self.harms = self.harm.mix(self.nchnls)
         self.out = Interp(self.snd, self.harms, self.drywet, mul=self.env*0.5)
         
     def winsize(self, index, value):
-        self.harm.winsize = float(value)
+        self.harm.winsize = self._harmonizerWindow(value)
     
     def splitter_up(self, value):
         self.FBfade.value = 0

@@ -289,13 +289,13 @@ class OfflinePersistenceTests(unittest.TestCase):
                 self.choice_format = MockChoice("flac", OfflineRenderDialog.FORMAT_ORDER)
                 self.choice_bitdepth = MockChoice("32 bits float", [lbl for lbl, _ in OfflineRenderDialog.BIT_DEPTH_ORDER])
                 self.choice_sr = MockChoice("96000", OfflineRenderDialog.SAMPLE_RATES)
-                self.choice_nchnls = MockChoice("6", [str(x) for x in range(1, 37)])
+                self.choice_nchnls = MockChoice("6", [str(x) for x in range(1, 65)])
                 self.choice_buf = MockChoice("2048", OfflineRenderDialog.BUFFER_SIZES)
                 self.choice_threads = MockChoice("8", [str(x) for x in range(1, 33)])
-                self.choice_accel = MockChoice("Time-Chunked (Overlap-Crossfade)", [lbl for lbl, _ in OfflineRenderDialog.ACCEL_LABELS])
+                self.choice_accel = MockChoice("Time-Chunked (Full History)", [lbl for lbl, _ in OfflineRenderDialog.ACCEL_LABELS])
                 self.spin_preroll = MockSpin(0.8)
                 self.spin_xfade = MockSpin(0.2)
-                self.choice_xfade_shape = MockChoice("Equal-Power (Uncorrelated)", [lbl for lbl, _ in OfflineRenderDialog.XFADE_LABELS])
+                self.choice_xfade_shape = MockChoice("Equal-Power (Normalized)", [lbl for lbl, _ in OfflineRenderDialog.XFADE_LABELS])
                 self.chk_export_stems = MockCheck(True)
                 self.chk_master_output = MockCheck(False)
                 self.chk_normalize = MockCheck(True)
@@ -496,6 +496,43 @@ class OfflinePersistenceTests(unittest.TestCase):
         _write_wav_float32(sdata, silent_wav, 44100)
         s_res = normalize_audio_file(silent_wav, target_db=-0.1, sr=44100, fileformat=0, sampletype=3)
         self.assertEqual(s_res, -90.0)
+
+    def test_64_channel_support(self):
+        """Test 64-channel limits, persistence, dialog choices, and multi-channel wave reading/writing."""
+        from Resources.OfflineRender import (
+            normalize_audio_file,
+            _write_wav_float32,
+            _read_wav_float64,
+        )
+        import numpy as np
+
+        # 1. 64-channel persistence
+        vars.CeciliaVar['offlineNchnls'] = 64
+        vars.writeCeciliaPrefsToFile()
+
+        vars.CeciliaVar['offlineNchnls'] = 2
+        vars.readCeciliaPrefsFromFile()
+        self.assertEqual(vars.CeciliaVar['offlineNchnls'], 64)
+
+        # 2. Multi-channel wave read/write with 64 channels
+        multi_wav = os.path.join(self.tmp_dir, "multi_64ch.wav")
+        frames = 512
+        arr_64 = np.zeros((64, frames), dtype=np.float64)
+        for ch in range(64):
+            arr_64[ch, :] = (ch + 1) / 64.0 * 0.5
+        _write_wav_float32(arr_64, multi_wav, 44100)
+
+        read_64 = _read_wav_float64(multi_wav)
+        self.assertIsNotNone(read_64)
+        self.assertEqual(read_64.shape, (64, frames))
+        np.testing.assert_allclose(read_64, arr_64, atol=1e-5)
+
+        # Test normalization on 64-channel file
+        norm_peak = normalize_audio_file(multi_wav, target_db=-0.5, sr=44100, fileformat=0, sampletype=3)
+        self.assertEqual(norm_peak, -0.5)
+        read_norm = _read_wav_float64(multi_wav)
+        expected_amp = 10.0 ** (-0.5 / 20.0)
+        self.assertAlmostEqual(float(np.max(np.abs(read_norm))), expected_amp, places=4)
 
 
 if __name__ == "__main__":

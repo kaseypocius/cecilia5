@@ -1,0 +1,29 @@
+{
+  "modules": 3,
+  "renders": 300,
+  "failed_modules": 0,
+  "elapsed_seconds": 10.92,
+  "results": [
+    {
+      "module": "Pitch/ChordMaker.c5",
+      "renders": 100,
+      "errors": [],
+      "max_error": 2.3283064365386963e-10,
+      "status": "pass"
+    },
+    {
+      "module": "Pitch/Harmonizer.c5",
+      "renders": 100,
+      "errors": [],
+      "max_error": 2.3283064365386963e-10,
+      "status": "pass"
+    },
+    {
+      "module": "Multiband/MultiBandHarmonizer.c5",
+      "renders": 100,
+      "errors": [],
+      "max_error": 2.3283064365386963e-10,
+      "status": "pass"
+    }
+  ]
+}

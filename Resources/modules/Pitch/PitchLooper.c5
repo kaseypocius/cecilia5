@@ -73,7 +73,7 @@ class Module(BaseModule):
         self.voice4 = Pointer(self.snd, self.phasor4, mul=self.mul4*0.2)
         self.voice5 = Pointer(self.snd, self.phasor5, mul=self.mul5*0.2)
         self.mixxx = self.voice1+self.voice2+self.voice3+self.voice4+self.voice5
-        self.out = self.mixxx*self.env
+        self.out = (self.mixxx*self.env).mix(self.nchnls)
 
     def onoffv1(self, value):
         self.mul1.mul = value

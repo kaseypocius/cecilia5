@@ -1,0 +1,49 @@
+{
+  "modules": 1,
+  "cases": 1,
+  "passed": 1,
+  "failed": 0,
+  "silent_cases": 0,
+  "elapsed_seconds": 0.75,
+  "scenarios": [
+    [
+      "stereo_eight_pcm32",
+      2,
+      "wav",
+      3,
+      8,
+      "wav",
+      2,
+      48000,
+      0.75,
+      "single"
+    ]
+  ],
+  "results": [
+    {
+      "module": "Pitch/ChordMaker.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.005937781650573015,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.09410768747329712,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.005937781650573015,
+      "status": "pass"
+    }
+  ]
+}

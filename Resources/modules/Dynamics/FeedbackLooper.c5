@@ -44,7 +44,7 @@ class Module(BaseModule):
         self.snd = self.addFilein("snd")
         self.trfactor = CentsToTranspo(self.transpo, mul=self.polyphony_spread)
         self.freq = Sig(self.trfactor, mul=self.snd.getRate())
-        self.dry = Osc(self.snd, self.freq, mul=self.polyphony_scaling * 0.5)
+        self.dry = Osc(self.snd, self.freq, mul=self.polyphony_scaling * 0.5).mix(self.nchnls)
         self.dsp = OscLoop(self.snd, self.freq, self.feed*0.0002, mul=self.polyphony_scaling * 0.5)
         self.mix = self.dsp.mix(self.nchnls)
         self.filt = Biquad(self.mix, freq=self.filt_f, q=self.filt_q, type=self.filt_t_index)

@@ -266,7 +266,7 @@ class PreferenceFrame(wx.Frame):
         textNCHNLS = wx.StaticText(audioParamPanel, 0, 'Default # of chnls :')
         textNCHNLS.SetForegroundColour(PREFS_FOREGROUND)
         textNCHNLS.SetFont(self.font)
-        self.choiceNCHNLS = CustomMenu(audioParamPanel, choice=[str(x) for x in range(1, 37)],
+        self.choiceNCHNLS = CustomMenu(audioParamPanel, choice=[str(x) for x in range(1, 65)],
                                        init=str(CeciliaLib.getVar("defaultNchnls")),
                                        size=(150, 20), outFunction=self.changeNchnls)
 
@@ -282,7 +282,7 @@ class PreferenceFrame(wx.Frame):
         textFPI = wx.StaticText(audioParamPanel, 0, 'First Physical In :')
         textFPI.SetForegroundColour(PREFS_FOREGROUND)
         textFPI.SetFont(self.font)
-        self.choiceFPI = CustomMenu(audioParamPanel, choice=[str(x) for x in range(36)],
+        self.choiceFPI = CustomMenu(audioParamPanel, choice=[str(x) for x in range(64)],
                                     init=str(CeciliaLib.getVar("defaultFirstInput")),
                                     size=(150, 20), outFunction=self.changeFPI)
 
@@ -290,7 +290,7 @@ class PreferenceFrame(wx.Frame):
         textFPO = wx.StaticText(audioParamPanel, 0, 'First Physical Out :')
         textFPO.SetForegroundColour(PREFS_FOREGROUND)
         textFPO.SetFont(self.font)
-        self.choiceFPO = CustomMenu(audioParamPanel, choice=[str(x) for x in range(36)],
+        self.choiceFPO = CustomMenu(audioParamPanel, choice=[str(x) for x in range(64)],
                                     init=str(CeciliaLib.getVar("defaultFirstOutput")),
                                     size=(150, 20), outFunction=self.changeFPO)
 
@@ -434,7 +434,7 @@ class PreferenceFrame(wx.Frame):
         textNchnls = wx.StaticText(fileExportPanel, 0, 'Offline Channels :')
         textNchnls.SetForegroundColour(PREFS_FOREGROUND)
         textNchnls.SetFont(self.font)
-        nchnls_choices = [str(x) for x in range(1, 37)]
+        nchnls_choices = [str(x) for x in range(1, 65)]
         cur_nchnls = str(CeciliaLib.getVar("offlineNchnls") or CeciliaLib.getVar("nchnls") or 2)
         self.choiceOfflineNchnls = CustomMenu(fileExportPanel, choice=nchnls_choices,
                                               init=cur_nchnls if cur_nchnls in nchnls_choices else "2",

@@ -1,0 +1,1749 @@
+{
+  "modules": 69,
+  "cases": 69,
+  "passed": 69,
+  "failed": 0,
+  "silent_cases": 1,
+  "elapsed_seconds": 15.3,
+  "scenarios": [
+    [
+      "stereo_eight_pcm32",
+      2,
+      "wav",
+      3,
+      8,
+      "wav",
+      2,
+      48000,
+      0.75,
+      "single"
+    ]
+  ],
+  "results": [
+    {
+      "module": "Dynamics/Degrade.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.013258226215839386,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.21012915670871735,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.013258226215839386,
+      "status": "pass"
+    },
+    {
+      "module": "Dynamics/Distortion.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.005466005299240351,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.08663052320480347,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.005466005299240351,
+      "status": "pass"
+    },
+    {
+      "module": "Dynamics/DynamicsProcessor.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.016022169962525368,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.2539348006248474,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.016022169962525368,
+      "status": "pass"
+    },
+    {
+      "module": "Dynamics/FeedbackLooper.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.005065550096333027,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.08028372377157211,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.005065550096333027,
+      "status": "pass"
+    },
+    {
+      "module": "Dynamics/UpDistoRes.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.01198790967464447,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.18999594449996948,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.01198790967464447,
+      "status": "pass"
+    },
+    {
+      "module": "Dynamics/WaveShaper.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.02263268455862999,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.3587045967578888,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.02263268455862999,
+      "status": "pass"
+    },
+    {
+      "module": "Filters/AMFMFilter.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.0016775198746472597,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.026586951687932014,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.0016775198746472597,
+      "status": "pass"
+    },
+    {
+      "module": "Filters/AutoModFilter.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.003784364555031061,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.05997825786471367,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.003784364555031061,
+      "status": "pass"
+    },
+    {
+      "module": "Filters/Binaural.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.016792582347989082,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.2661450207233429,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.016792582347989082,
+      "status": "pass"
+    },
+    {
+      "module": "Filters/BrickWall.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.0037859566509723663,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.06000348925590515,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.0037859566509723663,
+      "status": "pass"
+    },
+    {
+      "module": "Filters/Flanger.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.010420198552310467,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.16514934599399567,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.010420198552310467,
+      "status": "pass"
+    },
+    {
+      "module": "Filters/MaskFilter.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.0011776861501857638,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.01866510510444641,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.0011776861501857638,
+      "status": "pass"
+    },
+    {
+      "module": "Filters/ParamEQ.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.0111880237236619,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.17731858789920807,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.0111880237236619,
+      "status": "pass"
+    },
+    {
+      "module": "Filters/Phaser.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.007893557660281658,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.12510471045970917,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.007893557660281658,
+      "status": "pass"
+    },
+    {
+      "module": "Filters/StateVar.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.00024111161474138498,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.0038213692605495453,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.00024111161474138498,
+      "status": "pass"
+    },
+    {
+      "module": "Filters/StateVar2.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.016364609822630882,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.2593621015548706,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.016364609822630882,
+      "status": "pass"
+    },
+    {
+      "module": "Filters/Vocoder.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.0017523188143968582,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.027772437781095505,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.0017523188143968582,
+      "status": "pass"
+    },
+    {
+      "module": "Multiband/MultiBandBeatMaker.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.00248102773912251,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.039321720600128174,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.00248102773912251,
+      "status": "pass"
+    },
+    {
+      "module": "Multiband/MultiBandDelay.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.001872939639724791,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.029684152454137802,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.001872939639724791,
+      "status": "pass"
+    },
+    {
+      "module": "Multiband/MultiBandDisto.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.004565694835036993,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.0723615363240242,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.004565694835036993,
+      "status": "pass"
+    },
+    {
+      "module": "Multiband/MultiBandFreqShift.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.0014213200192898512,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.02252645045518875,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.0014213200192898512,
+      "status": "pass"
+    },
+    {
+      "module": "Multiband/MultiBandGate.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 0.0,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.0,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 0.0,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.0,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.0,
+      "status": "pass"
+    },
+    {
+      "module": "Multiband/MultiBandHarmonizer.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.004633651115000248,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.07343856990337372,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.004633651115000248,
+      "status": "pass"
+    },
+    {
+      "module": "Multiband/MultiBandReverb.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.00431724451482296,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.06842385232448578,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.00431724451482296,
+      "status": "pass"
+    },
+    {
+      "module": "Pitch/ChordMaker.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.005937781650573015,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.09410768747329712,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.005937781650573015,
+      "status": "pass"
+    },
+    {
+      "module": "Pitch/Chorus.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.008757305331528187,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.1387942135334015,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.008757305331528187,
+      "status": "pass"
+    },
+    {
+      "module": "Pitch/FreqShift.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.007939034141600132,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.12582546472549438,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.007939034141600132,
+      "status": "pass"
+    },
+    {
+      "module": "Pitch/Harmonizer.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.002980578225106001,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.04723907634615898,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.002980578225106001,
+      "status": "pass"
+    },
+    {
+      "module": "Pitch/LooperBank.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.00037342633004300296,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.005918420385569334,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.00037342633004300296,
+      "status": "pass"
+    },
+    {
+      "module": "Pitch/LooperMod.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.0011072285706177354,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.017548425123095512,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.0011072285706177354,
+      "status": "pass"
+    },
+    {
+      "module": "Pitch/PitchLooper.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.00322924368083477,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.0511801652610302,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.00322924368083477,
+      "status": "pass"
+    },
+    {
+      "module": "Pitch/RandomAccumulator.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.0009464069735258818,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.014999570325016975,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.0009464069735258818,
+      "status": "pass"
+    },
+    {
+      "module": "Resonators&Verbs/ConvolutionReverb.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.05317183583974838,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.8427184820175171,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.05317183583974838,
+      "status": "pass"
+    },
+    {
+      "module": "Resonators&Verbs/Convolve.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.005759310908615589,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.09127911180257797,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.005759310908615589,
+      "status": "pass"
+    },
+    {
+      "module": "Resonators&Verbs/DetunedResonators.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.0015163548523560166,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.024032654240727425,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.0015163548523560166,
+      "status": "pass"
+    },
+    {
+      "module": "Resonators&Verbs/MatrixReverb.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.04595357924699783,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.728316605091095,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.04595357924699783,
+      "status": "pass"
+    },
+    {
+      "module": "Resonators&Verbs/Resonators.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.0013597707729786634,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.02155095711350441,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.0013597707729786634,
+      "status": "pass"
+    },
+    {
+      "module": "Resonators&Verbs/WGuideBank.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.04405461624264717,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.6982200145721436,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.04405461624264717,
+      "status": "pass"
+    },
+    {
+      "module": "Spectral/AddResynth.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.001187379122711718,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.018818728625774384,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.001187379122711718,
+      "status": "pass"
+    },
+    {
+      "module": "Spectral/BinModulator.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.0037254521157592535,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.05904455482959747,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.0037254521157592535,
+      "status": "pass"
+    },
+    {
+      "module": "Spectral/BinWarper.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.003600390860810876,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.05706246569752693,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.003600390860810876,
+      "status": "pass"
+    },
+    {
+      "module": "Spectral/CrossSynth.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.0007077971240505576,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.01121785119175911,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.0007077971240505576,
+      "status": "pass"
+    },
+    {
+      "module": "Spectral/CrossSynth2.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.014035380445420742,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.2224462330341339,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.014035380445420742,
+      "status": "pass"
+    },
+    {
+      "module": "Spectral/Morphing.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.008849778212606907,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.14025981724262238,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.008849778212606907,
+      "status": "pass"
+    },
+    {
+      "module": "Spectral/Shifter.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.007841535843908787,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.12428021430969238,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.007841535843908787,
+      "status": "pass"
+    },
+    {
+      "module": "Spectral/SpectralDelay.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.0036001589614897966,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.05705878883600235,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.0036001589614897966,
+      "status": "pass"
+    },
+    {
+      "module": "Spectral/SpectralFilter.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.002262095222249627,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.035851866006851196,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.002262095222249627,
+      "status": "pass"
+    },
+    {
+      "module": "Spectral/SpectralGate.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.0126362144947052,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.2002709060907364,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.0126362144947052,
+      "status": "pass"
+    },
+    {
+      "module": "Spectral/SpectralWarper.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.012047874741256237,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.1909463256597519,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.012047874741256237,
+      "status": "pass"
+    },
+    {
+      "module": "Spectral/Transpose.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.003997690975666046,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.06335926055908203,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.003997690975666046,
+      "status": "pass"
+    },
+    {
+      "module": "Spectral/Vectral.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.003328620223328471,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.05275518074631691,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.003328620223328471,
+      "status": "pass"
+    },
+    {
+      "module": "Synthesis/AdditiveSynth.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": false,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.017845086753368378,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.28282612562179565,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.017845086753368378,
+      "status": "pass"
+    },
+    {
+      "module": "Synthesis/BucketBrigadeDevice.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.0001956030901055783,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.0031001062598079443,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.0001956030901055783,
+      "status": "pass"
+    },
+    {
+      "module": "Synthesis/CrossFreqMod.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": false,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.012618995271623135,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.19999800622463226,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.012618995271623135,
+      "status": "pass"
+    },
+    {
+      "module": "Synthesis/FrequencyModulation.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": false,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.01261911727488041,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.19999992847442627,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.01261911727488041,
+      "status": "pass"
+    },
+    {
+      "module": "Synthesis/Pulsar.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": false,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.0117880180478096,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.1868278682231903,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.0117880180478096,
+      "status": "pass"
+    },
+    {
+      "module": "Synthesis/SpitSideBandSynth.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": false,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.012727870605885983,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.20172356069087982,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.012727870605885983,
+      "status": "pass"
+    },
+    {
+      "module": "Synthesis/StochGrains.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": false,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.007334160152822733,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.11623883992433548,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.007334160152822733,
+      "status": "pass"
+    },
+    {
+      "module": "Synthesis/StochGrains2.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.0014228281797841191,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.022550351917743683,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.0014228281797841191,
+      "status": "pass"
+    },
+    {
+      "module": "Synthesis/SuperSaw.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": false,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.003560024546459317,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.056422699242830276,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.003560024546459317,
+      "status": "pass"
+    },
+    {
+      "module": "Synthesis/WaveScanSynth.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.0026410366408526897,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.04185769334435463,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.0026410366408526897,
+      "status": "pass"
+    },
+    {
+      "module": "Time/4Delays.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.0018643065122887492,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.029547326266765594,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.0018643065122887492,
+      "status": "pass"
+    },
+    {
+      "module": "Time/BeatMaker.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.0020718020386993885,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.03283591568470001,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.0020718020386993885,
+      "status": "pass"
+    },
+    {
+      "module": "Time/DelayMod.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.003984984941780567,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.06315788626670837,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.003984984941780567,
+      "status": "pass"
+    },
+    {
+      "module": "Time/Granulator.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.001662746537476778,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.026352809742093086,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.001662746537476778,
+      "status": "pass"
+    },
+    {
+      "module": "Time/Particle.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.00313753099180758,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.049726616591215134,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.00313753099180758,
+      "status": "pass"
+    },
+    {
+      "module": "Time/Pelletizer.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.001159184379503131,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.01837187074124813,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.001159184379503131,
+      "status": "pass"
+    },
+    {
+      "module": "Time/Stutterer.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.004959579557180405,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.07860419899225235,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.004959579557180405,
+      "status": "pass"
+    },
+    {
+      "module": "Time/UltimateGrainer.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.003588074119761586,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.05686725676059723,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.003588074119761586,
+      "status": "pass"
+    }
+  ]
+}

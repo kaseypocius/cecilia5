@@ -6,12 +6,12 @@ Cecilia 5 includes an **Offline Render Mode** with a multi-threaded audio engine
 
 ## 1. Overview & Key Capabilities
 
-- **High-Speed Rendering**: Renders complex DSP graphs, filters, and synthesis modules at up to **10×–25× real-time**, free from real-time audio driver limitations or buffer underruns.
+- **High-Speed Rendering**: Renders without real-time audio driver deadlines. Throughput depends on the graph, strategy and hardware; full-history chunks repeat earlier processing.
 - **Multithreading Support**: Distributes render jobs, disjoint graph branches, or overlapping time-sliced chunks across multiple CPU threads.
 - **Per-Module Output Soundfiles ("Stems")**: Capture isolated audio from any module in the chain directly to disk alongside or instead of the master mix.
 - **Visual Graph Feedback**: Module nodes marked for offline stem export display a green `[STEM]` badge in the interactive routing canvas.
 - **4 Studio Workflows**: Single Bounce, Batch Presets, Batch Sound Folder, and Render Queue.
-- **Uncompressed & Lossless Formats**: WAV, AIFF, FLAC, OGG, CAF, AU, and SD2, with sample bit depths up to 32-bit floating point and up to 36 audio channels.
+- **Uncompressed & Lossless Formats**: WAV, AIFF, FLAC, OGG, CAF, AU, and SD2, with sample bit depths up to 32-bit floating point and up to 64 audio channels.
 - **Live Monitoring & Audition**: Real-time worker lane visualization, peak dB measurement, live VU meter updates, and one-click playback of rendered files.
 
 ---
@@ -111,14 +111,38 @@ The offline engine uses a persistent worker pool (`_WorkerPool`) that runs headl
 | Strategy | Description | Best Suited For |
 | :--- | :--- | :--- |
 | **Auto** | Dynamically chooses between Single, Parallel Branches, or Time Chunks based on job count, graph topology, and render duration. | General production use |
-| **Single** | Renders jobs directly in a single pass per job. When multiple jobs are queued, jobs run across worker threads in parallel. | Short renders or exact bit-for-bit single passes |
-| **Parallel Branches** | Decomposes pairwise-disjoint graph branches into separate render tasks running on distinct threads, summing them at the master mix. | Complex routing graphs with parallel synthesizer or effect branches |
-| **Time Chunks** | Slices long timelines into overlapping time segments rendered concurrently across CPU threads, then crossfades and stitches them. | Long renders (>8s) requiring maximum acceleration |
+| **Single** | Renders jobs directly in a single pass per job. When multiple jobs are queued, jobs run across worker threads in parallel. | A single-pass reference for comparing other strategies |
+| **Parallel Branches** | Selects pairwise-disjoint outputs in workers that reconstruct the full graph context, then applies master processing once to their sum. | Disjoint graphs; full-context replay costs additional CPU/storage |
+| **Time Chunks** | Replays each overlapping segment from the session origin, discards its prefix, then stitches the retained audio. | Stateful timelines; extra CPU/storage means acceleration is not guaranteed |
+
+### Replay, Randomness and Warmup
+
+Offline jobs seed Python and numpy randomness. Module requests for pyo seed zero
+use the replay job seed (currently 1); explicit nonzero seeds and live playback
+retain their existing behavior. Each job creates fresh DSP server state inside
+the persistent worker process to reset startup gain ramps. Raw branch scratch
+audio includes module-requested warmup; exported stems omit the warmup prefix.
+Master gain, fades and plugins are applied once after branches are combined.
+Branch workers preserve full graph construction order to reproduce random
+streams, so parallel branch mode may perform more work than a single pass.
 
 ### Time-Chunk Configuration
-- **Preroll (sec)**: Pre-renders audio prior to the slice start time (0.0 to 10.0s) so filters, reverbs, and feedback delays warm up to steady state.
+- **Preroll (sec)**: Legacy preference retained for compatibility. Exact chunks replay from the origin; this value is unused.
 - **Crossfade (sec)**: Overlap crossfade duration (0.01 to 2.0s) between stitched chunks.
-- **Crossfade Shape**: Select between `cosine`, `linear`, or `equal_power` crossfade curves.
+- **Crossfade Shape**: `cosine` or normalized `equal_power`; both use unity-sum weights for correlated overlaps. Chunk fades and automation remain on the original timeline.
+
+### Threading Model vs. Multichannel Processing
+- **Audio Channels Run Per-Server**: In Cecilia and pyo, all $C$ audio channels (from 1 up to 64 channels) are evaluated within a single pyo server instance in each worker process. Pyo's internal DSP graph processes multichannel streams sequentially or via vector math inside that server; channel count does not divide individual audio channels across separate CPU worker threads.
+- **Parallel Saturation**: Worker thread saturation is achieved by dividing work into independent units:
+  - **Batch Queues**: Parallel jobs across the Batch Presets, Batch Sound Folder, or Render Queue tabs.
+  - **Parallel Branches**: Concurrent execution of disjoint signal branches feeding the master output.
+  - **Time Chunks**: Concurrent execution of overlapping time segments on long single bounces.
+  - **Stitching & Stem Encoding**: Parallel stem generation and file export.
+
+### Worker Activity & Heartbeat Monitoring
+- **Immediate Task Visibility**: Worker lanes (`T1..Tn`) switch from `Idle` to active as soon as a worker handle is acquired for rendering, mixing, or stitching (`on_worker_start` / `on_worker_end`), ensuring workers do not appear idle during initial DSP graph preparation.
+- **Asynchronous Coordinator Heartbeat**: An 80 ms coordinator heartbeat thread continuously updates the `Elapsed` timer and monitor status, preventing the UI clock from freezing during heavy initialization (such as dense granular synthesis with high channel counts).
+- **Clean Shutdown & Event Suppression**: When rendering completes or is cancelled, worker pool threads are safely reaped and post-completion progress events are strictly suppressed.
 
 ---
 
@@ -134,7 +158,7 @@ The offline engine uses a persistent worker pool (`_WorkerPool`) that runs headl
 | **AU** | `.au` | 16-bit, 24-bit, 32-bit int, 32-bit float |
 | **SD2** | `.sd2` | 16-bit, 24-bit int |
 
-Supported sample rates range from **22,050 Hz** to **192,000 Hz**, with channel counts from **1 (mono)** up to **36 surround channels**.
+Supported sample rates range from **22,050 Hz** to **192,000 Hz**, with channel counts from **1 (mono)** up to **64 multichannel audio channels**.
 
 ---
 
@@ -162,13 +186,13 @@ All offline render settings are fully decoupled from real-time audio DAC server 
 | Setting | Preference Key | Values / Choices | Description |
 | :--- | :--- | :--- | :--- |
 | **Sample Rate** | `offlineSr` | `22050`, `44100`, `48000`, `88200`, `96000` | Render sample rate independent of live DAC hardware SR |
-| **Channel Count** | `offlineNchnls` | `1` to `36` channels | Output channel configuration (Mono, Stereo, Quad, 5.1, etc.) |
+| **Channel Count** | `offlineNchnls` | `1` to `64` channels | Output channel configuration (Mono, Stereo, Quad, 5.1, 7.1, 64-channel immersive/ambisonic arrays, etc.) |
 | **Buffer Size** | `offlineBufferSize` | `8` to `2048` | Processing buffer size (e.g. 512, 1024, 2048 for high throughput) |
 | **File Format** | `offlineAudioFileType` | `wav`, `aif`, `flac`, `ogg`, `caf`, `au`, `sd2` | Export container format |
 | **Bit Depth** | `offlineSampSize` | `16 bits int`, `24 bits int`, `32 bits int`, `32 bits float` | Audio sample bit depth |
 | **Worker Threads** | `offlineThreads` | `1` up to $2\times$ CPU cores | Number of background worker processes |
 | **Acceleration Strategy** | `offlineAccelMode` | `auto`, `single`, `branches`, `chunks` | Single, Parallel Branches, or Time Chunks |
-| **Chunk Preroll** | `offlinePreroll` | `0.0` to `10.0` seconds | Pre-roll time for stateful filters & reverbs |
+| **Chunk Preroll** | `offlinePreroll` | `0.0` to `10.0` seconds | Legacy value; unused by full-history replay |
 | **Chunk Crossfade** | `offlineCrossfade` | `0.01` to `2.0` seconds | Overlap crossfade duration between slices |
 | **Crossfade Curve** | `offlineCrossfadeShape` | `cosine`, `equal_power` | Crossfade interpolation curve |
 | **Branch Stem Export** | `offlineExportStems` | `0` or `1` | Remember branch stems export toggle |
@@ -185,16 +209,177 @@ All offline render settings are fully decoupled from real-time audio DAC server 
 
 ## 9. Verification & Test Suites
 
+The latest retest passes **all 69 shipped-module cases**: 65 with the original
+init fixture and four with additional audible spectral diagnostics. Original
+silent init results remain recorded; diagnostic passes do not imply those init
+settings became audible. Every master, tap and branch stem has the expected
+frame/channel count and finite samples. Single-pass/chunked and serial/parallel
+comparisons use the unchanged absolute amplitude tolerance of **0.000002**.
+The five previously non-reproducible modules also pass repeated single-pass runs.
+
+Validation also passes **14 shipped-module correctness tests**, **14 focused
+replay regressions**, **all six engine scenarios**, and general discovery with
+**109 passed / 66 skipped** (175 total, replay/PCM tests enabled). GUI tests were not
+enabled. The audit covers four channels at 44.1 kHz and 176,417 frames, init
+settings plus the documented diagnostics, not every preset or routing topology.
+
+The branch-fade mismatch, unseeded replay and retained startup-ramp state are
+resolved in this retest. Warmup prefixes are retained internally and removed
+from public stems. See [detailed findings](tests/reports/offline_findings.md),
+[per-module results](tests/reports/offline_modules.md), and
+[test commands](tests/README.md). The failing baseline remains available in
+[the before-debug report](tests/reports/offline_modules_before_debug.md).
+
 The offline render subsystem includes comprehensive unit, headless persistence, and GUI integration tests:
 
 ```sh
 # Run the offline engine multiprocessing suite
 python3 tests/test_offline_engine.py
 
+# Run sample-level correctness tests
+CECILIA_DSP_TESTS=1 python3 -m unittest discover -s tests -p test_offline_correctness.py -v
+
+# Audit all 69 shipped modules (includes audible spectral diagnostics)
+cecillia/bin/python tests/check_all_modules.py
+
+# Audit all 69 modules across 8 multichannel layout and codec scenarios (552 cases)
+cecillia/bin/python tests/check_multichannel_formats.py --report-prefix multichannel_formats_final
+
+# Run pitch-window stability stress suite (300 renders across pitch modules)
+cecillia/bin/python tests/check_pitch_window_stability.py
+
+# Run saturated PCM export and integer alignment tests
+CECILIA_DSP_TESTS=1 python3 -m unittest discover -s tests -p test_offline_pcm_exports.py -v
+
 # Run the cross-session persistence test suite
 python3 tests/test_offline_persistence.py
+
+# Run the multichannel input and downmix test suite
+python3 tests/test_offline_multichannel_input.py
 
 # Run the full studio GUI & stem export integration suite
 python3 tests/test_offline_ui.py
 ```
 
+---
+
+## 10. Multi-Channel File Inputs & Automatic Downmixing / Spatialization
+
+Cecilia 5 now supports arbitrary channel routing between input soundfiles and output destinations ($1 \le C_{\text{in}}, C_{\text{out}} \le 64$ channels).
+
+### Problem Diagnosis & Background
+Previously, table-based and granular modules loaded soundfiles via `cfilein`:
+- Mono input files ($C_{\text{in}} = 1$) were replicated across session channels in `CeciliaFilein`.
+- Multi-channel input files ($C_{\text{in}} > 1$, e.g. stereo, quad, or 5.1 files) loaded as multi-table objects of length $C_{\text{in}}$.
+- Granular modules such as [`UltimateGrainer`](Resources/modules/Time/UltimateGrainer.c5), [`Particle`](Resources/modules/Time/Particle.c5), and [`Pelletizer`](Resources/modules/Time/Pelletizer.c5) instantiated pyo objects (`Particle2`, `Particle`, `Granule`) that expanded each input table channel across $C_{\text{out}}$ voices, generating $C_{\text{in}} \times C_{\text{out}}$ audio streams.
+- If $C_{\text{in}} > C_{\text{out}}$ (such as loading a stereo soundfile into a mono session, or a quad/5.1 soundfile into a stereo session) without explicit downmixing:
+  - The module's output stream count exceeded the session's channel count ($C_{\text{out}}$).
+  - In single-module sessions, the engine passed `mod.out` directly without mixing, causing DAC channel out-of-range drops and silent right/surround channels in offline stem and master renders.
+
+### Resolution & Engine Guardrails
+1. **Module-Level Mixing**:
+   - [`UltimateGrainer`](Resources/modules/Time/UltimateGrainer.c5): Added `self.grmix = self.gr.mix(self.nchnls)` to fold all $C_{\text{in}} \times C_{\text{out}}$ granular streams into $C_{\text{out}}$ voices, keeping `self.gr.filtertype` intact while routing balanced and interpolated signals with exact channel counts.
+   - [`Particle`](Resources/modules/Time/Particle.c5): Added `self.grmix = self.gr.mix(self.nchnls)` for balanced downmixing and spatialization.
+   - [`Pelletizer`](Resources/modules/Time/Pelletizer.c5): Mixed `Granule` streams to `self.nchnls` prior to `Biquadx` filtering.
+   - [`PitchLooper`](Resources/modules/Pitch/PitchLooper.c5): Added `.mix(self.nchnls)` to the summed looper voices.
+   - [`LooperBank`](Resources/modules/Pitch/LooperBank.c5): Wrapped `OscBank` in `Mix(..., voices=self.nchnls)` and removed direct `.out()` in `__init__`.
+   - [`FeedbackLooper`](Resources/modules/Dynamics/FeedbackLooper.c5): Applied `.mix(self.nchnls)` to `self.dry` to match the channel count of `self.filt`.
+   - [`ConvolutionReverb`](Resources/modules/Resonators&Verbs/ConvolutionReverb.c5): Wrapped `CvlVerb` output in `Mix(..., voices=self.nchnls)`.
+
+2. **Engine-Level Guardrails**:
+   - In [`Resources/audio.py`](Resources/audio.py) (live playback) and [`Resources/OfflineRender.py`](Resources/OfflineRender.py) (offline rendering):
+     Even in single-module chains, module output stream counts are validated against `target_nchnls`. If `mod_out_len != target_nchnls`, `Mix(mod_out, voices=target_nchnls)` is invoked automatically.
+   - Stem recording via `pyo.Record` now validates and conforms any module's stream count before passing to disk recorders.
+
+---
+
+## 11. Offline Correctness & DSP Integrity Audits
+
+To guarantee that offline bounces are mathematically faithful to live playback and across execution strategies, Cecilia 5 incorporates a rigorous correctness test suite ([`tests/test_offline_correctness.py`](tests/test_offline_correctness.py)):
+
+### 1. Deterministic Single-Pass vs. Chunked Equivalence
+- **Stateless & Memoryless Modules**: Processors such as [`Distortion`](Resources/modules/Dynamics/Distortion.c5) and [`SuperSaw`](Resources/modules/Synthesis/SuperSaw.c5) produce bit-for-bit identical waveforms between single-pass and multi-chunk renders ($L_\infty = 0.00\times 10^0$).
+- **Linear Filters**: Recursive filter topologies such as [`BrickWall`](Resources/modules/Filters/BrickWall.c5) and [`StateVar2`](Resources/modules/Filters/StateVar2.c5) match single-pass rendering to within single-precision floating point rounding ($L_\infty \le 3.05 \times 10^{-5}$, exact 1 LSB).
+- **Crossfade Symmetry**: Both normalized `equal_power` and `cosine` crossfade curves maintain unity power across chunk seams without phase cancellation or seam dips.
+
+### 2. Delay Lines, Reverbs, Convolution, and Feedback Across Chunk Boundaries
+- **Timeline Replay Architecture**: Rather than relying on truncated preroll buffers (which fail to recreate multi-second feedback loops, recursive comb delays, or non-stationary envelopes), worker lanes reconstruct DSP state by simulating the original timeline from $t=0$ up to chunk slice $b_k$.
+- **Tail Continuity**: Evaluated against transient burst excitation across chunk seams:
+  - [`4Delays`](Resources/modules/Time/4Delays.c5): $L_\infty = 0.00 \times 10^0$, $\text{RMSE} = 0.00 \times 10^0$.
+  - [`MultiBandReverb`](Resources/modules/Multiband/MultiBandReverb.c5): $L_\infty = 0.00 \times 10^0$, $\text{RMSE} = 0.00 \times 10^0$.
+  - [`FeedbackLooper`](Resources/modules/Dynamics/FeedbackLooper.c5): $L_\infty = 0.00 \times 10^0$, $\text{RMSE} = 0.00 \times 10^0$.
+  - [`ConvolutionReverb`](Resources/modules/Resonators&Verbs/ConvolutionReverb.c5): $L_\infty \le 3.05 \times 10^{-5}$, $\text{RMSE} \le 2.11 \times 10^{-6}$.
+
+### 3. Multichannel Stem Export Sample Alignment & Channel Ordering
+- **Exact Frame Alignment**: Every exported stem soundfile matches the master render frame-for-frame ($N_{\text{stem}} \equiv N_{\text{master}}$) in both single-pass and chunked modes.
+- **Multichannel Integrity**: Verified across 1, 2, 6 (5.1 surround), and 64-channel immersive setups; every channel index retains its distinct signal routing without channel swapping or silent tracks.
+
+### 4. Parallel Branch Signal-Routing Semantics
+- **Disjoint Subgraph Independence**: Evaluated on parallel branches feeding the output node. Linear branch summation with standard cable attenuation factor ($1/\sqrt{2} \approx 0.7071$) yields output identical to single-pass whole-graph execution ($L_\infty \le 3.05 \times 10^{-5}$).
+- **Muted Branch Semantics**: Muted branch output nodes are muted cleanly to silence in both modes ($L_\infty = 0.00$).
+- **Master Stage Processing**: Master effect plugins (e.g. Master Reverb) applied to mixed branch stems reproduce the single-pass master chain output exactly ($L_\infty \le 3.05 \times 10^{-5}$).
+
+### 5. Subprocess Lifecycle, File Cleanup, and State Recovery on Cancellation
+- **Immediate Process Termination**: Cancelling an in-flight render immediately signals all worker subprocesses via `proc.terminate()` (with `proc.kill()` fallback) and closes IPC pipes.
+- **Artifact Purge**: All incomplete master files, stem audio files, and temporary chunk directories (`_temp_dirs`) are immediately deleted from disk.
+- **Re-entrant Execution**: The coordinator pool cleanly resets its internal state, allowing subsequent render jobs to launch immediately without deadlock or orphaned processes.
+
+---
+
+## 12. Multichannel Layout & Codec Matrix (552 Verified Scenarios)
+
+To check file metadata and per-channel sample preservation in selected layouts, Cecilia 5 includes an automated matrix test harness ([`tests/check_multichannel_formats.py`](tests/check_multichannel_formats.py)) testing all **69 modules** across **8 distinct multichannel and codec scenarios** (552 total test cases).
+
+### Scenario Matrix
+
+| Scenario | Input Configuration | Output Configuration | Sample Rate | Render Mode | Verified Cases |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **`mono_stereo_wav`** | 1ch WAV (16-bit int) | 2ch WAV (24-bit int) | 44,100 Hz | Single-pass | 69 / 69 pass |
+| **`stereo_mono_flac`** | 2ch AIFF (24-bit int) | 1ch FLAC (24-bit int) | 48,000 Hz | Single-pass | 69 / 69 pass |
+| **`quad_stereo_aiff_chunks`** | 4ch FLAC (24-bit int) | 2ch AIFF (24-bit int) | 44,100 Hz | Time-chunked (2.1s) | 69 / 69 pass |
+| **`surround_quad_caf`** | 6ch WAV (32-bit float) | 4ch CAF (32-bit float) | 48,000 Hz | Single-pass | 69 / 69 pass |
+| **`eight_surround_wav_chunks`** | 8ch AIFF (24-bit int) | 6ch WAV (32-bit float) | 44,100 Hz | Time-chunked (2.1s) | 69 / 69 pass |
+| **`stereo_eight_pcm32`** | 2ch WAV (32-bit float) | 8ch WAV (32-bit int) | 48,000 Hz | Single-pass | 69 / 69 pass |
+| **`surround_sixteen_wav`** | 6ch CAF (32-bit float) | 16ch WAV (32-bit float) | 44,100 Hz | Single-pass | 69 / 69 pass |
+| **`eight_sixtyfour_wav`** | 8ch WAV (32-bit float) | 64ch WAV (32-bit float) | 48,000 Hz | Single-pass | 69 / 69 pass |
+
+**Overall Result**: **552 / 552 cases passed (100% pass rate; 0 failures)** across all 69 modules (see [`tests/reports/multichannel_formats_final.md`](tests/reports/multichannel_formats_final.md)).
+
+### Format Hardening & Native Kernel Safeguards
+
+1. **Explicit Saturated Integer PCM Writer**:
+   - `_write_wav_pcm` in [`Resources/OfflineRender.py`](Resources/OfflineRender.py) performs explicit saturated integer quantization with a single rounding step:
+     $$\text{quantized} = \text{clip}\left(\text{round}(x \times 2^{B-1}), -2^{B-1}, 2^{B-1}-1\right)$$
+   - Avoids libsndfile wrap-around distortion when audio overloads $\pm 1.0$.
+   - Includes proper RIFF chunk byte-alignment (appends null byte for odd-length PCM24 data chunks) and header chunk size accounting.
+
+2. **Temporary Scratch Audio Containers**:
+   - pyo automatically forces audio encoding format based on the filename extension. If pyo records floating-point samples to a destination ending in `.flac`, pyo's FLAC encoder crashes or fails because FLAC only supports integer samples.
+   - The offline renderer now renders to `.wav` temporary scratch files (`cec_float_{uuid}.wav`) before invoking final format/codec encoding in `_save_multichannel_audio`.
+
+3. **Rejection of Non-Finite Samples**:
+   - Strict `np.isfinite(arr).all()` check prevents non-finite samples (`NaN`, `Inf`) from silently contaminating exported audio or converting to spurious integer samples.
+
+4. **Pitch Shift & Harmonizer Circular Buffer Protection**:
+   - In pyo's native C harmonizer kernel (`harmonizermodule.c`), circular buffer read pointer calculation at exact integer sample windows at unison can cause float32 wrap rounding to the upper buffer boundary, occasionally producing transient NaNs.
+   - Resolved via `_harmonizer_window_seconds(value, sr)`, enforcing half-integer sample window lengths `min(1.0, (round(value * sr) - 0.5) / sr)` across [`ChordMaker`](Resources/modules/Pitch/ChordMaker.c5), [`Harmonizer`](Resources/modules/Pitch/Harmonizer.c5), [`MultiBandHarmonizer`](Resources/modules/Multiband/MultiBandHarmonizer.c5), and the master [`CeciliaHarmonizerPlugin`](Resources/audio.py).
+   - Validated by the pitch stability runner ([`tests/check_pitch_window_stability.py`](tests/check_pitch_window_stability.py)) passing **300 / 300 renders** with no non-finite samples or failed comparisons (maximum comparison error 2.32830644e-10).
+
+
+
+
+
+### Scope, diagnostics and latest regressions
+
+The 552-case matrix retains ten silent init cases; all ten also pass separate
+audible diagnostics. MultiBandGate uses -80 dB thresholds, and the two short
+64-channel delay cases run for 1.25 seconds. No shipped defaults were changed.
+Channel counts and reference ordering are checked; speaker placement, cross-rate
+resampling, every preset, long files and hardware are not established by this run.
+The tested containers are WAV/AIFF/FLAC/CAF; OGG/AU/SD2 are outside this matrix.
+
+The harmonizer workaround adjusts the effective window by at most one sample;
+pitch is unchanged and corresponding dry delays use the effective window.
+General discovery passes **109 tests with 66 skipped**; all six engine scenarios
+pass. See [detailed format findings](tests/reports/multichannel_findings.md) for
+baseline failures, stress evidence, diagnostic commands and environment versions.

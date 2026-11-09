@@ -24,6 +24,7 @@ import json
 import math
 import os
 import queue
+import random
 import shutil
 import struct
 import subprocess
@@ -146,7 +147,7 @@ class RenderSettings:
     num_threads: int = 4
     accel_mode: str = "auto"  # 'auto' | 'single' | 'branches' | 'chunks'
     chunk_min_dur: float = 8.0
-    preroll: float = 0.5
+    preroll: float = 0.5  # Legacy preference; exact chunks replay from the origin.
     crossfade: float = 0.1
     crossfade_shape: str = "cosine"  # 'cosine' | 'equal_power'
     export_stems: bool = False
@@ -284,14 +285,49 @@ def _write_wav_float32(arr: np.ndarray, path: str, sr: int):
         f.write(raw_bytes)
 
 
+def _write_wav_pcm(arr: np.ndarray, path: str, sr: int, bits: int):
+    """Write saturated integer PCM with one rounding step and full-scale bounds."""
+    channels, frames = arr.shape
+    scale = 2 ** (bits - 1)
+    quantized = np.clip(np.rint(np.asarray(arr, dtype=np.float64) * scale),
+                        -scale, scale - 1).astype("<i4")
+    interleaved = np.ascontiguousarray(quantized.T)
+    if bits == 16:
+        raw = interleaved.astype("<i2").tobytes()
+    elif bits == 24:
+        raw = interleaved.view(np.uint8).reshape(-1, 4)[:, :3].tobytes()
+    else:
+        raw = interleaved.tobytes()
+    block_align = channels * (bits // 8)
+    with open(path, "wb") as stream:
+        stream.write(b"RIFF" + struct.pack("<I", 36 + len(raw) + (len(raw) & 1)) + b"WAVE")
+        stream.write(b"fmt " + struct.pack("<IHHIIHH", 16, 1, channels, sr,
+                                          sr * block_align, block_align, bits))
+        stream.write(b"data" + struct.pack("<I", len(raw)) + raw)
+        if len(raw) & 1:
+            stream.write(b"\x00")
+
+
 def _save_multichannel_audio(arr: np.ndarray, path: str, sr: int, fileformat: int, sampletype: int):
     """Save `(nchnls, frames)` float64 array to disk without creating pyo Server/DataTable pointers."""
     from pyo import savefile
 
     os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+    if not np.isfinite(arr).all():
+        raise ValueError("Cannot encode non-finite audio samples.")
+    if fileformat == 0 and sampletype in (0, 1, 2):
+        _write_wav_pcm(arr, path, sr, {0: 16, 1: 24, 2: 32}[sampletype])
+        return
     if fileformat == 0 and sampletype == 3:
         _write_wav_float32(arr, path, sr)
         return
+    if sampletype in (0, 1, 2):
+        # libsndfile's float-to-PCM path can wrap overloads. Saturate before
+        # conversion, including a float32-safe upper limit for 32-bit PCM.
+        bits = {0: 16, 1: 24, 2: 32}[sampletype]
+        maximum = min(1.0 - 2.0 ** (1 - bits),
+                      float(np.nextafter(np.float32(1), np.float32(0))))
+        arr = np.clip(arr, -1.0, maximum)
     nchnls = arr.shape[0]
     samples = arr[0].tolist() if nchnls == 1 else [arr[ch].tolist() for ch in range(nchnls)]
     savefile(samples=samples, path=path, sr=sr, channels=nchnls, fileformat=fileformat, sampletype=sampletype)
@@ -1060,13 +1096,20 @@ def _check_func_points(func: List[Any], total_time: float) -> List[Tuple[float, 
     return pts
 
 
-def _convert_gen_list(val: Any) -> List[float]:
+def _convert_gen_list(val: Any) -> List[Any]:
+    def _parse_num(x):
+        try:
+            f = float(x)
+            return int(f) if f.is_integer() else f
+        except Exception:
+            return float(x)
+
     if isinstance(val, (list, tuple)):
-        return [float(x) for x in val]
+        return [_parse_num(x) for x in val]
     if isinstance(val, str):
         parts = val.split(", ") if ", " in val else val.split(" ")
-        return [float(eval(p)) for p in parts if p.strip()]
-    return [1.0]
+        return [_parse_num(eval(p)) for p in parts if p.strip()]
+    return [1]
 
 
 class _HeadlessRenderWorker:
@@ -1306,7 +1349,7 @@ class _HeadlessRenderWorker:
     def render_snapshot(self, spec: Dict[str, Any]) -> Dict[str, Any]:
         from .constants import AUDIO_FILE_FORMATS
         from .Session import ChainSession, instance_context, mix_signals
-        from pyo import Fader, Interp, Mix, Record, Sig, SigTo, sndinfo
+        from pyo import Fader, Interp, Mix, Record, Server, Sig, SigTo, sndinfo
 
         t0 = time.perf_counter()
         job_id = spec["job_id"]
@@ -1319,10 +1362,16 @@ class _HeadlessRenderWorker:
         sampletype = clamp_sampletype_for_format(fileformat, int(spec["samp_size"]))
         global_fade = float(spec.get("global_fade", 0.005))
         force_mix_voices = bool(spec.get("force_mix_voices", False))
-        seed_offset = spec.get("seed_offset")
+        seed_offset = int(spec.get("seed_offset", 1))
+        # Replay jobs use the same Python and numpy randomness as the reference.
+        # Workers are isolated processes, so this cannot perturb the GUI RNG.
+        random.seed(seed_offset)
+        np.random.seed(seed_offset)
+        raw_output = bool(spec.get("raw_output", False))
 
         out_cfg = snapshot["output"]
         total_time = float(spec.get("duration_override") or out_cfg["totalTime"])
+        render_time = float(spec.get("render_duration", total_time))
         nchnls = int(spec.get("nchnls_override") or out_cfg["nchnls"])
         gain_db = float(out_cfg.get("gainSlider", 0.0))
         start_offset = float(out_cfg.get("startOffset", 0.0) or 0.0)
@@ -1345,23 +1394,34 @@ class _HeadlessRenderWorker:
         srv = self.srv_shell.server
         if srv.getIsBooted():
             srv.shutdown()
-        srv.reinit(sr=sr, nchnls=nchnls, buffersize=buffersize, duplex=0, audio="offline")
+        # A reinitialized server retains its previous amplitude-ramp state.
+        # Fresh DSP state is required for identical startup samples on replay.
+        srv = Server(sr=sr, nchnls=nchnls, buffersize=buffersize, duplex=0, audio="offline")
+        self.srv_shell.server = srv
+        srv.verbosity = 0
         srv.boot()
-        if seed_offset is not None:
-            srv.globalseed = int(seed_offset)
+        srv.globalseed = seed_offset
 
         master_output = bool(spec.get("master_output", True))
-        module_outputs = dict(spec.get("module_outputs", {}))
+        public_output_path = output_path
+        public_module_outputs = dict(spec.get("module_outputs", {}))
+        module_outputs = dict(public_module_outputs)
+        encode_public = fileformat != 0 or sampletype != 3
+        scratch_dir = spec.get("scratch_dir") or os.path.dirname(os.path.abspath(output_path))
+        if encode_public:
+            output_path = os.path.join(scratch_dir, f"cec_float_{uuid.uuid4().hex}.wav")
+            module_outputs = {mid: os.path.join(scratch_dir, f"cec_float_{uuid.uuid4().hex}.wav")
+                              for mid in public_module_outputs}
         temp_dummy_out = None
         record_dest = output_path
-        if not master_output:
-            temp_dummy_out = os.path.join(tempfile.gettempdir(), f"cec_dummy_{uuid.uuid4().hex[:8]}.wav")
+        if not master_output or raw_output:
+            temp_dummy_out = os.path.join(spec.get("scratch_dir", tempfile.gettempdir()), f"cec_dummy_{uuid.uuid4().hex[:8]}.wav")
             record_dest = temp_dummy_out
 
-        reporter = _WorkerProgressReporter(job_id, total_time, nchnls, self.emit_fn)
+        reporter = _WorkerProgressReporter(job_id, render_time, nchnls, self.emit_fn)
         srv._server.setTimeCallable(reporter)
         srv._server.setAmpCallable(reporter)
-        srv.recordOptions(dur=total_time, filename=record_dest, fileformat=fileformat, sampletype=sampletype)
+        srv.recordOptions(dur=render_time, filename=record_dest, fileformat=0, sampletype=3)
         self.srv_shell.setAmp(gain_db)
 
         # Build headless ChainSession
@@ -1394,12 +1454,18 @@ class _HeadlessRenderWorker:
                     current_mod = instance.module_class.__new__(instance.module_class)
                     instance.state["currentModule"] = current_mod
                     self.srv_shell.runtimeModules.append(current_mod)
+                    # Seed 0 means clock-based randomness in live mode. Offline
+                    # replay must instead use the job seed; explicit seeds stay intact.
+                    current_mod.setGlobalSeed = lambda value, _seed=seed_offset: setattr(
+                        srv, "globalseed", int(value) or _seed)
                     instance.module_class.__init__(current_mod)
                     current_mod._setWidgetValues()
+                    mod_out = current_mod.out
+                    mod_out_len = len(mod_out) if hasattr(mod_out, "__len__") else 1
                     processed = (
-                        current_mod.out
-                        if (len(instances) == 1 and not force_mix_voices)
-                        else Mix(current_mod.out, voices=nchnls)
+                        mod_out
+                        if (len(instances) == 1 and not force_mix_voices and mod_out_len == nchnls)
+                        else Mix(mod_out, voices=nchnls)
                     )
                     bypass = instance.upstream if upstream else Sig([0] * nchnls)
                     muted = int(instance.id in chain.muted_ids)
@@ -1413,9 +1479,8 @@ class _HeadlessRenderWorker:
                         mod_out_path = module_outputs[instance.id]
                         os.makedirs(os.path.dirname(os.path.abspath(mod_out_path)), exist_ok=True)
                         mod_sig = processed
-                        if (isinstance(mod_sig, (list, tuple)) and len(mod_sig) != nchnls) or (
-                            not isinstance(mod_sig, (list, tuple)) and nchnls > 1
-                        ):
+                        sig_len = len(mod_sig) if hasattr(mod_sig, "__len__") else 1
+                        if sig_len != nchnls:
                             mod_sig = Mix(mod_sig, voices=nchnls)
                         if global_fade > 0.0:
                             if not hasattr(self.srv_shell, "globalamp"):
@@ -1425,14 +1490,15 @@ class _HeadlessRenderWorker:
                             mod_sig,
                             filename=mod_out_path,
                             chnls=nchnls,
-                            fileformat=fileformat,
-                            sampletype=sampletype,
+                            fileformat=0,
+                            sampletype=3,
                             buffering=1,
                         )
                         module_recorders.append((instance.id, mod_out_path, mod_rec))
 
+            output_ids = spec.get("output_ids", chain.output_connections)
             self.srv_shell.out = Sig(
-                mix_signals([output_signals[i] for i in chain.output_connections if i in output_signals])
+                mix_signals([output_signals[i] for i in output_ids if i in output_signals])
             )
             with instance_context(chain.modules[0]):
                 self.srv_shell._loadOutputPlugins()
@@ -1444,6 +1510,14 @@ class _HeadlessRenderWorker:
                     self.srv_shell.output.mul = self.srv_shell.globalamp
                 else:
                     self.srv_shell.out.mul = self.srv_shell.globalamp
+
+            if raw_output:
+                # Branch intermediates must precede the server's startup gain
+                # ramp. That ramp, master gain and fades run once in the mixer.
+                raw_rec = Record(self.srv_shell.output, filename=output_path,
+                                 chnls=nchnls, fileformat=0,
+                                 sampletype=3, buffering=1)
+                module_recorders.append(("__branch__", output_path, raw_rec))
 
             if start_offset > 0.0:
                 srv.startoffset = start_offset
@@ -1470,12 +1544,47 @@ class _HeadlessRenderWorker:
             if srv.getIsBooted():
                 srv.shutdown()
 
+        # pyo Record runs during server warmup; the server's own file writer
+        # starts afterward. Derive the actual buffer-rounded prefix from the
+        # two recordings instead of rounding a requested offset ourselves.
+        recorded_info = sndinfo(record_dest)
+        recorded_frames = recorded_info[0] if recorded_info else 0
+        warmup_frames = 0
+        tap_paths = list(module_outputs.values()) + ([output_path] if raw_output else [])
+        for path in tap_paths:
+            tap_info = sndinfo(path)
+            if tap_info:
+                warmup_frames = max(warmup_frames, tap_info[0] - recorded_frames)
+
         if temp_dummy_out and os.path.exists(temp_dummy_out):
             try:
                 os.remove(temp_dummy_out)
             except OSError:
                 pass
 
+        # pyo records complete DSP buffers, including a padded final buffer.
+        # Trim every destination before reporting metadata or stitching chunks.
+        expected_frames = max(1, int(round(render_time * sr)))
+        if master_output:
+            # Raw branch intermediates retain warmup so master effects, fades
+            # and the gain ramp can replay the same history as the serial graph.
+            self._trim_audio_file(output_path, sr, nchnls,
+                                  expected_frames + (warmup_frames if raw_output else 0),
+                                  fileformat, sampletype, force_reencode=encode_public,
+                                  output_path=public_output_path)
+        for mid, path in module_outputs.items():
+            self._trim_audio_file(path, sr, nchnls, expected_frames,
+                                  fileformat, sampletype, discard_frames=warmup_frames,
+                                  force_reencode=encode_public, output_path=public_module_outputs[mid])
+        if raw_output and spec.get("raw_export_path"):
+            public_format = AUDIO_FILE_FORMATS.get(spec["export_audio_file_type"], 0)
+            public_sampletype = clamp_sampletype_for_format(public_format, spec["export_samp_size"])
+            audio = self._read_audio_channels(output_path, sr, nchnls)
+            _save_multichannel_audio(audio[:, warmup_frames:warmup_frames + expected_frames],
+                                     spec["raw_export_path"], sr, public_format, public_sampletype)
+
+        output_path = public_output_path
+        module_outputs = public_module_outputs
         module_results = {}
         for mid, mpath in module_outputs.items():
             if os.path.isfile(mpath):
@@ -1488,11 +1597,9 @@ class _HeadlessRenderWorker:
                     if m_arr is not None and m_arr.size:
                         m_peak = round(amp_to_db(float(np.max(np.abs(m_arr)))), 2)
                     else:
-                        from pyo import SndTable
-                        tbl = SndTable(mpath)
-                        buf = np.array(tbl.getTable(), dtype=np.float64)
-                        if buf.size:
-                            m_peak = round(amp_to_db(float(np.max(np.abs(buf)))), 2)
+                        m_arr = self._read_audio_channels(mpath, sr, nchnls)
+                        if m_arr.size:
+                            m_peak = round(amp_to_db(float(np.max(np.abs(m_arr)))), 2)
                 except Exception:
                     pass
                 module_results[mid] = {
@@ -1508,6 +1615,8 @@ class _HeadlessRenderWorker:
         master_peak = round(amp_to_db(reporter.max_peak_amp), 2) if master_output else (
             max((res["peak_db"] for res in module_results.values()), default=-90.0)
         )
+        if master_output and sampletype in (0, 1, 2):
+            master_peak = min(master_peak, 0.0)
         elapsed = time.perf_counter() - t0
         return {
             "type": "done",
@@ -1521,7 +1630,23 @@ class _HeadlessRenderWorker:
             "elapsed": round(elapsed, 4),
             "master_output": master_output,
             "module_results": module_results,
+            "warmup_frames": warmup_frames,
         }
+
+    def _trim_audio_file(self, path, sr, nchnls, frames, fileformat, sampletype,
+                         discard_frames=0, force_reencode=False, output_path=None):
+        from pyo import sndinfo
+
+        info = sndinfo(path)
+        if info is None or info[0] < frames + discard_frames:
+            raise RuntimeError(f"Incomplete render: {path} (expected {frames + discard_frames} frames)")
+        destination = output_path or path
+        if info[0] != frames or discard_frames or force_reencode or destination != path:
+            audio = self._read_audio_channels(path, sr, nchnls)
+            _save_multichannel_audio(audio[:, discard_frames:discard_frames + frames],
+                                     destination, sr, fileformat, sampletype)
+            if destination != path:
+                os.remove(path)
 
     def _read_audio_channels(self, path: str, sr: int, nchnls: int) -> np.ndarray:
         """Read an audio file into `(avail_chnls, frames)` float64 without dangling C memoryviews."""
@@ -1571,6 +1696,11 @@ class _HeadlessRenderWorker:
             if xfade_shape == "equal_power":
                 w_out = np.cos(0.5 * np.pi * u)
                 w_in = np.sin(0.5 * np.pi * u)
+                # Replayed overlaps are correlated: unity-sum weights avoid
+                # the +3 dB seam bump of an unnormalized equal-power fade.
+                weight_sum = w_out + w_in
+                w_out = w_out / weight_sum
+                w_in = w_in / weight_sum
             else:
                 w_out = 0.5 * (1.0 + np.cos(np.pi * u))
                 w_in = 0.5 * (1.0 - np.cos(np.pi * u))
@@ -1623,7 +1753,7 @@ class _HeadlessRenderWorker:
         """Mix rendered parallel chain branches (0.707 multi-cable rule) and run optional master plugins."""
         from .constants import AUDIO_FILE_FORMATS
         from .Session import ChainSession, instance_context
-        from pyo import Fader, Sig, SndTable, TableRead, sndinfo
+        from pyo import Fader, Server, Sig, SndTable, TableRead, sndinfo
 
         t0 = time.perf_counter()
         job_id = spec["job_id"]
@@ -1640,15 +1770,15 @@ class _HeadlessRenderWorker:
         fileformat = AUDIO_FILE_FORMATS.get(file_type, 0)
         sampletype = clamp_sampletype_for_format(fileformat, int(spec["samp_size"]))
         gain_db = float(snapshot["output"].get("gainSlider", 0.0))
-        amp_scale = math.pow(10.0, gain_db * 0.05)
         cable_gain = 0.707 if total_cables > 1 else 1.0
 
         total_frames = max(1, int(round(total_time * sr)))
+        warmup_frames = int(spec.get("warmup_frames", 0))
         srv = self.srv_shell.server
 
         temp_mixed_wav = None
         try:
-            mixed = np.zeros((nchnls, total_frames), dtype=np.float64)
+            mixed = np.zeros((nchnls, total_frames + warmup_frames), dtype=np.float64)
             for bpath in branch_files:
                 if not bpath or not os.path.isfile(bpath):
                     continue
@@ -1656,70 +1786,66 @@ class _HeadlessRenderWorker:
                 avail_ch = raw_ch.shape[0]
                 for ch in range(nchnls):
                     src = raw_ch[min(ch, avail_ch - 1)]
-                    n_copy = min(total_frames, len(src))
+                    n_copy = min(total_frames + warmup_frames, len(src))
                     mixed[ch, :n_copy] += src[:n_copy] * cable_gain
 
             os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
 
-            if not has_active_master_plugins(snapshot):
-                fade_samps = min(total_frames // 2, int(round(global_fade * sr)))
-                if fade_samps > 1:
-                    ramp = np.linspace(0.0, 1.0, fade_samps, dtype=np.float64)
-                    mixed[:, :fade_samps] *= ramp
-                    mixed[:, -fade_samps:] *= ramp[::-1]
-                mixed *= amp_scale
-                peak_amp = float(np.max(np.abs(mixed))) if mixed.size else 0.0
-                _save_multichannel_audio(mixed, output_path, sr, fileformat, sampletype)
-            else:
-                fd, temp_mixed_wav = tempfile.mkstemp(prefix="cec_branch_mix_", suffix=".wav")
-                os.close(fd)
-                _write_wav_float32(mixed, temp_mixed_wav, sr)
+            fd, temp_mixed_wav = tempfile.mkstemp(prefix="cec_branch_mix_", suffix=".wav", dir=spec.get("scratch_dir"))
+            os.close(fd)
+            _write_wav_float32(mixed, temp_mixed_wav, sr)
 
-                CeciliaLib = self.CeciliaLib
-                CeciliaLib.setVar("sr", sr)
-                CeciliaLib.setVar("nchnls", nchnls)
-                CeciliaLib.setVar("bufferSize", str(buffersize))
-                CeciliaLib.setVar("totalTime", total_time)
-                CeciliaLib.setVar("globalFade", global_fade)
-                CeciliaLib.setVar("startOffset", 0.0)
-                CeciliaLib.setVar("outputFile", output_path)
-                CeciliaLib.setVar("toDac", False)
+            CeciliaLib = self.CeciliaLib
+            CeciliaLib.setVar("sr", sr)
+            CeciliaLib.setVar("nchnls", nchnls)
+            CeciliaLib.setVar("bufferSize", str(buffersize))
+            CeciliaLib.setVar("totalTime", total_time)
+            CeciliaLib.setVar("globalFade", global_fade)
+            CeciliaLib.setVar("startOffset", 0.0)
+            CeciliaLib.setVar("outputFile", output_path)
+            CeciliaLib.setVar("toDac", False)
 
-                if srv.getIsBooted():
-                    srv.shutdown()
-                srv.reinit(sr=sr, nchnls=nchnls, buffersize=buffersize, duplex=0, audio="offline")
-                srv.boot()
-                reporter = _WorkerProgressReporter(job_id, total_time, nchnls, self.emit_fn)
-                srv._server.setTimeCallable(reporter)
-                srv._server.setAmpCallable(reporter)
-                srv.recordOptions(dur=total_time, filename=output_path, fileformat=fileformat, sampletype=sampletype)
-                self.srv_shell.setAmp(gain_db)
+            if srv.getIsBooted():
+                srv.shutdown()
+            srv = Server(sr=sr, nchnls=nchnls, buffersize=buffersize, duplex=0, audio="offline")
+            self.srv_shell.server = srv
+            srv.verbosity = 0
+            srv.boot()
+            reporter = _WorkerProgressReporter(job_id, total_time, nchnls, self.emit_fn)
+            srv._server.setTimeCallable(reporter)
+            srv._server.setAmpCallable(reporter)
+            rendered_path = os.path.join(spec.get("scratch_dir") or os.path.dirname(os.path.abspath(output_path)),
+                                         f"cec_master_{uuid.uuid4().hex}.wav")
+            srv.recordOptions(dur=total_time, filename=rendered_path, fileformat=0, sampletype=3)
+            self.srv_shell.setAmp(gain_db)
 
-                first_mod = snapshot["modules"][0]
-                inst = self.srv_shell.compileModule(first_mod["module_path"], bool(first_mod.get("builtin", False)), first_mod["id"])
-                self._populate_module_state(inst, first_mod, total_time, is_first=True, output_cfg=snapshot["output"])
-                chain = ChainSession()
-                chain.modules = [inst]
-                CeciliaLib.session = chain
+            first_mod = snapshot["modules"][0]
+            inst = self.srv_shell.compileModule(first_mod["module_path"], bool(first_mod.get("builtin", False)), first_mod["id"])
+            self._populate_module_state(inst, first_mod, total_time, is_first=True, output_cfg=snapshot["output"])
+            chain = ChainSession()
+            chain.modules = [inst]
+            CeciliaLib.session = chain
 
-                stem_tbl = SndTable(temp_mixed_wav)
-                stem_reader = TableRead(stem_tbl, freq=stem_tbl.getRate(), loop=False, interp=1).play()
-                self.srv_shell.out = Sig(stem_reader)
-                with instance_context(inst):
-                    self.srv_shell._loadOutputPlugins()
-                if global_fade > 0.0:
-                    self.srv_shell.globalamp = Fader(fadein=global_fade, fadeout=global_fade, dur=total_time).play()
-                    self.srv_shell.output.mul = self.srv_shell.globalamp
-                srv.start()
-                if srv.getIsStarted():
-                    srv.stop()
-                stem_reader = None
-                stem_tbl = None
-                self.srv_shell.cleanup_module()
-                gc.collect()
-                if srv.getIsBooted():
-                    srv.shutdown()
-                peak_amp = reporter.max_peak_amp
+            stem_tbl = SndTable(temp_mixed_wav)
+            stem_reader = TableRead(stem_tbl, freq=stem_tbl.getRate(), loop=False, interp=1).play()
+            self.srv_shell.out = Sig(stem_reader)
+            with instance_context(inst):
+                self.srv_shell._loadOutputPlugins()
+            if global_fade > 0.0:
+                self.srv_shell.globalamp = Fader(fadein=global_fade, fadeout=global_fade, dur=total_time).play()
+                self.srv_shell.output.mul = self.srv_shell.globalamp
+            if warmup_frames:
+                srv.startoffset = warmup_frames / float(sr)
+            srv.start()
+            if srv.getIsStarted():
+                srv.stop()
+            stem_reader = None
+            stem_tbl = None
+            self.srv_shell.cleanup_module()
+            gc.collect()
+            if srv.getIsBooted():
+                srv.shutdown()
+            peak_amp = reporter.max_peak_amp
         finally:
             if srv.getIsBooted():
                 gc.collect()
@@ -1730,6 +1856,8 @@ class _HeadlessRenderWorker:
                 except OSError:
                     pass
 
+        self._trim_audio_file(rendered_path, sr, nchnls, total_frames, fileformat, sampletype,
+                              force_reencode=(fileformat != 0 or sampletype != 3), output_path=output_path)
         info = sndinfo(output_path)
         frames = info[0] if info else total_frames
         elapsed = time.perf_counter() - t0
@@ -1739,7 +1867,8 @@ class _HeadlessRenderWorker:
             "output_path": output_path,
             "frames": frames,
             "duration": frames / float(sr),
-            "peak_db": round(amp_to_db(peak_amp), 2),
+            "peak_db": min(0.0, round(amp_to_db(peak_amp), 2)) if sampletype in (0, 1, 2)
+                       else round(amp_to_db(peak_amp), 2),
             "elapsed": round(elapsed, 4),
         }
 
@@ -1807,6 +1936,8 @@ class _SubprocessWorkerHandle:
         self._proc: Optional[subprocess.Popen] = None
         self._events: "queue.Queue[Dict[str, Any]]" = queue.Queue()
         self._lock = threading.Lock()
+        self._shutdown_lock = threading.RLock()
+        self._reader_threads = []
         self._closed = False
         self._start()
 
@@ -1835,8 +1966,12 @@ class _SubprocessWorkerHandle:
             text=True,
             bufsize=1,
         )
-        threading.Thread(target=self._read_stdout, daemon=True).start()
-        threading.Thread(target=self._read_stderr, daemon=True).start()
+        self._reader_threads = [
+            threading.Thread(target=self._read_stdout, daemon=True),
+            threading.Thread(target=self._read_stderr, daemon=True),
+        ]
+        for thread in self._reader_threads:
+            thread.start()
 
         # Wait for ready signal
         msg = self._events.get(timeout=15.0)
@@ -1921,30 +2056,45 @@ class _SubprocessWorkerHandle:
                     extra = ev.get("stderr", "")
                     raise RuntimeError(f"Offline worker exited unexpectedly. {extra}".strip())
 
-    def terminate(self):
-        self._closed = True
+    def _close_pipes(self):
         proc = self._proc
-        if proc is not None and proc.poll() is None:
-            try:
-                proc.terminate()
+        if proc is None:
+            return
+        for thread in self._reader_threads:
+            thread.join(timeout=1.0)
+        for stream in (proc.stdin, proc.stdout, proc.stderr):
+            if stream is not None:
+                stream.close()
+
+    def terminate(self):
+        with self._shutdown_lock:
+            self._closed = True
+            proc = self._proc
+            if proc is not None and proc.poll() is None:
                 try:
-                    proc.wait(timeout=0.5)
-                except subprocess.TimeoutExpired:
-                    proc.kill()
-            except OSError:
-                pass
+                    proc.terminate()
+                    try:
+                        proc.wait(timeout=0.5)
+                    except subprocess.TimeoutExpired:
+                        proc.kill()
+                        proc.wait()
+                except ProcessLookupError:
+                    proc.wait()
+            self._close_pipes()
 
     def close(self):
-        self._closed = True
-        proc = self._proc
-        if proc is not None and proc.poll() is None:
-            try:
-                if proc.stdin:
-                    proc.stdin.write('{"cmd": "quit"}\n')
-                    proc.stdin.flush()
-                proc.wait(timeout=1.0)
-            except Exception:
-                self.terminate()
+        with self._shutdown_lock:
+            self._closed = True
+            proc = self._proc
+            if proc is not None and proc.poll() is None:
+                try:
+                    if proc.stdin:
+                        proc.stdin.write('{"cmd": "quit"}\n')
+                        proc.stdin.flush()
+                    proc.wait(timeout=1.0)
+                except Exception:
+                    self.terminate()
+            self._close_pipes()
 
 
 class _WorkerPool:
@@ -1980,6 +2130,10 @@ class _WorkerPool:
             handle = _SubprocessWorkerHandle(idx)
             with self._handles_lock:
                 self._all_handles.append(handle)
+                cancelled = self._shutting_down or cancel_event.is_set()
+            if cancelled:
+                handle.terminate()
+                raise InterruptedError("Render cancelled.")
             return handle
 
         while not cancel_event.is_set() and not self._shutting_down:
@@ -2127,7 +2281,7 @@ class OfflineRenderManager:
         if job.module_outputs:
             total_dur = float(job.duration_override or job.snapshot["output"]["totalTime"])
             if mode == "chunks" or (mode == "auto" and total_dur >= max(self.settings.chunk_min_dur, 4.0)):
-                min_seg = max(1.0, self.settings.preroll + 2.0 * self.settings.crossfade + 0.5)
+                min_seg = max(1.0, 2.0 * self.settings.crossfade + 0.5)
                 return "chunks" if total_dur >= min_seg * 2 else "single"
             return "single"
 
@@ -2149,7 +2303,7 @@ class OfflineRenderManager:
         if mode == "branches":
             return "branches" if can_branch else "single"
         if mode == "chunks":
-            min_seg = max(1.0, self.settings.preroll + 2.0 * self.settings.crossfade + 0.5)
+            min_seg = max(1.0, 2.0 * self.settings.crossfade + 0.5)
             return "chunks" if total_dur >= min_seg * 2 else "single"
 
         # mode == 'auto'
@@ -2173,11 +2327,14 @@ class OfflineRenderManager:
         job_progress = [0.0] * total_jobs
         max_peak_db: Optional[float] = None
         state_lock = threading.Lock()
+        coordinator_active = True
 
         def emit_overall():
             if not self.on_progress:
                 return
             with state_lock:
+                if not coordinator_active:
+                    return
                 overall_frac = sum(job_progress) / max(1, total_jobs)
                 done_cnt = sum(1 for j in jobs if j.status == "Done")
                 elapsed = time.perf_counter() - t_start
@@ -2193,6 +2350,16 @@ class OfflineRenderManager:
                 "peak_db": peak_copy,
                 "workers": workers_copy,
             })
+
+        def set_worker_active(widx: int, label: str):
+            with state_lock:
+                worker_states[widx] = {"active": True, "label": label, "fraction": 0.0}
+            emit_overall()
+
+        def set_worker_idle(widx: int):
+            with state_lock:
+                worker_states[widx] = {"active": False, "label": "Idle", "fraction": 0.0}
+            emit_overall()
 
         def notify_job(idx: int):
             if self.on_job_update:
@@ -2261,6 +2428,7 @@ class OfflineRenderManager:
                         "samp_size": self.settings.samp_size,
                         "global_fade": self.settings.global_fade,
                         "master_output": job.master_output,
+                        "scratch_dir": self._make_temp_dir(),
                         "module_outputs": job.module_outputs,
                     }
                     fut = pool.submit_task(
@@ -2268,12 +2436,8 @@ class OfflineRenderManager:
                         spec,
                         self.cancel_event,
                         on_progress=lambda widx, ev: handle_subprogress(job_idx, 0, 1, job.title, widx, ev),
-                        on_worker_start=lambda widx: worker_states.__setitem__(
-                            widx, {"active": True, "label": job.title, "fraction": 0.0}
-                        ),
-                        on_worker_end=lambda widx: worker_states.__setitem__(
-                            widx, {"active": False, "label": "Idle", "fraction": 0.0}
-                        ),
+                        on_worker_start=lambda widx: set_worker_active(widx, job.title),
+                        on_worker_end=set_worker_idle,
                     )
                     res = fut.result()
                     job.module_results = res.get("module_results", {})
@@ -2311,28 +2475,34 @@ class OfflineRenderManager:
                         if b_muted:
                             sub_fracs[b_i] = 1.0
                             continue
+                        export_path = None
                         if want_stems:
-                            stem_path = f"{base_no_ext}_{b_lbl}{out_ext}"
-                            job.stem_paths.append(stem_path)
-                            b_ftype = self.settings.audio_file_type
-                            b_ssize = self.settings.samp_size
+                            export_path = f"{base_no_ext}_{b_lbl}{out_ext}"
+                            job.stem_paths.append(export_path)
                             with self._lock:
-                                self._active_outputs.add(stem_path)
-                        else:
-                            stem_path = os.path.join(tmp_dir, f"{b_lbl}.wav")
-                            b_ftype = "wav"
-                            b_ssize = 3  # 32-bit float intermediate
+                                self._active_outputs.add(export_path)
+                        stem_path = os.path.join(tmp_dir, f"{b_lbl}.wav")
                         branch_files[b_i] = stem_path
+                        context_snapshot = copy.deepcopy(job.snapshot)
+                        context_snapshot["output"]["plugins"] = {}
+                        context_snapshot["output"]["userGraph"] = {}
+                        context_snapshot["output"]["gainSlider"] = 0.0
                         bspec = {
                             "job_id": f"{job.job_id}_b{b_i}",
-                            "snapshot": b_snap,
+                            "snapshot": context_snapshot,
+                            "output_ids": b_snap["output_connections"],
+                            "raw_output": True,
+                            "scratch_dir": tmp_dir,
                             "output_path": stem_path,
                             "duration_override": total_dur,
                             "nchnls_override": nchnls,
                             "sr": sr,
                             "buffersize": buffersize,
-                            "audio_file_type": b_ftype,
-                            "samp_size": b_ssize,
+                            "audio_file_type": "wav",
+                            "samp_size": 3,
+                            "raw_export_path": export_path,
+                            "export_audio_file_type": self.settings.audio_file_type,
+                            "export_samp_size": self.settings.samp_size,
                             "global_fade": 0.0,
                             "force_mix_voices": True,
                         }
@@ -2341,20 +2511,21 @@ class OfflineRenderManager:
                             bspec,
                             self.cancel_event,
                             on_progress=lambda widx, ev, _bi=b_i, _bl=b_lbl: on_branch_prog(_bi, _bl, widx, ev),
-                            on_worker_end=lambda widx: worker_states.__setitem__(
-                                widx, {"active": False, "label": "Idle", "fraction": 0.0}
-                            ),
+                            on_worker_start=lambda widx, _bl=b_lbl: set_worker_active(widx, f"{job.title} [{_bl}]"),
+                            on_worker_end=set_worker_idle,
                         )
                         branch_futures.append(fut)
 
-                    for fut in branch_futures:
-                        fut.result()
+                    branch_results = [fut.result() for fut in branch_futures]
+                    warmup_frames = max((res.get("warmup_frames", 0) for res in branch_results), default=0)
 
                     job.status = "Mixing branches"
                     notify_job(job_idx)
                     mix_spec = {
                         "job_id": job.job_id,
                         "branch_files": branch_files,
+                        "warmup_frames": warmup_frames,
+                        "scratch_dir": tmp_dir,
                         "total_cables": len(branches),
                         "snapshot": job.snapshot,
                         "output_path": job.output_path,
@@ -2366,16 +2537,20 @@ class OfflineRenderManager:
                         "audio_file_type": self.settings.audio_file_type,
                         "samp_size": self.settings.samp_size,
                     }
-                    res = pool.submit_task("mix_branches", mix_spec, self.cancel_event).result()
+                    res = pool.submit_task(
+                        "mix_branches",
+                        mix_spec,
+                        self.cancel_event,
+                        on_worker_start=lambda widx: set_worker_active(widx, f"{job.title} [mixing]"),
+                        on_worker_end=set_worker_idle,
+                    ).result()
 
                 else:  # strategy == "chunks"
-                    preroll_s = max(0.0, float(self.settings.preroll))
                     xfade_s = max(0.01, float(self.settings.crossfade))
-                    max_k = max(2, min(num_threads, int(total_dur / max(1.5, preroll_s + 2.0 * xfade_s + 0.5))))
+                    max_k = max(2, min(num_threads, int(total_dur / max(1.5, 2.0 * xfade_s + 0.5))))
                     total_frames = max(1, int(round(total_dur * sr)))
                     half_xfade = int(round(0.5 * xfade_s * sr))
                     xfade_frames = 2 * half_xfade
-                    preroll_frames_cfg = int(round(preroll_s * sr))
 
                     tmp_dir = self._make_temp_dir()
                     chunk_meta = []
@@ -2408,15 +2583,11 @@ class OfflineRenderManager:
                         e_k = total_frames if k == max_k - 1 else int(round((k + 1) * total_frames / max_k))
                         a_k = 0 if k == 0 else max(0, s_k - half_xfade)
                         b_k = total_frames if k == max_k - 1 else min(total_frames, e_k + half_xfade)
-                        p_k = 0 if k == 0 else min(a_k, preroll_frames_cfg)
-                        r_start_frame = a_k - p_k
-                        r_end_frame = b_k
-
-                        win_start = r_start_frame / float(sr)
-                        win_end = r_end_frame / float(sr)
-                        win_dur = win_end - win_start
-
-                        c_snap = slice_snapshot_time_window(job.snapshot, win_start, win_end, total_dur)
+                        # Replay the original timeline to reconstruct arbitrary DSP state.
+                        # A bounded preroll cannot preserve feedback, convolution tails,
+                        # oscillator phase, automation or stochastic module history.
+                        p_k = a_k
+                        c_snap = copy.deepcopy(job.snapshot)
                         c_path = os.path.join(tmp_dir, f"chunk_{k:03d}.wav")
                         chunk_meta.append({
                             "path": c_path,
@@ -2428,14 +2599,16 @@ class OfflineRenderManager:
                             "job_id": f"{job.job_id}_c{k}",
                             "snapshot": c_snap,
                             "output_path": c_path,
-                            "duration_override": win_dur,
+                            "duration_override": total_dur,
+                            "render_duration": b_k / float(sr),
                             "nchnls_override": nchnls,
                             "sr": sr,
                             "buffersize": buffersize,
                             "audio_file_type": "wav",
                             "samp_size": 3,  # 32-bit float intermediate
-                            "global_fade": 0.0,
-                            "seed_offset": (k + 1) * 7919,
+                            "global_fade": self.settings.global_fade,
+                            "seed_offset": 1,
+                            "scratch_dir": tmp_dir,
                             "master_output": job.master_output,
                             "module_outputs": {
                                 mid: os.path.join(tmp_dir, f"chunk_{k:03d}_{mid}.wav")
@@ -2447,9 +2620,8 @@ class OfflineRenderManager:
                             cspec,
                             self.cancel_event,
                             on_progress=lambda widx, ev, _ci=k: on_chunk_prog(_ci, widx, ev),
-                            on_worker_end=lambda widx: worker_states.__setitem__(
-                                widx, {"active": False, "label": "Idle", "fraction": 0.0}
-                            ),
+                            on_worker_start=lambda widx, _ci=k: set_worker_active(widx, f"{job.title} [chunk {_ci + 1}/{max_k}]"),
+                            on_worker_end=set_worker_idle,
                         )
                         chunk_futures.append(fut)
 
@@ -2468,11 +2640,17 @@ class OfflineRenderManager:
                             "total_frames": total_frames,
                             "xfade_frames": xfade_frames,
                             "crossfade_shape": self.settings.crossfade_shape,
-                            "global_fade": self.settings.global_fade,
+                            "global_fade": 0.0,
                             "audio_file_type": self.settings.audio_file_type,
                             "samp_size": self.settings.samp_size,
                         }
-                        res = pool.submit_task("stitch", stitch_spec, self.cancel_event).result()
+                        res = pool.submit_task(
+                            "stitch",
+                            stitch_spec,
+                            self.cancel_event,
+                            on_worker_start=lambda widx: set_worker_active(widx, f"{job.title} [stitching master]"),
+                            on_worker_end=set_worker_idle,
+                        ).result()
                     else:
                         res = {
                             "peak_db": -90.0,
@@ -2498,11 +2676,17 @@ class OfflineRenderManager:
                             "total_frames": total_frames,
                             "xfade_frames": xfade_frames,
                             "crossfade_shape": self.settings.crossfade_shape,
-                            "global_fade": self.settings.global_fade,
+                            "global_fade": 0.0,
                             "audio_file_type": self.settings.audio_file_type,
                             "samp_size": self.settings.samp_size,
                         }
-                        m_res = pool.submit_task("stitch", mod_stitch_spec, self.cancel_event).result()
+                        m_res = pool.submit_task(
+                            "stitch",
+                            mod_stitch_spec,
+                            self.cancel_event,
+                            on_worker_start=lambda widx, _mid=mid: set_worker_active(widx, f"{job.title} [stitching {_mid}]"),
+                            on_worker_end=set_worker_idle,
+                        ).result()
                         job.module_results[mid] = {
                             "path": final_stem_path,
                             "frames": m_res.get("frames", total_frames),
@@ -2603,6 +2787,17 @@ class OfflineRenderManager:
                 job.elapsed = time.perf_counter() - j_t0
                 notify_job(job_idx)
 
+        heartbeat_stop = threading.Event()
+
+        def _heartbeat():
+            while not heartbeat_stop.wait(0.08):
+                if self.cancel_event.is_set():
+                    break
+                emit_overall()
+
+        hb_thread = threading.Thread(target=_heartbeat, daemon=True, name="CeciliaOfflineHeartbeat")
+        hb_thread.start()
+
         try:
             # Dispatch jobs concurrently across coordinator threads (up to num_threads concurrent jobs)
             with concurrent.futures.ThreadPoolExecutor(
@@ -2616,12 +2811,19 @@ class OfflineRenderManager:
                     except Exception:
                         pass
         finally:
+            heartbeat_stop.set()
+            hb_thread.join(timeout=1.0)
             cancelled = self.cancel_event.is_set()
-            if not cancelled:
-                pool.shutdown()
+            pool.shutdown()
             self._cleanup_temps(cancelled=cancelled)
             self._pool = None
             self._running = False
+            with state_lock:
+                for i in range(num_threads):
+                    worker_states[i] = {"active": False, "label": "Idle", "fraction": 0.0}
+            emit_overall()
+            with state_lock:
+                coordinator_active = False
 
         elapsed_total = time.perf_counter() - t_start
         completed = sum(1 for j in jobs if j.status == "Done")

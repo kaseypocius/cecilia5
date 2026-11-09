@@ -1,0 +1,308 @@
+{
+  "modules": 1,
+  "cases": 8,
+  "passed": 8,
+  "failed": 0,
+  "silent_cases": 0,
+  "elapsed_seconds": 5.43,
+  "scenarios": [
+    [
+      "mono_stereo_wav",
+      1,
+      "wav",
+      0,
+      2,
+      "wav",
+      1,
+      44100,
+      0.75,
+      "single"
+    ],
+    [
+      "stereo_mono_flac",
+      2,
+      "aif",
+      1,
+      1,
+      "flac",
+      1,
+      48000,
+      0.75,
+      "single"
+    ],
+    [
+      "quad_stereo_aiff_chunks",
+      4,
+      "flac",
+      1,
+      2,
+      "aif",
+      1,
+      44100,
+      2.1,
+      "chunks"
+    ],
+    [
+      "surround_quad_caf",
+      6,
+      "wav",
+      3,
+      4,
+      "caf",
+      3,
+      48000,
+      0.75,
+      "single"
+    ],
+    [
+      "eight_surround_wav_chunks",
+      8,
+      "aif",
+      1,
+      6,
+      "wav",
+      3,
+      44100,
+      2.1,
+      "chunks"
+    ],
+    [
+      "stereo_eight_pcm32",
+      2,
+      "wav",
+      3,
+      8,
+      "wav",
+      2,
+      48000,
+      0.75,
+      "single"
+    ],
+    [
+      "surround_sixteen_wav",
+      6,
+      "caf",
+      3,
+      16,
+      "wav",
+      3,
+      44100,
+      0.5,
+      "single"
+    ],
+    [
+      "eight_sixtyfour_wav",
+      8,
+      "wav",
+      3,
+      64,
+      "wav",
+      3,
+      48000,
+      0.25,
+      "single"
+    ]
+  ],
+  "results": [
+    {
+      "module": "Multiband/MultiBandGate.c5",
+      "scenario": "mono_stereo_wav",
+      "uses_input": true,
+      "input_roundtrip_error": 1.5258258366956934e-05,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 5.960464477539063e-08,
+          "absolute_tolerance": 2.119209289550781e-06,
+          "reference_peak": 0.0037092813290655613,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 5.960464477539063e-08,
+          "absolute_tolerance": 2.119209289550781e-06,
+          "reference_peak": 0.05878813564777374,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.0037092813290655613,
+      "status": "pass"
+    },
+    {
+      "module": "Multiband/MultiBandGate.c5",
+      "scenario": "stereo_mono_flac",
+      "uses_input": true,
+      "input_roundtrip_error": 6.891031101297074e-08,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 6.007030606269836e-08,
+          "absolute_tolerance": 2.119209289550781e-06,
+          "reference_peak": 0.006632078904658556,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 7.450580596923828e-08,
+          "absolute_tolerance": 2.119209289550781e-06,
+          "reference_peak": 0.10511157661676407,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.006632078904658556,
+      "status": "pass"
+    },
+    {
+      "module": "Multiband/MultiBandGate.c5",
+      "scenario": "quad_stereo_aiff_chunks",
+      "uses_input": true,
+      "input_roundtrip_error": 6.887506672631494e-08,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 6.007030606269836e-08,
+          "absolute_tolerance": 2.119209289550781e-06,
+          "reference_peak": 0.007529478054493666,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 7.450580596923828e-08,
+          "absolute_tolerance": 2.119209289550781e-06,
+          "reference_peak": 0.1193341612815857,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.007529478054493666,
+      "status": "pass"
+    },
+    {
+      "module": "Multiband/MultiBandGate.c5",
+      "scenario": "surround_quad_caf",
+      "uses_input": true,
+      "input_roundtrip_error": 7.3391168697867215e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 0.0,
+          "absolute_tolerance": 2e-06,
+          "reference_peak": 0.007391024846583605,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 0.0,
+          "absolute_tolerance": 2e-06,
+          "reference_peak": 0.11714008450508118,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.007391024846583605,
+      "status": "pass"
+    },
+    {
+      "module": "Multiband/MultiBandGate.c5",
+      "scenario": "eight_surround_wav_chunks",
+      "uses_input": true,
+      "input_roundtrip_error": 6.891758970450912e-08,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 0.0,
+          "absolute_tolerance": 2e-06,
+          "reference_peak": 0.0072917696088552475,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 0.0,
+          "absolute_tolerance": 2e-06,
+          "reference_peak": 0.11556673794984818,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.0072917696088552475,
+      "status": "pass"
+    },
+    {
+      "module": "Multiband/MultiBandGate.c5",
+      "scenario": "stereo_eight_pcm32",
+      "uses_input": true,
+      "input_roundtrip_error": 3.0690198160598925e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.003699652152135968,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 2.3283064365386963e-10,
+          "absolute_tolerance": 2.0004656612873076e-06,
+          "reference_peak": 0.0586356520652771,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.003699652152135968,
+      "status": "pass"
+    },
+    {
+      "module": "Multiband/MultiBandGate.c5",
+      "scenario": "surround_sixteen_wav",
+      "uses_input": true,
+      "input_roundtrip_error": 8.522141214939438e-09,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 0.0,
+          "absolute_tolerance": 2e-06,
+          "reference_peak": 0.003912608604878187,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 0.0,
+          "absolute_tolerance": 2e-06,
+          "reference_peak": 0.06201065331697464,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.003912608604878187,
+      "status": "pass"
+    },
+    {
+      "module": "Multiband/MultiBandGate.c5",
+      "scenario": "eight_sixtyfour_wav",
+      "uses_input": true,
+      "input_roundtrip_error": 1.0728836041806744e-08,
+      "checks": {
+        "master": {
+          "pass": true,
+          "max_error": 0.0,
+          "absolute_tolerance": 2e-06,
+          "reference_peak": 0.00372438901104033,
+          "clipped_reference_samples": 0
+        },
+        "tap": {
+          "pass": true,
+          "max_error": 0.0,
+          "absolute_tolerance": 2e-06,
+          "reference_peak": 0.05902770906686783,
+          "clipped_reference_samples": 0
+        }
+      },
+      "errors": [],
+      "peak": 0.00372438901104033,
+      "status": "pass"
+    }
+  ]
+}

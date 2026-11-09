@@ -60,12 +60,12 @@ ACCEL_LABELS = [
     ("Auto (Branches / Chunks)", "auto"),
     ("Single Pass (Exact Stateful)", "single"),
     ("Parallel Chain Branches", "branches"),
-    ("Time-Chunked (Overlap-Crossfade)", "chunks"),
+    ("Time-Chunked (Full History)", "chunks"),
 ]
 
 XFADE_LABELS = [
     ("Cosine (Unity Sum)", "cosine"),
-    ("Equal-Power (Uncorrelated)", "equal_power"),
+    ("Equal-Power (Normalized)", "equal_power"),
 ]
 
 BIT_DEPTH_ORDER = [
@@ -612,6 +612,7 @@ class OfflineRenderDialog(wx.Frame):
             p, min=0.0, max=10.0, initial=cur_preroll, inc=0.1, size=(80, -1)
         )
         self.spin_preroll.SetDigits(2)
+        self.spin_preroll.SetToolTip("Chunks replay the full signal history to preserve DSP state. Legacy preroll is unused.")
         self.spin_preroll.Bind(wx.EVT_SPINCTRLDOUBLE, self._on_preroll_changed)
         r2.Add(self.spin_preroll, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 12)
 
@@ -658,9 +659,9 @@ class OfflineRenderDialog(wx.Frame):
         r3.Add(self.choice_sr, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 10)
 
         r3.Add(self._lbl(p, "Chnls:"), 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 4)
-        self.choice_nchnls = wx.Choice(p, choices=[str(x) for x in range(1, 37)])
+        self.choice_nchnls = wx.Choice(p, choices=[str(x) for x in range(1, 65)])
         cur_nchnls = str(CeciliaLib.getVar("offlineNchnls") or CeciliaLib.getVar("nchnls") or 2)
-        if cur_nchnls in [str(x) for x in range(1, 37)]:
+        if cur_nchnls in [str(x) for x in range(1, 65)]:
             self.choice_nchnls.SetStringSelection(cur_nchnls)
         else:
             self.choice_nchnls.SetStringSelection("2")
@@ -764,7 +765,7 @@ class OfflineRenderDialog(wx.Frame):
         if sr_str in SAMPLE_RATES:
             self.choice_sr.SetStringSelection(sr_str)
         nchnls_str = str(CeciliaLib.getVar("offlineNchnls") or CeciliaLib.getVar("nchnls") or 2)
-        if nchnls_str in [str(x) for x in range(1, 37)]:
+        if nchnls_str in [str(x) for x in range(1, 65)]:
             self.choice_nchnls.SetStringSelection(nchnls_str)
         buf_str = str(CeciliaLib.getVar("offlineBufferSize") or CeciliaLib.getVar("bufferSize") or "512")
         if buf_str in BUFFER_SIZES:
@@ -1040,7 +1041,7 @@ class OfflineRenderDialog(wx.Frame):
         else:
             self.single_chain_info.SetLabel(
                 f"Active session: {n_mods} module{'s' if n_mods != 1 else ''}. "
-                "Long renders can parallelize via overlap-crossfaded time chunks."
+                "Time chunks preserve full signal history; later chunks repeat earlier processing."
             )
             self.chk_export_stems.SetValue(False)
             self.chk_export_stems.Enable(False)
@@ -1079,7 +1080,7 @@ class OfflineRenderDialog(wx.Frame):
         idx = self.choice_accel.GetSelection()
         mode = ACCEL_LABELS[idx][1] if 0 <= idx < len(ACCEL_LABELS) else "auto"
         en = mode in ("auto", "chunks")
-        self.spin_preroll.Enable(en)
+        self.spin_preroll.Enable(False)
         self.spin_xfade.Enable(en)
         self.choice_xfade_shape.Enable(en)
 

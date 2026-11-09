@@ -18,8 +18,8 @@ Cecilia comes with a rich library of original built-in modules for pitch shiftin
   - **Batch Sound Folder**: Process whole folders of audio files through your current processing chain.
   - **Render Queue**: Capture parameter snapshots and render variations sequentially or in parallel.
 - **Multithreading Acceleration Engine**:
-  - Headless multiprocessing pool achieving **10×–25× real-time** render speeds without audio dropouts or GIL limitations.
-  - 4 acceleration strategies: **Auto**, **Single-Pass**, **Parallel Branches**, and **Time Chunks** (with customizable filter preroll and overlap crossfade curves).
+  - Headless multiprocessing pool for offline rendering; throughput depends on the module, strategy and hardware.
+  - 4 acceleration strategies: **Auto**, **Single-Pass**, **Parallel Branches**, and **Time Chunks** (with full-history replay and overlap crossfade curves).
   - Real-time worker lane visualization, ETA progress, and live VU meter feedback.
 - **Per-Module Output Soundfiles ("Stems")**:
   - Export individual audio tracks for every module in your signal chain during offline bounces.
@@ -80,11 +80,36 @@ python3 -m unittest discover -s tests -v
 # Run offline multithread engine test suite
 python3 tests/test_offline_engine.py
 
+# Run sample-level correctness tests
+CECILIA_DSP_TESTS=1 python3 -m unittest discover -s tests -p test_offline_correctness.py -v
+
+# Audit all shipped modules (includes audible spectral diagnostics)
+cecillia/bin/python tests/check_all_modules.py
+
+# Run focused replay regressions
+CECILIA_DSP_TESTS=1 python3 -m unittest discover -s tests -p test_offline_replay_regressions.py -v
+
+# Test the all-module layout/codec matrix
+cecillia/bin/python tests/check_multichannel_formats.py --report-prefix multichannel_formats_final
+
 # Run full studio GUI & stem export integration test suite
 python3 tests/test_offline_ui.py
 ```
 
-For more details on test configurations, see [tests/README.md](tests/README.md).
+The latest format retest passes **552/552 cases across all 69 modules**, plus
+**10 audible diagnostics** for silent init cases and **300 repeated pitch-module
+renders**. General discovery passes with **109 passed / 66 skipped**. Integer
+exports now saturate safely, float scratch paths avoid FLAC container conflicts,
+and harmonizer windows avoid the reproduced unison boundary instability.
+See the [format findings](tests/reports/multichannel_findings.md),
+[final matrix](tests/reports/multichannel_formats_final.md), and
+[earlier routing results](tests/reports/offline_modules.md).
+
+For commands and scope, see [tests/README.md](tests/README.md). Exact chunks replay
+signal history; branch workers reconstruct full graph context and apply master
+processing once. Both cost additional CPU and temporary storage, so a single-job
+speedup is not guaranteed. Offline seed zero resolves to the replay job seed;
+live playback and explicit nonzero module seeds retain their existing behavior.
 
 ---
 
