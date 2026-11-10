@@ -968,19 +968,20 @@ class _MockPlugin:
 
 class _WorkerProgressReporter:
     """Receives pyo offline Server time & RMS callbacks and emits throttled JSON events."""
-    def __init__(self, job_id: str, total_time: float, nchnls: int, emit_fn: Callable[[Dict[str, Any]], None]):
+    def __init__(self, job_id: str, total_time: float, nchnls: int, emit_fn: Callable[[Dict[str, Any]], None], analysis_warmup=0.0):
         self.job_id = job_id
         self.total_time = max(0.001, float(total_time))
         self.nchnls = int(nchnls)
         self.emit_fn = emit_fn
         self.last_emit = 0.0
         self.current_time = 0.0
+        self.analysis_warmup = analysis_warmup
         self.last_rms: List[float] = [0.0] * self.nchnls
         self.max_peak_amp = 0.0
 
     def setTime(self, *args):
         if len(args) >= 4:
-            self.current_time = args[1] * 60.0 + args[2] + args[3] * 0.001
+            self.current_time = max(0.0, args[1] * 60.0 + args[2] + args[3] * 0.001 - self.analysis_warmup)
             now = time.monotonic()
             if now - self.last_emit >= 0.04:
                 self.last_emit = now
@@ -1361,6 +1362,14 @@ class _HeadlessRenderWorker:
             if not instances:
                 raise RuntimeError("No active module connected to Output.")
             signals = {}
+            self.srv_shell._plan_spectral_analysis(instances)
+            analysis = self.srv_shell.analysis_warmup
+            # Build the fade before its consumers. Creating it after an output
+            # Sig makes that Sig read the previous DSP buffer's envelope.
+            if analysis and global_fade > 0:
+                self.srv_shell.globalamp = Fader(fadein=global_fade, fadeout=global_fade,
+                                                dur=total_time).play(delay=analysis)
+            reporter.analysis_warmup = analysis
             output_signals = {}
             self.srv_shell.moduleMuteSignals = {}
             self.srv_shell.runtimeModules = []
@@ -1368,6 +1377,8 @@ class _HeadlessRenderWorker:
                 upstream = [signals[a] for a, b in chain.connections if b == instance.id and a in signals]
                 instance.upstream = mix_signals(upstream) if upstream else None
                 with instance_context(instance):
+                    self.srv_shell.analysis_control_start = (instance.state['_analysis_ready']
+                        if getattr(instance.module_class, 'spectral_buffer_input', None) else analysis)
                     current_mod = instance.module_class.__new__(instance.module_class)
                     instance.state["currentModule"] = current_mod
                     self.srv_shell.runtimeModules.append(current_mod)
@@ -1401,7 +1412,7 @@ class _HeadlessRenderWorker:
                             mod_sig = Mix(mod_sig, voices=nchnls)
                         if global_fade > 0.0:
                             if not hasattr(self.srv_shell, "globalamp"):
-                                self.srv_shell.globalamp = Fader(fadein=global_fade, fadeout=global_fade, dur=total_time).play()
+                                self.srv_shell.globalamp = Fader(fadein=global_fade, fadeout=global_fade, dur=total_time).play(delay=analysis)
                             mod_sig = mod_sig * self.srv_shell.globalamp
                         mod_rec = Record(
                             mod_sig,
@@ -1411,9 +1422,12 @@ class _HeadlessRenderWorker:
                             sampletype=3,
                             buffering=1,
                         )
+                        if analysis:
+                            mod_rec.play(delay=analysis)
                         module_recorders.append((instance.id, mod_out_path, mod_rec))
 
             output_ids = spec.get("output_ids", chain.output_connections)
+            self.srv_shell.analysis_control_start = analysis
             self.srv_shell.out = Sig(
                 mix_signals([output_signals[i] for i in output_ids if i in output_signals])
             )
@@ -1422,7 +1436,7 @@ class _HeadlessRenderWorker:
 
             if global_fade > 0.0:
                 if not hasattr(self.srv_shell, "globalamp"):
-                    self.srv_shell.globalamp = Fader(fadein=global_fade, fadeout=global_fade, dur=total_time).play()
+                    self.srv_shell.globalamp = Fader(fadein=global_fade, fadeout=global_fade, dur=total_time).play(delay=analysis)
                 if len(chain.modules) > 1:
                     self.srv_shell.output.mul = self.srv_shell.globalamp
                 else:
@@ -1436,7 +1450,10 @@ class _HeadlessRenderWorker:
                                  sampletype=3, buffering=1)
                 module_recorders.append(("__branch__", output_path, raw_rec))
 
-            if start_offset > 0.0:
+            if analysis:
+                srv.startoffset = analysis + start_offset
+                self.srv_shell._schedule_spectral_start()
+            elif start_offset > 0.0:
                 srv.startoffset = start_offset
 
             srv.start()
@@ -1490,8 +1507,10 @@ class _HeadlessRenderWorker:
                                   fileformat, sampletype, force_reencode=encode_public,
                                   output_path=public_output_path)
         for mid, path in module_outputs.items():
+            tap_info = sndinfo(path)
+            tap_discard = max(0, tap_info[0]-recorded_frames) if tap_info else warmup_frames
             self._trim_audio_file(path, sr, nchnls, expected_frames,
-                                  fileformat, sampletype, discard_frames=warmup_frames,
+                                  fileformat, sampletype, discard_frames=tap_discard,
                                   force_reencode=encode_public, output_path=public_module_outputs[mid])
         if raw_output and spec.get("raw_export_path"):
             public_format = AUDIO_FILE_FORMATS.get(spec["export_audio_file_type"], 0)
@@ -1539,6 +1558,7 @@ class _HeadlessRenderWorker:
             "master_output": master_output,
             "module_results": module_results,
             "warmup_frames": warmup_frames,
+            "analysis_warmup_frames": round(analysis*sr),
         }
 
     def _trim_audio_file(self, path, sr, nchnls, frames, fileformat, sampletype,
@@ -1690,6 +1710,9 @@ class _HeadlessRenderWorker:
 
         total_frames = max(1, int(round(total_time * sr)))
         warmup_frames = int(spec.get("warmup_frames", 0))
+        analysis = int(spec.get('analysis_warmup_frames', 0))/sr
+        self.srv_shell.analysis_warmup = self.srv_shell.analysis_control_start = analysis
+        self.srv_shell.analysis_readers = []
         srv = self.srv_shell.server
 
         temp_mixed_wav = None
@@ -1745,12 +1768,16 @@ class _HeadlessRenderWorker:
             chain.modules = [inst]
             CeciliaLib.session = chain
 
+            if analysis and global_fade > 0:
+                self.srv_shell.globalamp = Fader(fadein=global_fade, fadeout=global_fade,
+                                                dur=total_time).play(delay=analysis)
             stem_reader = SfPlayer(temp_mixed_wav, speed=1, loop=False, interp=1).play()
             self.srv_shell.out = Sig(stem_reader)
             with instance_context(inst):
                 self.srv_shell._loadOutputPlugins()
             if global_fade > 0.0:
-                self.srv_shell.globalamp = Fader(fadein=global_fade, fadeout=global_fade, dur=total_time).play()
+                if not hasattr(self.srv_shell, 'globalamp'):
+                    self.srv_shell.globalamp = Fader(fadein=global_fade, fadeout=global_fade, dur=total_time).play(delay=analysis)
                 self.srv_shell.output.mul = self.srv_shell.globalamp
             if warmup_frames:
                 srv.startoffset = warmup_frames / float(sr)
@@ -2571,6 +2598,7 @@ class OfflineRenderManager:
 
                     branch_results = [fut.result() for fut in branch_futures]
                     warmup_frames = max((res.get("warmup_frames", 0) for res in branch_results), default=0)
+                    analysis_warmup_frames = max((res.get('analysis_warmup_frames', 0) for res in branch_results), default=0)
 
                     job.status = "Mixing branches"
                     notify_job(job_idx)
@@ -2578,6 +2606,7 @@ class OfflineRenderManager:
                         "job_id": job.job_id,
                         "branch_files": branch_files,
                         "warmup_frames": warmup_frames,
+                        "analysis_warmup_frames": analysis_warmup_frames,
                         "scratch_dir": tmp_dir,
                         "total_cables": len(branches),
                         "snapshot": job.snapshot,

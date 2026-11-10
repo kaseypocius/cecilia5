@@ -398,6 +398,28 @@ Large-input cases load the complete primary file and render one second; auxiliar
 
 The standard sweep recorded **552 cases: 507 completed file/memory checks, 28 not applicable, 13 deadline stops and four memory stops**. Thirty-five completed outputs were silent and are not audible-DSP passes. All four memory-limited spectral inputs completed with a 6 GiB allowance; the separate large impulse tests completed with 10 GiB. Fifteen longer-output retries passed; gigabyte Binaural outputs remain time-limited. See the [per-module matrix](tests/reports/offline_memory.md), [findings and fixes](tests/reports/offline_memory_findings.md), and [raw attempt history](tests/reports/offline_memory.jsonl). Source fingerprints identify cases needing repetition after concurrent edits.
 
+### Spectral analysis and silence
+
+BinWarper and SpectralWarper need to analyse their source before playing a
+buffered result. Analysis now has its own preparation interval in live and
+offline graphs. The performance clock, automation and fades start afterward;
+a long input can therefore produce a shorter audible export. File samplers are
+restarted at that boundary so ordinary parallel branches also remain audible.
+Exported module taps exclude analysis audio. Raw branch intermediates retain
+the history needed to replay master processing correctly.
+
+SpectralGate and Vectral can legitimately suppress a quiet signal at their
+default threshold. Lower Gate Threshold if that input should pass. Their
+defaults were preserved, and both produce audible output with the recorded
+test inputs.
+
+See [the 13-module audio verification](tests/reports/spectral_audio_findings.md)
+and [test audio cleanup](tests/reports/spectral_audio/README.md). Generated test
+WAVs are deleted after success or failure; numeric reports remain. Native live
+DSP was tested on a manual backend; physical devices and microphone input were
+not exercised. Preparation still needs the full spectral buffer and can take
+CPU time and RAM.
+
 ### Changes to memory use
 
 - Normalization, peak scanning, trim/re-encoding, chunk stitching and branch accumulation now process bounded blocks rather than whole-file float64 arrays/Python lists. Branch mastering streams the intermediate file through the native graph.

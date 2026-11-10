@@ -1,0 +1,561 @@
+[
+  {
+    "module": "AddResynth.c5",
+    "status": "audible",
+    "measurements": {
+      "master": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.09568693488836288,
+          0.09716157615184784
+        ],
+        "rms": [
+          0.020346078856829392,
+          0.020376595703813196
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -33.83038553214385,
+          -33.8173674277349
+        ]
+      },
+      "a": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.1909206658601761,
+          0.19386295974254608
+        ],
+        "rms": [
+          0.04059579083378336,
+          0.040656679984922395
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -27.830379876449637,
+          -27.817361772738547
+        ]
+      }
+    },
+    "recorded_before_fix": true
+  },
+  {
+    "module": "BinModulator.c5",
+    "status": "audible",
+    "measurements": {
+      "master": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.09151388704776764,
+          0.08876843750476837
+        ],
+        "rms": [
+          0.014824349506138238,
+          0.014807096453188185
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -36.58048708857285,
+          -36.59060189235155
+        ]
+      },
+      "a": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.18259432911872864,
+          0.17711643874645233
+        ],
+        "rms": [
+          0.02957848517427874,
+          0.029544060778526577
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -30.580481432541667,
+          -30.590596238368498
+        ]
+      }
+    },
+    "recorded_before_fix": true
+  },
+  {
+    "module": "BinWarper.c5",
+    "status": "silent_or_quiet",
+    "measurements": {
+      "master": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.0,
+          0.0
+        ],
+        "rms": [
+          0.0,
+          0.0
+        ],
+        "audible": false,
+        "rms_dbfs": [
+          -240.0,
+          -240.0
+        ]
+      },
+      "a": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.0,
+          0.0
+        ],
+        "rms": [
+          0.0,
+          0.0
+        ],
+        "audible": false,
+        "rms_dbfs": [
+          -240.0,
+          -240.0
+        ]
+      }
+    },
+    "recorded_before_fix": true
+  },
+  {
+    "module": "CrossSynth.c5",
+    "status": "audible",
+    "measurements": {
+      "master": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.10267326235771179,
+          0.10382748395204544
+        ],
+        "rms": [
+          0.01301396218815638,
+          0.01303874278470224
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -37.71180918870976,
+          -37.69528563832229
+        ]
+      },
+      "a": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.20486022531986237,
+          0.20716319978237152
+        ],
+        "rms": [
+          0.025966285229844694,
+          0.026015729046174246
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -31.711803533078307,
+          -31.6952799847926
+        ]
+      }
+    },
+    "recorded_before_fix": true
+  },
+  {
+    "module": "CrossSynth2.c5",
+    "status": "audible",
+    "measurements": {
+      "master": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.3185255229473114,
+          0.326408326625824
+        ],
+        "rms": [
+          0.05314559981260671,
+          0.0531666934969135
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -25.49065374086136,
+          -25.48720696324704
+        ]
+      },
+      "a": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.6355423927307129,
+          0.6512706279754639
+        ],
+        "rms": [
+          0.10603948156319772,
+          0.10608156902165196
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -19.49064808479036,
+          -19.487201307367098
+        ]
+      }
+    },
+    "recorded_before_fix": true
+  },
+  {
+    "module": "Morphing.c5",
+    "status": "audible",
+    "measurements": {
+      "master": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.12772710621356964,
+          0.12355730682611465
+        ],
+        "rms": [
+          0.024255333435367808,
+          0.024726595412793175
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -32.303855015979984,
+          -32.13671354436778
+        ]
+      },
+      "a": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.25484925508499146,
+          0.24652940034866333
+        ],
+        "rms": [
+          0.0483957842419351,
+          0.04933607612579163
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -26.303849362238335,
+          -26.136707889257163
+        ]
+      }
+    },
+    "recorded_before_fix": true
+  },
+  {
+    "module": "Shifter.c5",
+    "status": "audible",
+    "measurements": {
+      "master": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.15482351183891296,
+          0.18238529562950134
+        ],
+        "rms": [
+          0.026191401748631084,
+          0.02560319038352448
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -31.63682515527951,
+          -31.83411828780256
+        ]
+      },
+      "a": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.3089137077331543,
+          0.36390674114227295
+        ],
+        "rms": [
+          0.052258750913748576,
+          0.051085114183066015
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -25.636819499425844,
+          -25.83411263134201
+        ]
+      }
+    },
+    "recorded_before_fix": true
+  },
+  {
+    "module": "SpectralDelay.c5",
+    "status": "audible",
+    "measurements": {
+      "master": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.24543654918670654,
+          0.22883188724517822
+        ],
+        "rms": [
+          0.05466061829764702,
+          0.05429933484265658
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -25.246509201225173,
+          -25.304109808198444
+        ]
+      },
+      "a": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.48971062898635864,
+          0.45657992362976074
+        ],
+        "rms": [
+          0.109062342808597,
+          0.10834148706024967
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -19.246503546166153,
+          -19.304104154443095
+        ]
+      }
+    },
+    "recorded_before_fix": true
+  },
+  {
+    "module": "SpectralFilter.c5",
+    "status": "audible",
+    "measurements": {
+      "master": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.18102684617042542,
+          0.18104447424411774
+        ],
+        "rms": [
+          0.04517371348881693,
+          0.04517266409921924
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -26.90228413899912,
+          -26.902485915373042
+        ]
+      },
+      "a": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.36119627952575684,
+          0.3612314462661743
+        ],
+        "rms": [
+          0.09013346685555175,
+          0.09013137302986629
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -20.90227848185933,
+          -20.902480259852616
+        ]
+      }
+    },
+    "recorded_before_fix": true
+  },
+  {
+    "module": "SpectralGate.c5",
+    "status": "audible",
+    "measurements": {
+      "master": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.16012735664844513,
+          0.16270814836025238
+        ],
+        "rms": [
+          0.018770620886924667,
+          0.018587262359982617
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -34.5304272345144,
+          -34.615691418661896
+        ]
+      },
+      "a": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.3194962739944458,
+          0.32464563846588135
+        ],
+        "rms": [
+          0.03745233686398003,
+          0.037086488260322695
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -28.53042158040189,
+          -28.61568576608841
+        ]
+      }
+    },
+    "recorded_before_fix": true
+  },
+  {
+    "module": "SpectralWarper.c5",
+    "status": "silent_or_quiet",
+    "measurements": {
+      "master": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.0,
+          0.0
+        ],
+        "rms": [
+          0.0,
+          0.0
+        ],
+        "audible": false,
+        "rms_dbfs": [
+          -240.0,
+          -240.0
+        ]
+      },
+      "a": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.0,
+          0.0
+        ],
+        "rms": [
+          0.0,
+          0.0
+        ],
+        "audible": false,
+        "rms_dbfs": [
+          -240.0,
+          -240.0
+        ]
+      }
+    },
+    "recorded_before_fix": true
+  },
+  {
+    "module": "Transpose.c5",
+    "status": "audible",
+    "measurements": {
+      "master": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.1284848302602768,
+          0.11810288578271866
+        ],
+        "rms": [
+          0.023719008358437745,
+          0.023679117915787303
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -32.49806943723558,
+          -32.512689595942916
+        ]
+      },
+      "a": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.25636109709739685,
+          0.23564639687538147
+        ],
+        "rms": [
+          0.04732567434596344,
+          0.04724608239455282
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -26.498063780714148,
+          -26.512683939905003
+        ]
+      }
+    },
+    "recorded_before_fix": true
+  },
+  {
+    "module": "Vectral.c5",
+    "status": "audible",
+    "measurements": {
+      "master": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.16465775668621063,
+          0.14542481303215027
+        ],
+        "rms": [
+          0.018891939891079148,
+          0.020117374746363912
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -34.474468897958175,
+          -33.928573879435916
+        ]
+      },
+      "a": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.32853561639785767,
+          0.2901608347892761
+        ],
+        "rms": [
+          0.03769440026487522,
+          0.04013946583853148
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -28.474463242406824,
+          -27.928568224873903
+        ]
+      }
+    },
+    "recorded_before_fix": true
+  }
+]

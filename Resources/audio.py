@@ -64,6 +64,19 @@ def _harmonizer_window_seconds(value, sample_rate):
     return min(1.0, (samples - 0.5) / rate)
 
 
+def _analysis_control_reader(table, total_time):
+    """Hold initial controls while spectral buffers fill, then run the timeline."""
+    server = CeciliaLib.getVar('audioServer')
+    delay = float(getattr(server, 'analysis_control_start', 0.0))
+    reader = TableRead(table, freq=1.0/total_time)
+    if delay <= 0:
+        return reader.play()
+    hold = Sig(table.get(0)).play(dur=delay)
+    reader.play(delay=delay)
+    server.analysis_readers.append((reader, delay))
+    return reader + hold
+
+
 class CeciliaSampler:
     def __init__(self, parent, name, user_pitch, user_amp):
         self.type = "sampler"
@@ -124,7 +137,7 @@ class CeciliaSampler:
                 data = line.getData()
                 data = [tuple(x) for x in data]
                 self.setGraph('start', data)
-                self.start = TableRead(self.start_table, freq=1.0 / totalTime).play()
+                self.start = _analysis_control_reader(self.start_table, totalTime)
             elif self.start_midi:
                 self.start = Midictl(start_midictl, self.start_mini, self.start_maxi, start_init, start_midichnl)
             elif self.start_osc is not None:
@@ -153,7 +166,7 @@ class CeciliaSampler:
                 data = line.getData()
                 data = [tuple(x) for x in data]
                 self.setGraph('end', data)
-                self.dur = TableRead(self.dur_table, freq=1.0 / totalTime).play()
+                self.dur = _analysis_control_reader(self.dur_table, totalTime)
             elif self.dur_midi:
                 self.dur = Midictl(dur_midictl, self.dur_mini, self.dur_maxi, dur_init, dur_midichnl)
             elif self.dur_osc is not None:
@@ -181,7 +194,7 @@ class CeciliaSampler:
                 data = line.getData()
                 data = [tuple(x) for x in data]
                 self.setGraph('xfade', data)
-                self.xfade = TableRead(self.xfade_table, freq=1.0 / totalTime).play()
+                self.xfade = _analysis_control_reader(self.xfade_table, totalTime)
             elif self.xfade_midi:
                 self.xfade = Midictl(xfade_midictl, 0, 50, xfade_init, xfade_midichnl)
             elif self.xfade_osc is not None:
@@ -209,7 +222,7 @@ class CeciliaSampler:
                 data = line.getData()
                 data = [tuple(x) for x in data]
                 self.setGraph('gain', data)
-                self.gain_in = TableRead(self.gain_table, freq=1.0 / totalTime).play()
+                self.gain_in = _analysis_control_reader(self.gain_table, totalTime)
             elif self.gain_midi:
                 self.gain_in = Midictl(gain_midictl, -48, 18, gain_init, gain_midichnl)
             elif self.gain_osc is not None:
@@ -238,7 +251,7 @@ class CeciliaSampler:
                 data = line.getData()
                 data = [tuple(x) for x in data]
                 self.setGraph('trans', data)
-                self.pitch_in = TableRead(self.pitch_table, freq=1.0 / totalTime).play()
+                self.pitch_in = _analysis_control_reader(self.pitch_table, totalTime)
             elif self.pitch_midi:
                 self.pitch_in = Midictl(pitch_midictl, -48, 48, pitch_init, pitch_midichnl)
             elif self.pitch_osc is not None:
@@ -502,7 +515,7 @@ class CeciliaSlider:
             data = line.getData()
             data = [tuple(x) for x in data]
             self.setGraph(data)
-            self.reader = TableRead(self.table, freq=1.0 / totalTime).play()
+            self.reader = _analysis_control_reader(self.table, totalTime)
         elif self.midi:
             if log:
                 init = math.sqrt((init - mini) / (maxi - mini)) * (maxi - mini) + mini
@@ -595,11 +608,11 @@ class CeciliaRange:
             data = self.graph_lines[0].getData()
             data = [tuple(x) for x in data]
             self.setGraph(0, data)
-            self.reader_min = TableRead(self.table_min, freq=1.0 / totalTime).play()
+            self.reader_min = _analysis_control_reader(self.table_min, totalTime)
             data = self.graph_lines[1].getData()
             data = [tuple(x) for x in data]
             self.setGraph(1, data)
-            self.reader_max = TableRead(self.table_max, freq=1.0 / totalTime).play()
+            self.reader_max = _analysis_control_reader(self.table_max, totalTime)
             self.reader = Mix([self.reader_min, self.reader_max], voices=2)
         elif self.midi:
             if log:
@@ -694,7 +707,7 @@ class CeciliaSplitter:
                 data = self.graph_lines[i].getData()
                 data = [tuple(x) for x in data]
                 self.setGraph(i, data)
-                self.readers.append(TableRead(self.tables[i], freq=1.0 / totalTime).play())
+                self.readers.append(_analysis_control_reader(self.tables[i], totalTime))
             self.reader = Mix(self.readers, voices=self.num_knobs)
 
     def sig(self):
@@ -746,7 +759,7 @@ class CeciliaGraph:
         else:
             self.table = LinTable(func, size=self.size)
         if not self.isTable:
-            self.reader = TableRead(self.table, freq=1.0 / totalTime).play()
+            self.reader = _analysis_control_reader(self.table, totalTime)
 
     def sig(self):
         if self.isTable:
@@ -837,8 +850,9 @@ class BaseModule:
                 name = togPop.name
                 setattr(self, name + "_value", togPop.getValue())
 
-        self._metro = Metro(.06).play(dur=self.totalTime)
-        self._updater = TrigFunc(self._metro, self._updateWidgets).play(dur=self.totalTime)
+        analysis = getattr(CeciliaLib.getVar("audioServer"), "analysis_warmup", 0.0)
+        self._metro = Metro(.06).play(dur=self.totalTime, delay=analysis)
+        self._updater = TrigFunc(self._metro, self._updateWidgets).play(dur=self.totalTime, delay=analysis)
 
     def _offline_delay_max_seconds(self, maximum, *names):
         """Use compact buffers only for fixed controls in a headless render."""
@@ -1122,7 +1136,7 @@ class CeciliaPlugin:
                 data = line.getData()
                 data = [tuple(x) for x in data]
                 self.setGraph(0, data)
-                self.reader_p1 = TableRead(self.table_p1, freq=1.0 / totalTime).play()
+                self.reader_p1 = _analysis_control_reader(self.table_p1, totalTime)
             elif self.midi_p1:
                 if log:
                     init = math.sqrt((init - mini) / (maxi - mini)) * (maxi - mini) + mini
@@ -1158,7 +1172,7 @@ class CeciliaPlugin:
                 data = line.getData()
                 data = [tuple(x) for x in data]
                 self.setGraph(1, data)
-                self.reader_p2 = TableRead(self.table_p2, freq=1.0 / totalTime).play()
+                self.reader_p2 = _analysis_control_reader(self.table_p2, totalTime)
             elif self.midi_p2:
                 if log:
                     init = math.sqrt((init - mini) / (maxi - mini)) * (maxi - mini) + mini
@@ -1194,7 +1208,7 @@ class CeciliaPlugin:
                 data = line.getData()
                 data = [tuple(x) for x in data]
                 self.setGraph(2, data)
-                self.reader_p3 = TableRead(self.table_p3, freq=1.0 / totalTime).play()
+                self.reader_p3 = _analysis_control_reader(self.table_p3, totalTime)
             elif self.midi_p3:
                 if log:
                     init = math.sqrt((init - mini) / (maxi - mini)) * (maxi - mini) + mini
@@ -1555,6 +1569,58 @@ class CeciliaChaosModPlugin(CeciliaPlugin):
             self.out.interp = 1
 
 class AudioServer():
+    def _plan_spectral_analysis(self, instances):
+        """Separate file-buffer analysis time from the audible performance clock."""
+        self.analysis_warmup = 0.0
+        self.analysis_control_start = 0.0
+        self.analysis_readers = []
+        sr = float(CeciliaLib.getVar('sr'))
+        buffer_size = int(CeciliaLib.getVar('bufferSize'))
+        ready = {}
+        graph = CeciliaLib.session
+        for instance in instances:
+            inherited = max((ready.get(a, 0) for a, b in graph.connections if b == instance.id), default=0)
+            name = getattr(instance.module_class, 'spectral_buffer_input', None)
+            instance.state['_analysis_delay'] = inherited
+            instance.state['_analysis_ready'] = inherited
+            if name:
+                slot = instance.state['userInputs'].get(name, {})
+                duration = 0.0
+                if any(b == instance.id for a, b in graph.connections):
+                    duration = float(CeciliaLib.getVar('totalTime'))
+                elif slot.get('path') and int(slot.get('mode', 0)) == 0:
+                    from .AudioFileIO import AudioReader
+                    with AudioReader(slot['path']) as source:
+                        duration = max(0.0, source.info.frames/source.info.sample_rate - float(slot.get('off'+name, 0)))
+                if duration > 0:
+                    fft_size = 1024
+                    for popup in instance.state['userTogglePopups']:
+                        if popup.getName() == 'fftsize':
+                            fft_size = int(popup.getLabel())
+                    frames = math.ceil((duration*sr + 2*fft_size)/buffer_size)*buffer_size
+                    instance.state['_analysis_ready'] = inherited + frames/sr
+            ready[instance.id] = instance.state['_analysis_ready']
+        self.analysis_warmup = max(ready.values(), default=0.0)
+
+    def _schedule_spectral_start(self):
+        if not getattr(self, 'analysis_warmup', 0):
+            return
+        def restart_sources():
+            # Controls created interactively after preparation must start now.
+            self.analysis_control_start = 0.0
+            for reader, start in self.analysis_readers:
+                if start < self.analysis_warmup:
+                    reader.reset()
+                    reader.play()
+            for module in self.runtimeModules:
+                for sampler in module._samplers.values():
+                    if sampler.mode == 0 and hasattr(sampler, 'looper'):
+                        sampler.looper.reset()
+                        sampler.looper.play()
+                if getattr(module, 'spectral_buffer_input', None) and hasattr(module.buf, 'reset'):
+                    module.buf.reset()
+        self.analysis_call = CallAfter(restart_sources, time=self.analysis_warmup)
+
     def __init__(self):
         self.amp = 1.0
         sr, bufsize, nchnls, duplex, host, outdev, indev, firstin, firstout = self.getPrefs()
@@ -1611,7 +1677,11 @@ class AudioServer():
             print("Audio server start: begin")
         self.timeOpened = True
         fade = CeciliaLib.getVar("globalFade")
-        self.globalamp = Fader(fadein=fade, fadeout=fade, dur=CeciliaLib.getVar("totalTime")).play()
+        analysis = getattr(self, 'analysis_warmup', 0.0)
+        if analysis and hasattr(self, 'globalamp'):
+            self.globalamp.play(delay=analysis)
+        else:
+            self.globalamp = Fader(fadein=fade, fadeout=fade, dur=CeciliaLib.getVar("totalTime")).play(delay=analysis)
         if len(CeciliaLib.session.modules) > 1:
             self.output.mul = self.globalamp
         else:
@@ -1631,11 +1701,16 @@ class AudioServer():
             self.recorder = Record(self.output * self.recamp,
                                    CeciliaLib.getVar("outputFile"), CeciliaLib.getVar("nchnls"),
                                    fileformat=fileformat, sampletype=sampletype, buffering=8)
+            if analysis:
+                self.recorder.play(delay=analysis)
         if CeciliaLib.getVar("showSpectrum"):
             self.withSpectrum = True
             self.specamp = SigTo(self.amp, time=0.05, init=self.amp, mul=self.output)
             self.spectrum = Spectrum(self.specamp, function=self.dump)
-        if CeciliaLib.getVar("startOffset") > 0.0:
+        if analysis:
+            self.server.startoffset = analysis + CeciliaLib.getVar('startOffset')
+            self._schedule_spectral_start()
+        elif CeciliaLib.getVar("startOffset") > 0.0:
             self.server.startoffset = CeciliaLib.getVar("startOffset")
         if timer:
             self.withTimer = True
@@ -1723,11 +1798,11 @@ class AudioServer():
         grapher = CeciliaLib.getVar("grapher")
         interface = CeciliaLib.getVar("interface")
         if len(args) >= 4 and self.timeOpened:
-            time = args[1] * 60 + args[2] + args[3] * 0.001
+            time = max(0.0, args[1] * 60 + args[2] + args[3] * 0.001 - getattr(self, 'analysis_warmup', 0.0))
             if grapher is not None:
                 grapher.cursorPanel.setTime(time)
             if interface is not None:
-                interface.controlPanel.setTime(time, args[1], args[2], args[3] // 10)
+                interface.controlPanel.setTime(time, int(time//60), int(time)%60, int(time*100)%100)
             if time >= (CeciliaLib.getVar("totalTime") - 0.5):
                 CeciliaLib.callAfter(CeciliaLib.getControlPanel().closeBounceToDiskDialog)
             if time >= (CeciliaLib.getVar("totalTime")):
@@ -1848,6 +1923,13 @@ class AudioServer():
         return CeciliaLib.openCeciliaFile(None, filepath)
 
     def cleanup_module(self):
+        if getattr(self, 'analysis_warmup', 0):
+            self.server.startoffset = 0
+        if hasattr(self, 'analysis_call'):
+            self.analysis_call.stop()
+            del self.analysis_call
+        self.analysis_warmup = self.analysis_control_start = 0.0
+        self.analysis_readers = []
         self.moduleMuteSignals = {}
         if self.output is not None:
             self.output.stop()
@@ -1907,12 +1989,19 @@ class AudioServer():
             if not instances:
                 raise ValueError('Connect the source to Output before playback.')
             from .Session import mix_signals
+            self._plan_spectral_analysis(instances)
+            if self.analysis_warmup:
+                fade = CeciliaLib.getVar('globalFade')
+                self.globalamp = Fader(fadein=fade, fadeout=fade,
+                    dur=CeciliaLib.getVar('totalTime')).play(delay=self.analysis_warmup)
             signals = {}
             output_signals = {}
             for instance in instances:
                 upstream = [signals[a] for a, b in graph.connections if b == instance.id and a in signals]
                 instance.upstream = mix_signals(upstream) if upstream else None
                 with instance_context(instance):
+                    self.analysis_control_start = (instance.state['_analysis_ready']
+                        if getattr(instance.module_class, 'spectral_buffer_input', None) else self.analysis_warmup)
                     currentModule = instance.module_class.__new__(instance.module_class)
                     instance.state['currentModule'] = currentModule
                     self.runtimeModules.append(currentModule)
@@ -1936,6 +2025,7 @@ class AudioServer():
                     output_bypass = bypass if len(graph.output_connections) == 1 else processed * 0
                     output_signals[instance.id] = Interp(processed, output_bypass, fade)
             self.out = Sig(mix_signals([output_signals[i] for i in graph.output_connections if i in output_signals]))
+            self.analysis_control_start = self.analysis_warmup
             with instance_context(graph.modules[0]):
                 self._loadOutputPlugins()
             return True

@@ -116,6 +116,7 @@ class SharedPoolMemoryTests(unittest.TestCase):
         lock = threading.Lock()
         active = set()
         peak_small = [0]
+        large_started = threading.Event()
         small_jobs = threading.Barrier(3)
         class Handle:
             def __init__(self, index): self.worker_index=index; self._closed=False
@@ -127,6 +128,8 @@ class SharedPoolMemoryTests(unittest.TestCase):
                     else:
                         assert 'large' not in active, active
                     active.add(name)
+                    if name == 'large':
+                        large_started.set()
                     peak_small[0] = max(peak_small[0], len(active-{'large'}))
                 try:
                     if name == 'large': time.sleep(.1)
@@ -144,7 +147,13 @@ class SharedPoolMemoryTests(unittest.TestCase):
             with patch('Resources.RenderMemory.render_memory_budget', return_value=1024*MIB), \
                  patch('Resources.RenderMemory.estimate_snapshot_memory', side_effect=lambda snap, channels, rate=None: snap['estimate']), \
                  patch('Resources.OfflineRender._SubprocessWorkerHandle', Handle):
-                result = OfflineRenderManager(RenderSettings(num_threads=4, accel_mode='single')).run_blocking(jobs)
+                # The assertion concerns the queue after the large entry has
+                # started. Do not rely on executor thread-start order under load.
+                def dispatched(index, job):
+                    if job.job_id != 'large':
+                        assert large_started.wait(10), 'Large fixture did not start'
+                result = OfflineRenderManager(RenderSettings(num_threads=4, accel_mode='single'),
+                                               on_job_update=dispatched).run_blocking(jobs)
         self.assertEqual((result.completed, result.failed), (4, 0), [job.error for job in jobs])
         self.assertEqual(peak_small[0], 3)
 

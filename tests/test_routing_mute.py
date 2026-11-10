@@ -62,15 +62,16 @@ class RoutingMuteTests(unittest.TestCase):
 
     def render(self):
         tree = ast.parse((Path(__file__).resolve().parents[1] / 'Resources/audio.py').read_text())
-        method = next(node for node in ast.walk(tree)
-                      if isinstance(node, ast.FunctionDef) and node.name == 'loadChain')
+        methods = [node for node in ast.walk(tree)
+                   if isinstance(node, ast.FunctionDef) and node.name in ('loadChain', '_plan_spectral_analysis')]
         self.lib = SimpleNamespace(session=self.graph, getVar=lambda name: 2,
                                    showErrorDialog=Mock(), resetControls=Mock())
         namespace = {'__package__': 'Resources', 'CeciliaLib': self.lib,
                      'instance_context': instance_context, 'Sig': Signal, 'SigTo': Signal, 'Interp': interpolate,
                      'Mix': lambda value, voices: value}
-        exec(compile(ast.Module(body=[method], type_ignores=[]), '<audio builder>', 'exec'), namespace)
+        exec(compile(ast.Module(body=methods, type_ignores=[]), '<audio builder>', 'exec'), namespace)
         server = SimpleNamespace(cleanup_module=Mock(), moduleMuteSignals={}, runtimeModules=[], _loadOutputPlugins=Mock())
+        server._plan_spectral_analysis = lambda instances: namespace['_plan_spectral_analysis'](server, instances)
         self.assertTrue(namespace['loadChain'](server))
         self.lib.showErrorDialog.assert_not_called()
         return server

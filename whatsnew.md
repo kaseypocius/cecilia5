@@ -1,5 +1,20 @@
 # Changes #
 
+## Spectral analysis and audible audio-file verification — November 10, 2026
+
+- Fix silent BinWarper/SpectralWarper output when input analysis outlasts a
+  shorter performance. Hold controls during preparation, then start the live
+  timer, automation and fades on the performance timeline.
+- Restart file samplers after analysis, sequence chained buffers, align fades
+  across capture paths, and keep exported taps free of the analysis prefix.
+- Verify all 13 spectral modules with recorded primary/secondary inputs in
+  live and offline DSP paths, chunks, WAV24 exports and high-rate/multichannel
+  layouts. Preserve the unchanged default gate behavior. Generate all test audio
+  in temporary folders and remove it after success or failure; retain JSON
+  measurements and hashes. Functional checks generate their own references.
+- See [spectral audio findings](tests/reports/spectral_audio_findings.md) and
+  [test audio cleanup](tests/reports/spectral_audio/README.md).
+
 ## Offline worker memory optimization — November 10, 2026
 
 - Share the render RAM budget across native workers instead of applying a rigid

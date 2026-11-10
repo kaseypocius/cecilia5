@@ -1,5 +1,32 @@
 # Cecilia 5 Test Suites
 
+## Spectral modules: real sound-file inputs and outputs
+
+```sh
+cecillia/bin/python tests/check_spectral_audio.py --full --prefix spectral_audio_full
+cecillia/bin/python tests/check_spectral_audio.py --functional
+CECILIA_DSP_TESTS=1 cecillia/bin/python -m unittest discover -s tests -p test_spectral_audio.py -v
+cecillia/bin/python tests/write_spectral_audio_findings.py
+```
+
+All 13 modules use recorded primary/secondary sources. The full matrix covers
+130 live/offline, chunk, codec and channel/rate cases, including 44.1 kHz and 50 channels at
+96/192 kHz. Twenty separate checks verify transposition, buffered playback,
+auxiliary inputs and intentional gating. WAV24 exports have independent PCM
+decoding checks. [Findings](reports/spectral_audio_findings.md) retain measured
+results and audio hashes. Inputs, outputs, taps and reference WAVs use temporary
+folders and are deleted on success, failure or Ctrl+C. The functional audit
+generates its own references and can run independently. The earlier 28 saved
+WAV examples have been removed. See [cleanup details](reports/spectral_audio/README.md).
+The live DSP graph runs on a manual backend; no physical device is
+opened. Module defaults remain unchanged.
+
+Current general discovery with native DSP fixtures enabled passes **174 tests /
+68 skipped** (242 total), plus all six engine integration scenarios. Cleanup
+regressions cover successful runs and partial-output failures in all four audit
+modes. Historical
+suite results below retain the original fixtures and source versions.
+
 ## Unit and Session Model Tests
 Run the session model and unit tests from the repository root:
 
@@ -100,7 +127,7 @@ correctness for silent init output; such cases are noted in the report. The audi
 covers init settings, not every preset, channel configuration or routing graph.
 The separate correctness suite tests cancellation and explicit channel identity.
 
-## Latest recorded results
+## Earlier all-module routing results
 
 The latest retest passes **all 69 shipped-module cases**: 65 with the original
 init fixture and four with additional audible spectral diagnostics. Original
@@ -241,9 +268,9 @@ Reports are saved to [`tests/reports/large_file_1gb_performance.md`](reports/lar
 ## Native worker memory and large files
 
 Current worker-memory scheduling and high-rate checks are documented in
-[the optimization findings](reports/worker_memory_optimization.md). Discovery
-with native DSP fixtures enabled passes **167 tests / 68 skipped** (235 total),
-plus all six engine integration scenarios. Run the
+[the optimization findings](reports/worker_memory_optimization.md). That run
+recorded **167 tests / 68 skipped** (235 total); current discovery results are
+listed above. Run the
 50-channel, 64 MiB input matrix across all 69 modules at 96 and 192 kHz with:
 
 ```sh

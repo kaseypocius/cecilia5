@@ -1,5 +1,9 @@
 # Worker memory optimization — November 10, 2026
 
+Subsequent [spectral audio verification](spectral_audio_findings.md) fixes the
+buffered warpers' analysis/performance timing and retains audible examples for
+all 13 spectral modules. The memory matrix below keeps its original results.
+
 ## Result and implementation
 
 - Workers share a pool-wide RAM allowance. A heavy worker can use idle/light peers’ unused memory; aggregate live-process RSS remains monitored on macOS/Linux.

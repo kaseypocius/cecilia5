@@ -1,0 +1,892 @@
+[
+  {
+    "module": "SpectralGate.c5",
+    "case": "quiet_gate_-30",
+    "engine": "offline",
+    "expected_audible": false,
+    "parameters": {
+      "gthresh": [
+        -30,
+        0,
+        null,
+        1
+      ]
+    },
+    "measurements": {
+      "master": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.0,
+          0.0
+        ],
+        "rms": [
+          0.0,
+          0.0
+        ],
+        "audible": false,
+        "rms_dbfs": [
+          -240.0,
+          -240.0
+        ]
+      },
+      "a": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.0,
+          0.0
+        ],
+        "rms": [
+          0.0,
+          0.0
+        ],
+        "audible": false,
+        "rms_dbfs": [
+          -240.0,
+          -240.0
+        ]
+      }
+    },
+    "status": "pass"
+  },
+  {
+    "module": "SpectralGate.c5",
+    "case": "quiet_gate_-30",
+    "engine": "live",
+    "expected_audible": false,
+    "parameters": {
+      "gthresh": [
+        -30,
+        0,
+        null,
+        1
+      ]
+    },
+    "measurements": {
+      "master": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.0,
+          0.0
+        ],
+        "rms": [
+          0.0,
+          0.0
+        ],
+        "audible": false,
+        "rms_dbfs": [
+          -240.0,
+          -240.0
+        ]
+      }
+    },
+    "status": "pass"
+  },
+  {
+    "module": "SpectralGate.c5",
+    "case": "quiet_gate_-90",
+    "engine": "offline",
+    "expected_audible": true,
+    "parameters": {
+      "gthresh": [
+        -90,
+        0,
+        null,
+        1
+      ]
+    },
+    "measurements": {
+      "master": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.0013356499839574099,
+          0.0013326548505574465
+        ],
+        "rms": [
+          0.0002976791014782003,
+          0.0002977772716763126
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -70.52503307739025,
+          -70.52216907071329
+        ]
+      },
+      "a": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.0026649737264961004,
+          0.0026589976623654366
+        ],
+        "rms": [
+          0.0005939482798874632,
+          0.0005941441552918717
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -64.5250274215013,
+          -64.52216341511503
+        ]
+      }
+    },
+    "status": "pass"
+  },
+  {
+    "module": "SpectralGate.c5",
+    "case": "quiet_gate_-90",
+    "engine": "live",
+    "expected_audible": true,
+    "parameters": {
+      "gthresh": [
+        -90,
+        0,
+        null,
+        1
+      ]
+    },
+    "measurements": {
+      "master": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.0013356506824493408,
+          0.0013326556654646993
+        ],
+        "rms": [
+          0.00029777416757208907,
+          0.00029790828945574187
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -70.52225961505567,
+          -70.51834824286264
+        ]
+      }
+    },
+    "status": "pass"
+  },
+  {
+    "module": "Vectral.c5",
+    "case": "quiet_gate_-30",
+    "engine": "offline",
+    "expected_audible": false,
+    "parameters": {
+      "gthresh": [
+        -30,
+        0,
+        null,
+        1
+      ]
+    },
+    "measurements": {
+      "master": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.0,
+          0.0
+        ],
+        "rms": [
+          0.0,
+          0.0
+        ],
+        "audible": false,
+        "rms_dbfs": [
+          -240.0,
+          -240.0
+        ]
+      },
+      "a": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.0,
+          0.0
+        ],
+        "rms": [
+          0.0,
+          0.0
+        ],
+        "audible": false,
+        "rms_dbfs": [
+          -240.0,
+          -240.0
+        ]
+      }
+    },
+    "status": "pass"
+  },
+  {
+    "module": "Vectral.c5",
+    "case": "quiet_gate_-30",
+    "engine": "live",
+    "expected_audible": false,
+    "parameters": {
+      "gthresh": [
+        -30,
+        0,
+        null,
+        1
+      ]
+    },
+    "measurements": {
+      "master": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.0,
+          0.0
+        ],
+        "rms": [
+          0.0,
+          0.0
+        ],
+        "audible": false,
+        "rms_dbfs": [
+          -240.0,
+          -240.0
+        ]
+      }
+    },
+    "status": "pass"
+  },
+  {
+    "module": "Vectral.c5",
+    "case": "quiet_gate_-90",
+    "engine": "offline",
+    "expected_audible": true,
+    "parameters": {
+      "gthresh": [
+        -90,
+        0,
+        null,
+        1
+      ]
+    },
+    "measurements": {
+      "master": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.0010026919189840555,
+          0.0011333166621625423
+        ],
+        "rms": [
+          0.00023518730322412716,
+          0.00023925391407167746
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -72.57172255400468,
+          -72.42281897314761
+        ]
+      },
+      "a": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.002000634791329503,
+          0.0022612654138356447
+        ],
+        "rms": [
+          0.0004692606685976315,
+          0.00047737462936475175
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -66.57171689899491,
+          -66.42281331612347
+        ]
+      }
+    },
+    "status": "pass"
+  },
+  {
+    "module": "Vectral.c5",
+    "case": "quiet_gate_-90",
+    "engine": "live",
+    "expected_audible": true,
+    "parameters": {
+      "gthresh": [
+        -90,
+        0,
+        null,
+        1
+      ]
+    },
+    "measurements": {
+      "master": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.0010026926174759865,
+          0.0011333172442391515
+        ],
+        "rms": [
+          0.0002352466095681153,
+          0.0002394046517874617
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -72.56953254028568,
+          -72.41734830449039
+        ]
+      }
+    },
+    "status": "pass"
+  },
+  {
+    "module": "Transpose.c5",
+    "case": "octave_up",
+    "engine": "offline",
+    "expected_audible": true,
+    "parameters": {
+      "transpo1": [
+        1200,
+        0,
+        null,
+        1
+      ],
+      "transpo2": [
+        1200,
+        0,
+        null,
+        1
+      ],
+      "mix": [
+        1,
+        0,
+        null,
+        1
+      ]
+    },
+    "measurements": {
+      "master": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.074400894343853,
+          0.07196731120347977
+        ],
+        "rms": [
+          0.04304274491861878,
+          0.04861399625349311
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -27.322000813284436,
+          -26.264773536335127
+        ]
+      },
+      "a": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.1484493911266327,
+          0.14359375834465027
+        ],
+        "rms": [
+          0.0858816227823852,
+          0.09699773786754697
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -21.321995158312262,
+          -20.264767880262212
+        ]
+      }
+    },
+    "dominant_hz": [
+      880,
+      1320
+    ],
+    "status": "pass"
+  },
+  {
+    "module": "Transpose.c5",
+    "case": "octave_up",
+    "engine": "live",
+    "expected_audible": true,
+    "parameters": {
+      "transpo1": [
+        1200,
+        0,
+        null,
+        1
+      ],
+      "transpo2": [
+        1200,
+        0,
+        null,
+        1
+      ],
+      "mix": [
+        1,
+        0,
+        null,
+        1
+      ]
+    },
+    "measurements": {
+      "master": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.07440093904733658,
+          0.07196735590696335
+        ],
+        "rms": [
+          0.04306065999939501,
+          0.04863417709849913
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -27.31838635885321,
+          -26.261168561783947
+        ]
+      }
+    },
+    "dominant_hz": [
+      880,
+      1320
+    ],
+    "status": "pass"
+  },
+  {
+    "module": "SpectralWarper.c5",
+    "case": "position_traverses_input",
+    "engine": "offline",
+    "expected_audible": true,
+    "parameters": {},
+    "measurements": {
+      "master": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.15305238962173462,
+          0.15305238962173462
+        ],
+        "rms": [
+          0.07342014572164021,
+          0.07342014572164021
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -22.68369515718506,
+          -22.68369515718506
+        ]
+      },
+      "a": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.30537986755371094,
+          0.30537986755371094
+        ],
+        "rms": [
+          0.1464925457843071,
+          0.1464925457843071
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -16.683689473037838,
+          -16.683689473037838
+        ]
+      }
+    },
+    "early_late_dominant_hz": [
+      440,
+      880
+    ],
+    "status": "pass"
+  },
+  {
+    "module": "SpectralWarper.c5",
+    "case": "position_traverses_input",
+    "engine": "live",
+    "expected_audible": true,
+    "parameters": {},
+    "measurements": {
+      "master": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.15305247902870178,
+          0.15305247902870178
+        ],
+        "rms": [
+          0.07342018963225898,
+          0.07342018963225898
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -22.683689962389128,
+          -22.683689962389128
+        ]
+      }
+    },
+    "early_late_dominant_hz": [
+      440,
+      880
+    ],
+    "status": "pass"
+  },
+  {
+    "module": "BinWarper.c5",
+    "case": "double_speed_traverses_input",
+    "engine": "offline",
+    "expected_audible": true,
+    "parameters": {
+      "low": [
+        2,
+        0,
+        null,
+        1
+      ],
+      "high": [
+        2,
+        0,
+        null,
+        1
+      ]
+    },
+    "measurements": {
+      "master": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.1163749247789383,
+          0.1163749247789383
+        ],
+        "rms": [
+          0.049777365023306125,
+          0.049777365023306125
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -26.059361932019762,
+          -26.059361932019762
+        ]
+      },
+      "a": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.23219865560531616,
+          0.23219865560531616
+        ],
+        "rms": [
+          0.09936908368184058,
+          0.09936908368184058
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -20.054974298949677,
+          -20.054974298949677
+        ]
+      }
+    },
+    "early_late_dominant_hz": [
+      440,
+      880
+    ],
+    "status": "pass"
+  },
+  {
+    "module": "BinWarper.c5",
+    "case": "double_speed_traverses_input",
+    "engine": "live",
+    "expected_audible": true,
+    "parameters": {
+      "low": [
+        2,
+        0,
+        null,
+        1
+      ],
+      "high": [
+        2,
+        0,
+        null,
+        1
+      ]
+    },
+    "measurements": {
+      "master": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.11637499183416367,
+          0.11637499183416367
+        ],
+        "rms": [
+          0.049802513350757194,
+          0.049802513350757194
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -26.054974788652395,
+          -26.054974788652395
+        ]
+      }
+    },
+    "early_late_dominant_hz": [
+      440,
+      880
+    ],
+    "status": "pass"
+  },
+  {
+    "module": "CrossSynth.c5",
+    "case": "auxiliary_input_changes_output",
+    "engine": "offline",
+    "expected_audible": true,
+    "parameters": {},
+    "measurements": {
+      "master": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.33294376730918884,
+          0.33479681611061096
+        ],
+        "rms": [
+          0.05821769855895054,
+          0.05828469226610642
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -24.69889933861195,
+          -24.688909843858767
+        ]
+      },
+      "a": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.6643105745315552,
+          0.6680079102516174
+        ],
+        "rms": [
+          0.11615965563617026,
+          0.11629332576315664
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -18.698893682799174,
+          -18.688904186498497
+        ]
+      }
+    },
+    "changed_input_rms_difference": 0.05227480880828799,
+    "status": "pass"
+  },
+  {
+    "module": "CrossSynth.c5",
+    "case": "auxiliary_input_changes_output",
+    "engine": "live",
+    "expected_audible": true,
+    "parameters": {},
+    "measurements": {
+      "master": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.33294394612312317,
+          0.3347970247268677
+        ],
+        "rms": [
+          0.05823244591995096,
+          0.058305542252288574
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -24.69669935936143,
+          -24.685803225510977
+        ]
+      }
+    },
+    "changed_input_rms_difference": 0.052274839903430126,
+    "status": "pass"
+  },
+  {
+    "module": "CrossSynth2.c5",
+    "case": "auxiliary_input_changes_output",
+    "engine": "offline",
+    "expected_audible": true,
+    "parameters": {},
+    "measurements": {
+      "master": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.28502970933914185,
+          0.2851262390613556
+        ],
+        "rms": [
+          0.06188414291146552,
+          0.06189621238010958
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -24.16841239222624,
+          -24.16671851967728
+        ]
+      },
+      "a": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.5687094330787659,
+          0.5689020156860352
+        ],
+        "rms": [
+          0.12347517865307554,
+          0.12349926038534756
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -18.168406735927796,
+          -18.166712866146895
+        ]
+      }
+    },
+    "changed_input_rms_difference": 0.08153310048271634,
+    "status": "pass"
+  },
+  {
+    "module": "CrossSynth2.c5",
+    "case": "auxiliary_input_changes_output",
+    "engine": "live",
+    "expected_audible": true,
+    "parameters": {},
+    "measurements": {
+      "master": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.28502988815307617,
+          0.2851264178752899
+        ],
+        "rms": [
+          0.061903967603175916,
+          0.061925355730652006
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -24.165630298129134,
+          -24.16262979854361
+        ]
+      }
+    },
+    "changed_input_rms_difference": 0.08153314894810351,
+    "status": "pass"
+  },
+  {
+    "module": "Morphing.c5",
+    "case": "auxiliary_input_changes_output",
+    "engine": "offline",
+    "expected_audible": true,
+    "parameters": {},
+    "measurements": {
+      "master": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.18402349948883057,
+          0.18401400744915009
+        ],
+        "rms": [
+          0.0433372539970886,
+          0.043345565824706715
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -27.262772211820916,
+          -27.261106469572308
+        ]
+      },
+      "a": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.3671754002571106,
+          0.367156445980072
+        ],
+        "rms": [
+          0.08646924604992398,
+          0.08648583032796181
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -21.26276655491224,
+          -21.261100813585397
+        ]
+      }
+    },
+    "changed_input_rms_difference": 0.04986658286632627,
+    "status": "pass"
+  },
+  {
+    "module": "Morphing.c5",
+    "case": "auxiliary_input_changes_output",
+    "engine": "live",
+    "expected_audible": true,
+    "parameters": {},
+    "measurements": {
+      "master": {
+        "frames": 192000,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak": [
+          0.18402361869812012,
+          0.18401411175727844
+        ],
+        "rms": [
+          0.04335070596905605,
+          0.04336567840602129
+        ],
+        "audible": true,
+        "rms_dbfs": [
+          -27.260076512328,
+          -27.257077103685155
+        ]
+      }
+    },
+    "changed_input_rms_difference": 0.04986661252296615,
+    "status": "pass"
+  }
+]

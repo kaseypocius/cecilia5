@@ -15,6 +15,12 @@ Cecilia comes with a rich library of original built-in modules for pitch shiftin
 This build includes upstream 5.5.1 session-path fixes and desktop registration,
 plus the local offline-render features below.
 
+- **Spectral audio fixes**: BinWarper and SpectralWarper now complete analysis
+  before the performance clock, automation and fades start. All 13 spectral
+  modules have recorded-input live/offline checks. See the
+  [audio findings](tests/reports/spectral_audio_findings.md); test WAVs are
+  deleted automatically after each run.
+
 - **Worker RAM scheduling**: Shared pool-wide RSS monitoring, memory reservations
   for each queue entry, precision-aware table estimates and compact fixed-delay
   buffers in MultiBandDelay. See the [memory findings](tests/reports/worker_memory_optimization.md)
@@ -116,7 +122,7 @@ python3 tests/test_offline_ui.py
 
 The latest format retest passes **552/552 cases across all 69 modules**, plus
 **10 audible diagnostics** for silent init cases and **300 repeated pitch-module
-renders**. Current discovery passes with **167 passed / 68 skipped** (235 tests). Integer
+renders**. Current discovery passes with **174 passed / 68 skipped** (242 tests). Integer
 exports now saturate safely, float scratch paths avoid FLAC container conflicts,
 and harmonizer windows avoid the reproduced unison boundary instability.
 See the [format findings](tests/reports/multichannel_findings.md),

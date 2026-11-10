@@ -1,5 +1,9 @@
 # Offline renderer memory findings
 
+Subsequent [spectral audio fixes and recorded-input verification](spectral_audio_findings.md)
+address the BinWarper/SpectralWarper analysis/performance timing issue noted
+below. The older size-sweep silence outcomes remain historical results.
+
 The current scheduler and new high-channel/high-rate results are documented in
 [worker-memory optimization findings](worker_memory_optimization.md). The size
 sweeps and tables below are historical measurements with their original source
@@ -114,7 +118,7 @@ Representative paired jobs load and render 1.125 GiB at the same time (180-secon
 - All 69 module single/chunk/parallel audits pass at absolute tolerance 0.000002, with short audible spectral diagnostics. The current layout/codec matrix is 552/552; it combines a full sweep with a fresh eight-scenario DetunedResonators retest after that file changed between reference and encoding phases. [Routing](offline_memory_correctness.json), [codecs](offline_memory_formats_current.md).
 - MultiBandDelay reproduced 8 NaN failures in 150 persistent-worker jobs. DetunedResonators reproduced 13 in 150. Their guarded versions each pass 150 instrumented and 150 persistent-worker repetitions. Stage logs are retained as `offline_memory_*_stages_*.log`. [Native Delay/AllpassWG source inspected](https://github.com/belangeo/pyo/blob/master/src/objects/delaymodule.c).
 - MultiBandDelay moves only near-edge delay positions by at most 0.125 sample at 48 kHz with its 15-second buffer. DetunedResonators similarly guards its main period by at most 0.0078125 sample at 44.1 kHz. These small timing/pitch changes avoid the reproduced native wrap-rounding read.
-- **Unresolved DSP scope:** the short large-input spectral probes are silent. SpectralWarper needs buffer-fill time; BinWarper pre-analysis can advance envelopes/fades beyond a shorter performance. Warmup/performance timeline separation is not claimed fixed. RAM allocation measurements remain valid; these are not audible long-source correctness passes.
+- **Historical DSP scope:** the short large-input spectral probes in this size sweep were silent. The subsequent [spectral audio work](spectral_audio_findings.md) fixes analysis/performance timing for file inputs and verifies audible outputs. These older RAM measurements remain valid measurements of their recorded sources, rather than retroactive audible-DSP passes.
 - Tests cover default settings and the documented diagnostics, not every preset, spatial intent, routing topology, large-input/output pairing or persistent-process leak soak. Display-dependent checks were skipped. Standalone packaging and other operating systems still need validation.
 - File export and atomic replacement need disk headroom too. No fixed free-disk threshold guarantees enough RAM.
 
