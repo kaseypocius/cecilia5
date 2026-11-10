@@ -1,5 +1,12 @@
 # MultiBandDelay: 50-channel 48→96 kHz reproduction
 
+This is the historical 402-second-input reproduction. The subsequent shared
+budget and compact offline delay-buffer changes are measured in the
+[November 10 worker-memory findings](worker_memory_optimization.md), including
+a fresh 1 GiB/50-channel baseline comparison at 96 and 192 kHz. This exact
+402-second workload has not been rerun after those changes; the figures below
+remain measurements of the original recorded sources.
+
 **Passed** using generated audio matching the reported rates, channel counts and durations. This was not the user's recording. Assumptions: init parameters, Auto mode, six requested workers, float32 WAV, no normalization or stem exports.
 
 | Check | Measured result |

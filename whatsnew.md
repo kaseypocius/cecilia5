@@ -1,5 +1,20 @@
 # Changes #
 
+## Offline worker memory optimization — November 10, 2026
+
+- Share the render RAM budget across native workers instead of applying a rigid
+  equal-size RSS limit to each process. Retain aggregate resident-memory checks
+  and cancellation/output cleanup.
+- Reserve memory for each independent queue entry, allowing small jobs to run
+  together even when the queue also contains a large job.
+- Estimate normal pyo tables at float32 precision, retain pyo64 and conservative
+  spectral/IR allowances, and include rate-dependent native delay banks.
+- Use compact MultiBandDelay buffers for fixed offline controls; retain full
+  capacity for automation and live playback. DSP settings and defaults remain
+  unchanged.
+- Show the shared GiB allowance in render progress. Validation and remaining
+  limits are recorded in [the worker-memory findings](tests/reports/worker_memory_optimization.md).
+
 ## Version 5.5.1 ##
 
 - Added the `cecilia-register-desktop` command to create an application-menu

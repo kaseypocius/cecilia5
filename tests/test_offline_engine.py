@@ -4,9 +4,11 @@ import sys
 import tempfile
 import time
 import threading
+from pathlib import Path
 
 os.environ["HOME"] = "/tmp"
-sys.path.insert(0, "/Users/kasey/Downloads/cecilia5-master")
+ROOT = str(Path(__file__).resolve().parents[1])
+sys.path.insert(0, ROOT)
 
 import numpy as np
 from pyo import Server, DataTable, SndTable, savefileFromTable, sndinfo
@@ -22,7 +24,6 @@ from Resources.OfflineRender import (
     load_preset_dict,
 )
 
-ROOT = os.path.abspath("/Users/kasey/Downloads/cecilia5-master")
 STOCH = os.path.join(ROOT, "Resources/modules/Synthesis/StochGrains.c5")
 SUPERSAW = os.path.join(ROOT, "Resources/modules/Synthesis/SuperSaw.c5")
 BRICKWALL = os.path.join(ROOT, "Resources/modules/Filters/BrickWall.c5")

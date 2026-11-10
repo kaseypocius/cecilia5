@@ -1,0 +1,73 @@
+{
+  "input_mib": 1024,
+  "input_channels": 50,
+  "budget_gib": 8,
+  "measurements": [
+    {
+      "version": "baseline",
+      "sample_rate": 96000,
+      "completed": 2,
+      "errors": [],
+      "peak_pool_rss_bytes": 3408363520,
+      "peak_worker_rss_bytes": 3408363520,
+      "peak_active_workers": 1,
+      "elapsed_seconds": 47.834
+    },
+    {
+      "version": "optimized",
+      "sample_rate": 96000,
+      "completed": 2,
+      "errors": [],
+      "peak_pool_rss_bytes": 4453892096,
+      "peak_worker_rss_bytes": 2237087744,
+      "peak_active_workers": 2,
+      "elapsed_seconds": 24.871
+    },
+    {
+      "version": "baseline",
+      "sample_rate": 192000,
+      "completed": 2,
+      "errors": [],
+      "peak_pool_rss_bytes": 3511058432,
+      "peak_worker_rss_bytes": 3511058432,
+      "peak_active_workers": 1,
+      "elapsed_seconds": 49.658
+    },
+    {
+      "version": "optimized",
+      "sample_rate": 192000,
+      "completed": 2,
+      "errors": [],
+      "peak_pool_rss_bytes": 4466933760,
+      "peak_worker_rss_bytes": 2243018752,
+      "peak_active_workers": 2,
+      "elapsed_seconds": 26.236
+    }
+  ],
+  "comparisons": [
+    {
+      "sample_rate": 96000,
+      "max_error": 2.866145223379135e-07,
+      "pass": true
+    },
+    {
+      "sample_rate": 192000,
+      "max_error": 2.866145223379135e-07,
+      "pass": true
+    }
+  ],
+  "source_hashes": {
+    "baseline": {
+      "Resources/OfflineRender.py": "c021249dfe9fe8c47c13a45d0617fe1e728d44ceeb6ce06cd9ecb91976177a24",
+      "Resources/RenderMemory.py": "edecaa8cdfac8152a5054c51705d90efea405400927a0450ddcc5454e8a99a12",
+      "Resources/audio.py": "e74b83b9720f9a957d47a6e184ba607d28ea4e83531cd2cd6c320a3259548cca",
+      "Resources/modules/Multiband/MultiBandDelay.c5": "c70e0ff8e9cb138e52539d7af76d583ee40592cbdb30c8e1bd1ac206b3f470ba"
+    },
+    "optimized": {
+      "Resources/OfflineRender.py": "5677c01546417c2fd2446b5a726cdf55d2bdd9b43ad8a3f307c5b15caf11975d",
+      "Resources/RenderMemory.py": "ef5828621807fbbd4141e2eff276c28d063fc1802eddfceb04f89a1a9af3a7e7",
+      "Resources/audio.py": "dc5467b86295146d8ae9fdcd37e6b8f29887a8c5429c8823cc3406b0ea9704f8",
+      "Resources/modules/Multiband/MultiBandDelay.c5": "f7b2d107c36f0bc5970036c01fec52072860fb43ccf39f4231674716ff25e1c9"
+    }
+  }
+}

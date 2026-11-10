@@ -240,6 +240,36 @@ Reports are saved to [`tests/reports/large_file_1gb_performance.md`](reports/lar
 
 ## Native worker memory and large files
 
+Current worker-memory scheduling and high-rate checks are documented in
+[the optimization findings](reports/worker_memory_optimization.md). Discovery
+with native DSP fixtures enabled passes **167 tests / 68 skipped** (235 total),
+plus all six engine integration scenarios. Run the
+50-channel, 64 MiB input matrix across all 69 modules at 96 and 192 kHz with:
+
+```sh
+cecillia/bin/python tests/check_worker_memory_multichannel.py
+```
+
+Each case submits two identical jobs with four requested workers and an explicit
+8 GiB shared budget. It checks exact metadata, every sample for NaN/Inf, repeated
+output equality, process/scratch cleanup, and native pool RSS. Silent init
+outputs and timeouts remain distinct recorded outcomes. The default deadline is
+60 seconds per pair. `--module`, `--rates`, `--input-mib`, `--budget-mib`,
+`--timeout`, and `--report-prefix` select focused retests.
+Use `--output-channels 2` for a stereo-output diagnostic with the same
+50-channel input. `write_worker_memory_optimization.py` regenerates the current
+Markdown findings from the saved matrix, baseline comparison and validation JSON.
+
+`check_delay_memory_optimization.py --baseline-root /path/to/unmodified/source`
+compares two-job MultiBandDelay queues against a physically written 1 GiB,
+50-channel source at 96 and 192 kHz. It measures worker and pool RSS and compares
+baseline/optimized samples. It requires the matching unmodified source snapshot
+and writes a separate JSON artifact.
+
+The earlier native size sweeps below are retained as historical measurements;
+their fixed watchdog limits are test parameters, not the application's current
+shared RAM policy.
+
 ```sh
 cecillia/bin/python tests/check_offline_memory.py
 cecillia/bin/python tests/check_offline_memory.py --resume
@@ -252,7 +282,7 @@ cecillia/bin/python tests/check_offline_memory_paired.py
 
 The main sweep uses real 1 MiB/64 MiB/1 GiB/1.125 GiB payloads across all 69 modules, one native child at a time, with a sampled 3 GiB stop and 120-second deadline. It scans all output samples and checks exact metadata. File integrity, audible DSP correctness, timeouts and resource limits are distinct outcomes; silent cases are visible. Auxiliary-slot, 6/10 GiB input retries, and longer output retries are documented in [the findings](reports/offline_memory_findings.md). Do not run large-input copies together without budgeting their combined memory and disk use.
 
-The coordinator integration probe requests six workers with a 1.125 GiB spectral source/impulse, verifies memory-driven serial scheduling, activity events, chunk export, normalization and cleanup. Its spectral short-output result is silent and does not establish audible warmup correctness. These checks measure native child RAM rather than coordinator-only `RUSAGE_SELF`. Standalone packaging, other operating systems and arbitrary presets still need validation.
+The coordinator integration probe requests six workers with a 1.125 GiB spectral source/impulse and verifies the resulting RAM-driven worker allowance, activity events, chunk export, normalization and cleanup. Its recorded earlier run scheduled serially; the current shared budget may permit more workers. The spectral short-output result is silent and does not establish audible warmup correctness. These checks measure native child RAM rather than coordinator-only `RUSAGE_SELF`. Standalone packaging, other operating systems and arbitrary presets still need validation.
 
 ## Reported 50-channel MultiBandDelay conversion
 

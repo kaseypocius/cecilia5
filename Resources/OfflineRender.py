@@ -1954,7 +1954,8 @@ class _SubprocessWorkerHandle:
                 memory_limit = getattr(self, "memory_limit_bytes", None)
                 if memory_limit and now-last_memory_check >= 0.1:
                     from .RenderMemory import process_rss
-                    resident = process_rss(self._proc.pid)
+                    shared_usage = getattr(self, 'shared_memory_usage', None)
+                    resident = shared_usage() if shared_usage else process_rss(self._proc.pid)
                     last_memory_check = now
                     if resident is not None and resident > memory_limit:
                         # Keep this pool slot reusable after rejecting one large job.
@@ -1968,10 +1969,12 @@ class _SubprocessWorkerHandle:
                                     proc.kill()
                                     proc.wait()
                             self._close_pipes()
-                        raise MemoryError("Offline worker exceeded its memory budget "
+                        scope = "Offline workers exceeded the shared render memory budget " if shared_usage else "Offline worker exceeded its memory budget "
+                        raise MemoryError(scope +
                                           f"({resident/1024**3:.1f} GiB resident; "
                                           f"limit {memory_limit/1024**3:.1f} GiB). "
-                                          "Reduce input length or channel count.")
+                                          "Use fewer workers, reduce input length/channel count, "
+                                          "or increase the render RAM budget if memory is available.")
                 if cancel_event.is_set():
                     self.terminate()
                     raise InterruptedError("Render cancelled.")
@@ -2047,9 +2050,37 @@ class _WorkerPool:
         )
         self._available: "queue.Queue[_SubprocessWorkerHandle]" = queue.Queue()
         self._all_handles: List[_SubprocessWorkerHandle] = []
+        self._active_handles = set()
         self._handles_lock = threading.Lock()
+        self._memory_lock = threading.Lock()
         self._next_idx = 0
         self._shutting_down = False
+
+    def _shared_memory_usage(self, caller):
+        """Count all live pool processes; choose one active victim if over budget.
+
+        A worker may use idle peers' allowance. Selecting the largest active
+        worker avoids several concurrent guard loops killing every worker for
+        the same aggregate overage. Idle resident memory is included too.
+        """
+        from .RenderMemory import process_rss
+        with self._memory_lock:
+            with self._handles_lock:
+                handles = list(self._all_handles)
+                active = set(self._active_handles)
+            residents = {}
+            for handle in handles:
+                proc = getattr(handle, '_proc', None)
+                if proc is not None and proc.poll() is None:
+                    resident = process_rss(proc.pid)
+                    if resident is not None:
+                        residents[handle] = resident
+            total = sum(residents.values())
+            if total <= self.memory_limit_bytes:
+                return total
+            candidates = [handle for handle in residents if handle in active]
+            victim = max(candidates, key=residents.get, default=None)
+            return total if caller is victim else 0
 
     def _acquire(self, cancel_event: threading.Event) -> _SubprocessWorkerHandle:
         if cancel_event.is_set() or self._shutting_down:
@@ -2097,16 +2128,34 @@ class _WorkerPool:
         on_worker_end: Optional[Callable[[int], None]] = None,
     ) -> concurrent.futures.Future:
         def _task():
-            handle = self._acquire(cancel_event)
-            if on_worker_start:
-                on_worker_start(handle.worker_index)
+            reservations = getattr(self, 'memory_reservations', None)
+            amount = None
+            handle = None
             try:
+                if reservations is not None:
+                    from .RenderMemory import estimate_snapshot_memory, MIB
+                    estimate = (estimate_snapshot_memory(spec['snapshot'],
+                                int(spec.get('nchnls_override') or spec['snapshot']['output']['nchnls']), spec.get('sr'))
+                                if cmd == 'render' else 256*MIB)
+                    amount = reservations.acquire(estimate, cancel_event)
+                handle = self._acquire(cancel_event)
+                with self._handles_lock:
+                    self._active_handles.add(handle)
+                if on_worker_start:
+                    on_worker_start(handle.worker_index)
                 handle.memory_limit_bytes = getattr(self, "memory_limit_bytes", None)
+                if handle.memory_limit_bytes:
+                    handle.shared_memory_usage = lambda: self._shared_memory_usage(handle)
                 return handle.execute(cmd, spec, cancel_event, on_progress=on_progress)
             finally:
-                if on_worker_end:
-                    on_worker_end(handle.worker_index)
-                self._release(handle)
+                if handle is not None:
+                    with self._handles_lock:
+                        self._active_handles.discard(handle)
+                    if on_worker_end:
+                        on_worker_end(handle.worker_index)
+                    self._release(handle)
+                if amount is not None:
+                    reservations.release(amount)
 
         return self.executor.submit(_task)
 
@@ -2286,18 +2335,23 @@ class OfflineRenderManager:
 
     def _run_coordinator(self, jobs: List[RenderJob]):
         t_start = time.perf_counter()
-        from .RenderMemory import render_memory_budget, estimate_snapshot_memory, worker_limit, process_rss
+        from .RenderMemory import (render_memory_budget, estimate_snapshot_memory,
+                                   worker_limit, batch_worker_limit, process_rss, MemoryReservations)
         rss_monitoring_available = process_rss(os.getpid()) is not None
         memory_budget = render_memory_budget()
         memory_estimates = [estimate_snapshot_memory(job.snapshot, int(self.settings.nchnls or
-                            job.snapshot["output"]["nchnls"])) for job in jobs]
-        num_threads = worker_limit(memory_estimates, max(1, int(self.settings.num_threads)), memory_budget)
-        memory_worker_limit = num_threads if num_threads < max(1, int(self.settings.num_threads)) else None
-        if all(self._choose_single_strategy(job, len(jobs)) == "single" for job in jobs):
+                            job.snapshot["output"]["nchnls"]), self.settings.sr) for job in jobs]
+        independent = all(self._choose_single_strategy(job, len(jobs)) == "single" for job in jobs)
+        limit_function = batch_worker_limit if independent and len(jobs) > 1 else worker_limit
+        num_threads = limit_function(memory_estimates, max(1, int(self.settings.num_threads)), memory_budget)
+        usable_threads = min(max(1, int(self.settings.num_threads)), max(1, len(jobs))) if independent else max(1, int(self.settings.num_threads))
+        memory_worker_limit = num_threads if num_threads < usable_threads else None
+        if independent:
             # Unused pool slots must not reserve RAM away from the one active job.
             num_threads = min(num_threads, max(1, len(jobs)))
         pool = _WorkerPool(num_threads)
-        pool.memory_limit_bytes = memory_budget // num_threads
+        pool.memory_limit_bytes = memory_budget
+        pool.memory_reservations = MemoryReservations(memory_budget)
         self._pool = pool
 
         total_jobs = len(jobs)
@@ -2331,6 +2385,8 @@ class OfflineRenderManager:
                 "peak_db": peak_copy,
                 "workers": workers_copy,
                 "memory_worker_limit": memory_worker_limit,
+                "memory_budget_bytes": memory_budget,
+                "memory_estimate_bytes": max(memory_estimates, default=0),
             })
 
         def set_worker_active(widx: int, label: str):

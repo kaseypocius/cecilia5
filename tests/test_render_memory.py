@@ -15,9 +15,9 @@ class RenderMemoryTests(unittest.TestCase):
                 stream.write(np.zeros((1000,1)))
             slot={'path':path,'type':'cfilein','offinput':.25}
             snap={'modules':[{'settings':{'userInputs':{'input':slot}}}]}
-            self.assertEqual(estimate_snapshot_memory(snap,64),256*MIB+2*750*64*8)
+            self.assertEqual(estimate_snapshot_memory(snap,64),256*MIB+2*750*64*4)
             slot['type']='csampler'
-            self.assertEqual(estimate_snapshot_memory(snap,64),256*MIB+2*750*8)
+            self.assertEqual(estimate_snapshot_memory(snap,64),256*MIB+2*750*4)
             slot['mode']=1
             self.assertEqual(estimate_snapshot_memory(snap,64),256*MIB)
 
@@ -25,6 +25,170 @@ class RenderMemoryTests(unittest.TestCase):
         self.assertEqual(worker_limit([3*1024**3],8,10*1024**3),3)
         self.assertEqual(worker_limit([256*MIB],4,10*1024**3),4)
         self.assertEqual(worker_limit([20*1024**3],8,10*1024**3),1)
+
+    def test_native_precision_changes_table_estimate(self):
+        import sys
+        from types import SimpleNamespace
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory() as folder:
+            path = str(Path(folder)/'input.wav')
+            with AudioWriter(path, 1000, 2, 1000) as stream:
+                stream.write(np.zeros((1000, 2)))
+            snap = {'modules': [{'settings': {'userInputs': {'snd': {
+                'path': path, 'type': 'csampler'}}}}]}
+            for precision, width in [('32 bit', 4), ('64 bit', 8)]:
+                lib = SimpleNamespace(getVar=lambda key: precision)
+                with self.subTest(precision=precision), patch.dict(sys.modules, {'Resources.CeciliaLib': lib}):
+                    self.assertEqual(estimate_snapshot_memory(snap, 2), 256*MIB+2*1000*2*width)
+
+    def test_mixed_batch_capacity_does_not_charge_every_job_the_largest_size(self):
+        from Resources.RenderMemory import batch_worker_limit
+        self.assertEqual(batch_worker_limit([900*MIB, 300*MIB, 300*MIB, 300*MIB], 4, 1024*MIB), 3)
+        self.assertEqual(batch_worker_limit([2048*MIB], 4, 1024*MIB), 1)
+
+
+class SharedPoolMemoryTests(unittest.TestCase):
+    def run_native_pool(self, allocations, budget):
+        import sys
+        import threading
+        from unittest.mock import patch
+        from Resources.OfflineRender import _WorkerPool, _SubprocessWorkerHandle, EVENT_PREFIX
+        from Resources.RenderMemory import process_rss
+        if process_rss(os.getpid()) is None:
+            self.skipTest('Native RSS telemetry unavailable')
+        with tempfile.TemporaryDirectory() as folder:
+            script = Path(folder)/'child.py'
+            script.write_text('import json,sys,time\n'
+                + f'prefix={EVENT_PREFIX!r}\n'
+                + 'print(prefix+json.dumps({"type":"ready"}),file=sys.stderr,flush=True)\n'
+                + 'for line in sys.stdin:\n'
+                + ' request=json.loads(line)\n'
+                + ' if request["cmd"]=="quit":break\n'
+                + ' allocation=bytearray(request["spec"]["bytes"])\n'
+                + ' time.sleep(.5)\n'
+                + ' print(prefix+json.dumps({"type":"done"}),file=sys.stderr,flush=True)\n'
+                + ' del allocation\n')
+            command = ([sys.executable, str(script)], folder, os.environ.copy())
+            with patch.object(_SubprocessWorkerHandle, '_build_cmd', return_value=command):
+                pool = _WorkerPool(2)
+                pool.memory_limit_bytes = budget
+                try:
+                    futures = [pool.submit_task('render', {'bytes': value}, threading.Event())
+                               for value in allocations]
+                    results = []
+                    for future in futures:
+                        try:
+                            results.append(future.result(timeout=5))
+                        except MemoryError as error:
+                            results.append(error)
+                    return results
+                finally:
+                    pool.shutdown()
+
+    def test_heavy_worker_can_borrow_light_workers_unused_share(self):
+        results = self.run_native_pool([80*MIB, MIB], 128*MIB)
+        self.assertTrue(all(isinstance(result, dict) for result in results), results)
+
+    def test_aggregate_guard_stops_over_budget_combination(self):
+        results = self.run_native_pool([80*MIB, 80*MIB], 128*MIB)
+        failures = [result for result in results if isinstance(result, MemoryError)]
+        self.assertEqual(len(failures), 1, results)
+        self.assertIn('shared render memory budget', str(failures[0]))
+
+    def test_cancelled_memory_waiter_returns_without_leaking_reservation(self):
+        import threading
+        from Resources.RenderMemory import MemoryReservations
+        reservations = MemoryReservations(512*MIB)
+        held = reservations.acquire(512*MIB, threading.Event())
+        cancelled = threading.Event()
+        cancelled.set()
+        with self.assertRaises(InterruptedError):
+            reservations.acquire(256*MIB, cancelled)
+        self.assertEqual(reservations.used, held)
+        reservations.release(held)
+        self.assertEqual(reservations.used, 0)
+
+    def test_mixed_queue_reserves_each_jobs_memory(self):
+        import threading
+        import time
+        from unittest.mock import patch
+        from Resources.OfflineRender import OfflineRenderManager, RenderSettings, RenderJob
+        lock = threading.Lock()
+        active = set()
+        peak_small = [0]
+        small_jobs = threading.Barrier(3)
+        class Handle:
+            def __init__(self, index): self.worker_index=index; self._closed=False
+            def execute(self, cmd, spec, cancel_event, on_progress=None):
+                name = spec['job_id']
+                with lock:
+                    if name == 'large':
+                        assert not active, active
+                    else:
+                        assert 'large' not in active, active
+                    active.add(name)
+                    peak_small[0] = max(peak_small[0], len(active-{'large'}))
+                try:
+                    if name == 'large': time.sleep(.1)
+                    else: small_jobs.wait(timeout=3)
+                    return {'duration': 1, 'peak_db': -90, 'module_results': {}}
+                finally:
+                    with lock: active.remove(name)
+            def close(self): self._closed=True
+            def terminate(self): self._closed=True
+        with tempfile.TemporaryDirectory() as folder:
+            jobs = []
+            for name, size in [('large', 900*MIB), ('s1', 300*MIB), ('s2', 300*MIB), ('s3', 300*MIB)]:
+                snap = {'modules': [], 'estimate': size, 'output': {'totalTime': 1, 'nchnls': 2}}
+                jobs.append(RenderJob(name, name, str(Path(folder)/(name+'.wav')), snap))
+            with patch('Resources.RenderMemory.render_memory_budget', return_value=1024*MIB), \
+                 patch('Resources.RenderMemory.estimate_snapshot_memory', side_effect=lambda snap, channels, rate=None: snap['estimate']), \
+                 patch('Resources.OfflineRender._SubprocessWorkerHandle', Handle):
+                result = OfflineRenderManager(RenderSettings(num_threads=4, accel_mode='single')).run_blocking(jobs)
+        self.assertEqual((result.completed, result.failed), (4, 0), [job.error for job in jobs])
+        self.assertEqual(peak_small[0], 3)
+
+
+class OfflineDelayCapacityTests(unittest.TestCase):
+    def test_fixed_delay_buffer_includes_sample_margin_and_automation_falls_back(self):
+        from Resources.RenderMemory import delay_buffer_seconds
+        self.assertAlmostEqual(delay_buffer_seconds(15, [.5, .25, .33, .66], 96000), .66+4/96000)
+        self.assertEqual(delay_buffer_seconds(15, [.5, None], 96000), 15)
+        self.assertEqual(delay_buffer_seconds(15, [float('nan')], 96000), 15)
+        self.assertEqual(delay_buffer_seconds(15, [20], 96000), 15)
+
+    def test_live_controls_and_offline_automation_keep_full_delay_capacity(self):
+        import ast
+        from types import SimpleNamespace
+        from unittest.mock import patch
+        tree = ast.parse((Path(__file__).resolve().parents[1]/'Resources/audio.py').read_text())
+        base = next(node for node in tree.body if isinstance(node, ast.ClassDef) and node.name == 'BaseModule')
+        method = next(node for node in base.body if isinstance(node, ast.FunctionDef) and node.name == '_offline_delay_max_seconds')
+        slider = SimpleNamespace(getName=lambda: 'delay', getValue=lambda: .5,
+                                 getPlay=lambda: False, getWithMidi=lambda: False,
+                                 getWithOSC=lambda: False)
+        lib = SimpleNamespace(getVar=lambda key: [slider])
+        namespace = {'os': os, 'CeciliaLib': lib, '__package__': 'Resources'}
+        exec(compile(ast.Module(body=[method], type_ignores=[]), '<delay capacity>', 'exec'), namespace)
+        capacity = namespace['_offline_delay_max_seconds']
+        owner = SimpleNamespace(sr=96000)
+        with patch.dict(os.environ, {'CECILIA_OFFLINE_WORKER': '0'}):
+            self.assertEqual(capacity(owner, 15, 'delay'), 15)
+        with patch.dict(os.environ, {'CECILIA_OFFLINE_WORKER': '1'}):
+            self.assertAlmostEqual(capacity(owner, 15, 'delay'), .5+4/96000)
+            slider.getPlay = lambda: True
+            self.assertEqual(capacity(owner, 15, 'delay'), 15)
+
+    def test_delay_memory_scales_with_rate_and_automated_capacity(self):
+        snap = {'modules': [{'module_path': 'MultiBandDelay.c5', 'settings': {'userSliders': {}}}]}
+        low = estimate_snapshot_memory(snap, 50, 48000)
+        high = estimate_snapshot_memory(snap, 50, 192000)
+        self.assertGreater(high, low)
+        snap['modules'][0]['settings']['userSliders']['del1'] = [.5, 1]
+        self.assertGreater(estimate_snapshot_memory(snap, 50, 192000), high*5)
+        snap['modules'][0]['module_path'] = 'WGuideBank.c5'
+        waveguides = estimate_snapshot_memory(snap, 50, 192000)-256*MIB
+        self.assertEqual(waveguides, int(.8*50*50*192000*4))
 
 
 class BudgetCalculationAndOverrideTests(unittest.TestCase):
@@ -193,7 +357,8 @@ class MemoryFailureCleanupTests(unittest.TestCase):
         self.assertTrue(observed)
         self.assertTrue(all(value==(1,4*1024**3) for value in observed))
 
-        self.assertTrue(any(event.get('memory_worker_limit')==2 for event in progress))
+        self.assertTrue(all(event.get('memory_worker_limit') is None for event in progress))
+        self.assertTrue(all(event['memory_budget_bytes']==4*1024**3 for event in progress))
 
 
 
@@ -284,7 +449,7 @@ class ConservativeEstimateTrialTests(unittest.TestCase):
                  patch('Resources.RenderMemory.estimate_snapshot_memory',return_value=int(14.6*1024**3)):
                 result=manager.run_blocking([job])
             self.assertEqual((result.completed,result.failed),(1,0),job.error)
-            self.assertTrue(any(event.get('memory_worker_limit')==1 for event in events))
+            self.assertTrue(all(event.get('memory_worker_limit') is None for event in events))
             self.assertTrue(all(len(event['workers'])==1 for event in events))
             with AudioReader(target) as reader:
                 self.assertEqual((reader.info.frames,reader.info.channels),(19200,2))

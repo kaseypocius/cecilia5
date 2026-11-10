@@ -1,0 +1,24 @@
+{
+  "date": "2026-11-10",
+  "total": 235,
+  "passed": 167,
+  "skipped": 68,
+  "failed": 0,
+  "engine_scenarios_passed": 6,
+  "matrix_cases": 138,
+  "matrix_passed": 134,
+  "matrix_silent_completed": 12,
+  "source_hashes": {
+    "Resources/RenderMemory.py": "d5a2d7aa1d5e21d5c0e79884be2410bc120faf4b357107db2d74a06d242a60f9",
+    "Resources/OfflineRender.py": "a8cae88f61868440ac66d96d8b435309df97a97cda012449731617f49b303ba4",
+    "Resources/OfflineRenderDialog.py": "a98c1dc45b5530266b35ddc1ec162f9de37f653e12657f1bf7f5887b9aae79ec",
+    "Resources/audio.py": "dc5467b86295146d8ae9fdcd37e6b8f29887a8c5429c8823cc3406b0ea9704f8",
+    "Resources/modules/Multiband/MultiBandDelay.c5": "f7b2d107c36f0bc5970036c01fec52072860fb43ccf39f4231674716ff25e1c9"
+  },
+  "matrix_source_hashes": {
+    "Resources/RenderMemory.py": "ef5828621807fbbd4141e2eff276c28d063fc1802eddfceb04f89a1a9af3a7e7",
+    "Resources/OfflineRender.py": "5677c01546417c2fd2446b5a726cdf55d2bdd9b43ad8a3f307c5b15caf11975d",
+    "Resources/OfflineRenderDialog.py": "a98c1dc45b5530266b35ddc1ec162f9de37f653e12657f1bf7f5887b9aae79ec"
+  },
+  "later_scheduling_adjustments": "After the matrix started, only the short-queue progress label and the WGuideBank admission estimate were corrected. Native DSP code, shared RSS guard, reservations, and tested two-job execution remain unchanged; focused memory tests were rerun."
+}

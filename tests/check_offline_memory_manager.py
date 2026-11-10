@@ -56,7 +56,7 @@ def main():
                 with AudioReader(output) as reader:
                     assert (reader.info.frames,reader.info.channels,reader.info.sample_rate)==(4*SR,CHANNELS,SR)
                 row['peak']=audio_peak(output)
-                assert pool_size[0]==1,'Large analysis/IR job should run serially within the memory budget'
+                assert 1 <= pool_size[0] <= manager.settings.num_threads,'Invalid worker allowance'
                 assert row['activity_seen'],'Coordinator did not report worker activity'
                 assert manager._pool is None and not manager._temp_dirs,'Coordinator left workers or scratch registrations'
             rows.append(row);report.write_text(json.dumps(rows,indent=2)+'\n');print(json.dumps(row),flush=True)

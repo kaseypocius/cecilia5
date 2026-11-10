@@ -840,6 +840,20 @@ class BaseModule:
         self._metro = Metro(.06).play(dur=self.totalTime)
         self._updater = TrigFunc(self._metro, self._updateWidgets).play(dur=self.totalTime)
 
+    def _offline_delay_max_seconds(self, maximum, *names):
+        """Use compact buffers only for fixed controls in a headless render."""
+        if os.environ.get('CECILIA_OFFLINE_WORKER') != '1':
+            return maximum
+        sliders = {slider.getName(): slider for slider in CeciliaLib.getVar('userSliders')}
+        values = []
+        for name in names:
+            slider = sliders.get(name)
+            if slider is None or slider.getPlay() or slider.getWithMidi() or slider.getWithOSC():
+                return maximum
+            values.append(slider.getValue())
+        from .RenderMemory import delay_buffer_seconds
+        return delay_buffer_seconds(maximum, values, self.sr)
+
     ###### Public methods ######
     def addFilein(self, name):
         """

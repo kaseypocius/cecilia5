@@ -104,7 +104,7 @@ def main():
             assert np.all(errors<=1),f'Channel/pitch mismatch: {detected.tolist()}'
             peak_amp=audio_peak(target)
             assert peak_amp>1e-7,'Silent output'
-            assert max(pool_sizes)==1,'Expected a single monitored worker'
+            assert 1 <= max(pool_sizes) <= settings.num_threads,'Invalid worker allowance'
             assert row['activity_seen']
             assert manager._pool is None and not manager._temp_dirs
             row.update(output_frames=info.frames,output_sample_rate=info.sample_rate,output_channels=info.channels,

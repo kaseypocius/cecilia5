@@ -1,0 +1,49 @@
+{
+  "source_hashes": {
+    "Resources/RenderMemory.py": "ef5828621807fbbd4141e2eff276c28d063fc1802eddfceb04f89a1a9af3a7e7",
+    "Resources/OfflineRender.py": "5677c01546417c2fd2446b5a726cdf55d2bdd9b43ad8a3f307c5b15caf11975d",
+    "Resources/OfflineRenderDialog.py": "a98c1dc45b5530266b35ddc1ec162f9de37f653e12657f1bf7f5887b9aae79ec",
+    "Resources/audio.py": "dc5467b86295146d8ae9fdcd37e6b8f29887a8c5429c8823cc3406b0ea9704f8",
+    "Resources/modules/Multiband/MultiBandDelay.c5": "f7b2d107c36f0bc5970036c01fec52072860fb43ccf39f4231674716ff25e1c9"
+  },
+  "cases": [
+    {
+      "module": "Filters/Binaural.c5",
+      "sample_rate": 96000,
+      "input_channels": 50,
+      "output_channels": 2,
+      "input_bytes": 67109272,
+      "budget_bytes": 8589934592,
+      "estimated_worker_bytes": 402653056,
+      "peak_pool_rss_bytes": 459653120,
+      "peak_active_workers": 2,
+      "elapsed_seconds": 5.53,
+      "status": "pass",
+      "errors": [],
+      "peak_sample": 0.704734742641449,
+      "silent": false,
+      "repeat_max_error": 0.0,
+      "repeat_matches": true,
+      "cleanup_complete": true
+    },
+    {
+      "module": "Filters/Binaural.c5",
+      "sample_rate": 192000,
+      "input_channels": 50,
+      "output_channels": 2,
+      "input_bytes": 67109272,
+      "budget_bytes": 8589934592,
+      "estimated_worker_bytes": 402653056,
+      "peak_pool_rss_bytes": 468713472,
+      "peak_active_workers": 2,
+      "elapsed_seconds": 9.133,
+      "status": "pass",
+      "errors": [],
+      "peak_sample": 0.5761124491691589,
+      "silent": false,
+      "repeat_max_error": 0.0,
+      "repeat_matches": true,
+      "cleanup_complete": true
+    }
+  ]
+}

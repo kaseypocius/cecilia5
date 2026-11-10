@@ -184,7 +184,7 @@ class WorkerActivityTests(unittest.TestCase):
         first = {'workers':[{'active':False,'label':'Idle','fraction':0.0}]}
         last = {'workers':[{'active':True,'label':'Preparing','fraction':0.0}],
                 'overall_fraction':0,'completed_jobs':0,'total_jobs':1,'elapsed':.5,'eta':None,
-                'memory_worker_limit':2}
+                'memory_worker_limit':2, 'memory_budget_bytes':6*1024**3}
         with patch('Resources.OfflineRenderDialog.wx.CallAfter') as queued:
             OfflineRenderDialog._on_worker_progress_bg(panel,first)
             OfflineRenderDialog._on_worker_progress_bg(panel,last)
@@ -192,6 +192,7 @@ class WorkerActivityTests(unittest.TestCase):
         OfflineRenderDialog._flush_progress_ui(panel)
         panel.worker_lanes.update_workers.assert_called_once_with(last['workers'])
         self.assertIn('RAM budget: up to 2 worker(s)',panel.progress_bar.set_state.call_args.args[1])
+        self.assertIn('6.0 GiB shared RAM', panel.progress_bar.set_state.call_args.args[1])
 
 
 if __name__ == '__main__':

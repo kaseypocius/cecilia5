@@ -402,13 +402,31 @@ The standard sweep recorded **552 cases: 507 completed file/memory checks, 28 no
 
 - Normalization, peak scanning, trim/re-encoding, chunk stitching and branch accumulation now process bounded blocks rather than whole-file float64 arrays/Python lists. Branch mastering streams the intermediate file through the native graph.
 - Native module input tables still load complete files. Separate workers each have their own tables; mono `cfilein` can replicate a table across output channels. DSP analysis buffers require additional memory.
-- The coordinator budgets up to 75% of physical RAM and 85% of reported available RAM (expanded from the prior 35% and 50% limits), estimates decoded input memory including mono replication, and schedules concurrent workers accordingly. Users can explicitly override this allocation via environment variables (`CECILIA_RAM_BUDGET_BYTES`, `CECILIA_RAM_BUDGET_MB`, `CECILIA_RAM_BUDGET_GB`, or `CECILIA_RAM_BUDGET_FRACTION`) or preferences (`offlineRamBudgetMB`, `offlineRamBudgetFraction`). Estimates control scheduling, not automatic rejection: when resident-memory monitoring is available, a job estimated above the budget is tried with one worker under the actual RSS cap. Without monitoring, that estimate is still rejected before creating output files. Auto mode uses one pass when only one worker is allowed, avoiding serial chunk replay.
-- On macOS/Linux it also samples actual worker RSS and stops a worker exceeding its share of the budget. This is sampled protection, not a hard allocation cap. RAM telemetry on other platforms and standalone packaged builds remains unverified.
+- The coordinator budgets up to 75% of physical RAM and 85% of reported available RAM (expanded from the prior 35% and 50% limits). Normal pyo input tables use four bytes per sample; pyo64 uses eight. Decoded inputs retain copy headroom, and mono `cfilein` replication plus conservative spectral/IR allowances are included. The estimate also accounts for the large delay banks in shipped modules as sample rate and channel count increase. Explicit overrides remain available through `CECILIA_RAM_BUDGET_BYTES`, `CECILIA_RAM_BUDGET_MB`, `CECILIA_RAM_BUDGET_GB`, `CECILIA_RAM_BUDGET_FRACTION`, or preferences `offlineRamBudgetMB` / `offlineRamBudgetFraction`.
+- RAM is shared across the worker pool. Independent queue jobs reserve their own estimated memory, so one large queue entry no longer forces every small entry to run at the largest entry's concurrency limit. An individual worker can borrow the unused allowance of smaller or idle workers. On macOS/Linux, the resident-memory guard sums all live pool processes; if the sum exceeds the render budget, it stops the largest active worker. Idle process RSS also counts. This is sampled protection, not a hard allocation cap; native allocations can overshoot between checks. RAM telemetry on other platforms and standalone packaged builds remains unverified.
+- Estimates control admission, not automatic rejection: with resident-memory monitoring, an estimated oversized job is tried alone against the shared RSS budget. Without monitoring it is rejected before output files are created. Auto mode uses one pass when only one worker is allowed, avoiding serial chunk replay. The progress display reports both the estimated worker allowance and the shared GiB budget.
+- MultiBandDelay uses compact native delay buffers for fixed controls in headless offline workers. Its init delays need approximately 0.66 seconds of capacity instead of four full 15-second banks per channel. A four-sample margin covers the fractional-delay guard. Automation, unknown controls and live playback retain the full capacity. No delay values, feedback, routing or module defaults are changed.
 - Cancellation/errors remove incomplete outputs and destination-specific encoder temporary files after workers stop. Completed outputs, untouched existing destinations on failure/cancellation, and files rejected before dispatch are retained.
 
 A 64 MiB normalization probe dropped from **492.6 MB to 60.8 MB RSS** after streaming. Physically written 1.125 GiB helper cases completed with approximately **76–87 MB RSS** for normalization/encoding/trim, **157 MB** for stitching, and **211 MB** for branch mixing/mastering; the mixer check compares every sample after its startup ramp. See [measured utility results](tests/reports/offline_memory_utilities_final.jsonl). Output sizes vary with encoding; the AIFF24 output uses three bytes per sample.
 
 Temporary renders and atomic normalization also consume disk space. Retain headroom for intermediates and OS swap; there is no fixed free-disk threshold that guarantees a render will fit RAM. Use a single worker when memory, rather than CPU throughput, limits the job.
+
+#### Limits that remain
+
+Worker processes each construct a complete DSP graph and load their own native
+input tables. Time chunks replay signal history from the original session
+origin; they do not load just a small slice of the source. Convolution impulse
+filters, spectral histories, polyphony, and delay banks add memory beyond the
+audio file's on-disk size. Raising the output rate increases rate-dependent
+buffers. Consequently, selecting ten workers does not guarantee that ten such
+graphs fit in RAM, or that chunk replay speeds up one render. Sharing pyo tables
+between independent processes would require a different native storage and DSP
+architecture.
+
+The [worker-memory optimization findings](tests/reports/worker_memory_optimization.md)
+record the current multichannel/high-rate checks and remaining limits. Earlier
+memory tables below remain historical measurements of their recorded sources.
 
 Three paired probes also completed with **1.125 GiB inputs and outputs simultaneously** (StateVar2, MultiBandDelay, ConvolutionReverb with a small IR), peaking around **1.26–1.35 GiB RSS**. See [paired results](tests/reports/offline_memory_paired.jsonl). The full 69-module matrix varies input/output growth separately.
 

@@ -1,5 +1,10 @@
 # Offline renderer memory findings
 
+The current scheduler and new high-channel/high-rate results are documented in
+[worker-memory optimization findings](worker_memory_optimization.md). The size
+sweeps and tables below are historical measurements with their original source
+fingerprints and explicit watchdog limits.
+
 The standard size sweep is complete. Recorded 552/552 cases; 0 need retesting after source changes.
 
 Whole-file post-processing amplified memory, and parallel workers each loaded their own input tables. Earlier large-file reports measured coordinator-only `RUSAGE_SELF`, excluding native workers. Their sub-140-MB numbers did not bound renderer memory or test gigabyte outputs. Historical reports now state that limit.
@@ -7,8 +12,8 @@ Whole-file post-processing amplified memory, and parallel workers each loaded th
 ## Changes
 
 - Stream peak scans, normalization, trim/encoding, chunk stitching and branch accumulation in bounded blocks. Stream mixed branches through the native master graph instead of another full audio table.
-- Estimate decoded inputs, mono `cfilein` replication, full spectral histories, and replicated convolution filters. Reduce worker count within at most 35% of physical RAM and half reported available RAM. Try estimates above the budget with one RSS-monitored worker. Reject such estimates only when resident-memory monitoring is unavailable. Auto mode uses one pass when the worker allowance is one.
-- Sample real worker RSS on macOS/Linux and stop an over-budget worker with an explicit error. A lone single-pass job gets the whole budget. The UI explains the RAM worker allowance. Sampling is best-effort protection, not a hard allocation cap.
+- Current scheduling uses up to 75% of physical RAM and 85% of available RAM, precision-aware input estimates, rate-dependent delay-bank estimates and per-task reservations. The budget is shared across the pool; aggregate native RSS replaces rigid per-worker slices. The measurements below retain their original watchdog settings and source fingerprints.
+- Sample aggregate live-worker RSS on macOS/Linux and stop the largest active worker when the shared budget is exceeded. Oversized estimates get one monitored attempt; without telemetry, preflight rejection remains. Auto mode avoids replaying chunks with only one worker. Sampling is best-effort protection, not a hard allocation cap.
 - Reap stopped workers and clean incomplete destinations plus destination-specific atomic encoder files. Admission rejection and failure before any write preserve an existing destination. Cleanup compares its original file signature, including when a later queued overwrite fails.
 - Guard reproduced circular-read NaNs in MultiBandDelay and DetunedResonators, and fix DetunedResonators voice activation for mono/multichannel output.
 

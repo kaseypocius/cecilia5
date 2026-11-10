@@ -1700,6 +1700,9 @@ class OfflineRenderDialog(wx.Frame):
         memory_limit = ev.get("memory_worker_limit")
         if memory_limit is not None:
             lbl += f" • RAM budget: up to {int(memory_limit)} worker(s)"
+        budget = ev.get('memory_budget_bytes')
+        if budget:
+            lbl += f" • {budget/1024**3:.1f} GiB shared RAM"
         if self.is_rendering:
             self.progress_bar.set_state(frac, lbl, accent="#2EA043")
         self.worker_lanes.update_workers(ev.get("workers", []))

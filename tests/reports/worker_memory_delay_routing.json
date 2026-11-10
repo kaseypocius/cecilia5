@@ -1,0 +1,29 @@
+{
+  "module": "Multiband/MultiBandDelay.c5",
+  "checks": {
+    "single_master_and_tap_format": true,
+    "chunk_master_and_tap_format": true,
+    "chunks_master": {
+      "max_error": 0.0,
+      "seam_max_error": 0.0,
+      "rms_error": 0.0,
+      "pass": true
+    },
+    "chunks_a": {
+      "max_error": 0.0,
+      "seam_max_error": 0.0,
+      "rms_error": 0.0,
+      "pass": true
+    },
+    "branch_stem_formats": true,
+    "parallel_routing": {
+      "max_error": 7.450580596923828e-09,
+      "seam_max_error": 3.725290298461914e-09,
+      "rms_error": 5.597377753893142e-10,
+      "pass": true
+    }
+  },
+  "errors": [],
+  "peak": 0.06367577612400055,
+  "status": "pass"
+}

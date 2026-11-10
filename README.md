@@ -15,6 +15,11 @@ Cecilia comes with a rich library of original built-in modules for pitch shiftin
 This build includes upstream 5.5.1 session-path fixes and desktop registration,
 plus the local offline-render features below.
 
+- **Worker RAM scheduling**: Shared pool-wide RSS monitoring, memory reservations
+  for each queue entry, precision-aware table estimates and compact fixed-delay
+  buffers in MultiBandDelay. See the [memory findings](tests/reports/worker_memory_optimization.md)
+  for the high-channel/high-rate checks and limits that remain.
+
 - **Offline Render Studio**: A dedicated non-modal render studio (`Ctrl+Shift+R` / `Cmd+Shift+R` or via the Control Panel `[Offline Render]` button) featuring:
   - **Single Bounce**: Offline timeline bouncing with input sound duration matching.
   - **Batch Presets**: Batch-render all or selected module presets.
@@ -111,7 +116,7 @@ python3 tests/test_offline_ui.py
 
 The latest format retest passes **552/552 cases across all 69 modules**, plus
 **10 audible diagnostics** for silent init cases and **300 repeated pitch-module
-renders**. Current discovery passes with **135 passed / 66 skipped** (201 tests). Integer
+renders**. Current discovery passes with **167 passed / 68 skipped** (235 tests). Integer
 exports now saturate safely, float scratch paths avoid FLAC container conflicts,
 and harmonizer windows avoid the reproduced unison boundary instability.
 See the [format findings](tests/reports/multichannel_findings.md),
