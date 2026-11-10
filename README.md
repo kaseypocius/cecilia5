@@ -10,7 +10,10 @@ Cecilia comes with a rich library of original built-in modules for pitch shiftin
 
 ---
 
-## What's New in Version 5.6.0
+## What's New in This Local Build
+
+This build includes upstream 5.5.1 session-path fixes and desktop registration,
+plus the local offline-render features below.
 
 - **Offline Render Studio**: A dedicated non-modal render studio (`Ctrl+Shift+R` / `Cmd+Shift+R` or via the Control Panel `[Offline Render]` button) featuring:
   - **Single Bounce**: Offline timeline bouncing with input sound duration matching.
@@ -55,6 +58,11 @@ pip install cecilia
 cecilia
 ```
 
+After installation, run `cecilia-register-desktop` from the same Python
+environment to add an application-menu entry, Windows Start menu shortcut, or
+macOS launcher in `~/Applications/Cecilia5.app`. The environment must remain
+installed for the launcher to work.
+
 ### Run from Source
 1. Clone or download the repository:
    ```sh
@@ -69,6 +77,10 @@ cecilia
    ```sh
    python3 Cecilia5.py
    ```
+
+To use desktop registration with this customized source build, install it in
+your active Python environment with `python3 -m pip install -e . --no-deps`,
+then run `cecilia-register-desktop` from that environment.
 
 ---
 

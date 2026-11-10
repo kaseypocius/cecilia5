@@ -1,5 +1,14 @@
 # Changes #
 
+## Version 5.5.1 ##
+
+- Added the `cecilia-register-desktop` command to create an application-menu
+  entry on Linux, a Start menu shortcut on Windows, and an app launcher on macOS.
+
+- Fixed paths in `.c5chain` session files. Built-in modules now load from the
+  current Cecilia installation, and sound-file paths are saved as absolute paths.
+  Existing sessions with legacy paths still load.
+
 ## Offline renderer memory fixes and gigabyte audit
 
 - Stream normalization, re-encoding, peak scans, chunk stitching and branch mixing in bounded blocks; stream mixed branches through the native master graph.
@@ -111,7 +120,7 @@ Key engine hardening fixes implemented:
 - **Disk and swap headroom**: Large multichannel renders also create intermediate files. Free disk affects storage/swap availability, but no fixed 10–15 GB threshold guarantees or explains an out-of-memory failure. The current audit measures native worker RAM directly.
 - **Historical 1.00 GB input benchmark**: The earlier 42 scenarios rendered short 5–30 second outputs from large inputs. Its RSS figures measured only the coordinator and exclude native workers; they do not establish bounded renderer RAM or gigabyte-output behavior. The [historical throughput report](tests/reports/large_file_1gb_performance.md) is retained with that correction.
 
-## Version 5.6.0 ##
+## Local offline-render additions (based on 5.5.1) ##
 
 - **Offline Render Studio**:
   - Added a dedicated, non-modal **Offline Render Studio** window (`OfflineRenderDialog`) for high-speed offline audio rendering without real-time playback limitations.
@@ -241,7 +250,7 @@ Key engine hardening fixes implemented:
 - Restored missing bundled presets and included them in distribution packages.
 
 - Added standard Python packaging and a `cecilia` command, with installation via
-  `pip install cecilia`. Python 3.11 or newer is required.
+  `pip install -U cecilia`. Python 3.11 or newer is required.
 
 - Improved numeric-entry mouse handling and fixed duration-slider behavior,
   graph-line drawing, and sound-file popup menus that previously worked only once.
