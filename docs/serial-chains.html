@@ -5,10 +5,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Audio routing graphs &#8212; Cecilia 5.5.0 documentation</title>
+    <title>Audio routing graphs &#8212; Cecilia 5.5.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="_static/nature.css?v=d77cbbe1" />
-    <script src="_static/documentation_options.js?v=a385a3de"></script>
+    <script src="_static/documentation_options.js?v=07fd27c7"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="icon" href="_static/Cecilia5.ico"/>
@@ -25,7 +25,7 @@
         <li class="right" >
           <a href="src/interface/interface.html" title="Cecilia Interface"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Cecilia 5.5.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Cecilia 5.5.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Audio routing graphs</a></li> 
       </ul>
     </div>  
@@ -150,10 +150,13 @@ passes through its input.</p>
 </div>
 <p>Save Session preserves modules, source roles, the reference source, connections,
 node positions, output connections, and settings in a <code class="docutils literal notranslate"><span class="pre">.c5chain</span></code> file. Settings are stored directly, rather than
-as references to preset files, and module and asset paths are relative where
-possible. Version 1 sessions open as equivalent serial graphs and version 2 graphs retain
-their single source and routing. New saves use version 3, which older Cecilia
-versions cannot read. Module sources and
+as references to preset files. Built-in modules are identified by category and
+filename and loaded from the running Cecilia installation. Audio input paths
+are absolute; custom module and output paths are relative where possible.
+Version 1 sessions open as equivalent serial graphs and version 2 graphs retain
+their single source and routing. Versions 1–3 still load, including their legacy
+installation paths and relative audio paths. New saves use version 4, which older
+Cecilia versions cannot read. Module sources and
 required audio assets must remain available. A failed load leaves the current
 session available. Open Recent Session lists the ten most recently opened or
 saved sessions, separately from recent modules.</p>
@@ -233,7 +236,7 @@ automatically for downstream use.</p>
         <li class="right" >
           <a href="src/interface/interface.html" title="Cecilia Interface"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Cecilia 5.5.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Cecilia 5.5.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Audio routing graphs</a></li> 
       </ul>
     </div>
