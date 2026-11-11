@@ -77,8 +77,13 @@ def main():
         report['reason'] = f'{type(error).__name__}: {error}'
     finally:
         args.report.parent.mkdir(parents=True, exist_ok=True)
-        args.report.write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')
-        print(json.dumps(report, indent=2))
+        rendered = json.dumps(report, indent=2)
+        args.report.write_text(rendered + '\n', encoding='utf-8')
+        if os.environ.get('GITHUB_STEP_SUMMARY'):
+            with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as summary:
+                summary.write('## Native Windows popup results\n\n```json\n'
+                              + rendered + '\n```\n')
+        print(rendered)
     return 0 if report['status'] == 'passed' else 1
 
 
