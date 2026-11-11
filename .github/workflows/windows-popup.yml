@@ -1,0 +1,35 @@
+name: Native Windows popup regression
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'codex/windows-popup-*'
+
+permissions:
+  contents: read
+
+jobs:
+  popup:
+    runs-on: windows-2022
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          architecture: x64
+      - name: Install native wxPython
+        run: python -m pip install --only-binary=:all: wxPython==4.2.3
+      - name: Run native menu and mock regressions (no skips allowed)
+        timeout-minutes: 3
+        env:
+          CECILIA_GUI_TESTS: '1'
+        run: python scripts/check_windows_popup.py --report windows-popup-results.json
+      - name: Retain platform, source hashes and test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-popup-results
+          path: windows-popup-results.json
+          if-no-files-found: warn
